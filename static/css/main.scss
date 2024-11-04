@@ -1,0 +1,726 @@
+body {
+  font-family: Manrope, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
+  font-size: 16px;
+  //background: radial-gradient(circle, #ffffff, #ffffff, #f7f7fa, #d0c8c8);
+  background: #f7f7fa;
+  //background: radial-gradient(circle, #ffffff, #ffffff, #f7f7fa, #df1717);
+  //background:  #ffffff;
+  padding: 0 10px;
+  margin: 0;
+  -webkit-font-smoothing: subpixel-antialiased;
+  //height: 100%;
+  //width: 100%;
+  min-width: 320px;
+  line-height: 1.3
+}
+
+footer {
+  //background: #fff;
+  //padding: 0 5px;
+  width: 100%;
+  max-width: 1270px;
+  margin: 0 auto;
+
+}
+
+
+//h3 {
+//  //margin: 01px;
+//  //font-family: "Paytone One", cursive;
+//  //color: #5b5bef;
+//  //text-transform: none;
+//  letter-spacing: -1px;
+//}
+
+//h3 span {
+//  display: block;
+//  margin: 11px 0 17px 0;
+//  font-size: 30px;
+//  line-height: 30px;
+//  color: #000000;
+//  text-shadow: 0 1.36px 4.896px #1e1d1d, 0 -1px 4px #ffffff;
+//  letter-spacing: -1px;
+//}
+
+h3 {
+  font-size: 18px;
+  margin: 0 0 16px
+}
+
+h4 {
+  margin: 20px;
+  //#font-family: "Paytone One", cursive;
+  color: #020000;
+  text-transform: none;
+  letter-spacing: -1px;
+}
+
+h4 span {
+  display: block;
+  margin: 11px 0 17px 5px;
+  font-size: 35px;
+  line-height: 40px;
+  color: #21217f;
+  text-shadow: 0 7.36px 8.896px #8e8ef3, 0 -2px 1px #f3f3fa;
+  letter-spacing: -1px;
+}
+
+h2 {
+  margin: 20px;
+  font-family: "Paytone One", cursive;
+  color: #202020;
+  text-transform: none;
+  letter-spacing: -1px;
+}
+
+h2 span {
+  display: block;
+  margin: 11px 0 17px 5px;
+  font-size: 35px;
+  line-height: 40px;
+  color: #21217f;
+  text-shadow: 0 7.36px 8.896px #8e8ef3, 0 -2px 1px #f3f3fa;
+  letter-spacing: -1px;
+}
+
+h7 {
+  font-size: 60px;
+  //background: rgba(109, 55, 255, .3);
+  //color: #ffffff;
+  //padding: 4px;
+  //border-radius: 15px 15px 15px 15px;
+  //line-height: 40px;
+  //display: flex;
+  justify-content: center;
+  //text-align: center;
+  align-items: center;
+  margin: auto;
+  //cursor: default;
+  font-weight: 550;
+}
+
+.h7modal {
+  font-size: 35px;
+  //background: rgba(109, 55, 255, .3);
+  //color: #ffffff;
+  //padding: 4px;
+  //border-radius: 15px 15px 15px 15px;
+  //line-height: 40px;
+  //display: flex;
+  justify-content: left;
+  //text-align: center;
+  align-items: center;
+  margin: auto;
+  //cursor: default;
+  font-weight: 200;
+}
+
+h7a {
+  font-size: 40px;
+  //background: rgba(109, 55, 255, .3);
+  //color: #ffffff;
+  //padding: 4px;
+  //border-radius: 15px 15px 15px 15px;
+  //line-height: 40px;
+  //display: flex;
+  justify-content: center;
+  //text-align: center;
+  align-items: center;
+  margin: auto;
+  //cursor: default;
+  font-weight: 300;
+}
+
+section h7 {
+  font-size: calc(1px + 1vw);
+  //font-size: calc(1vw);
+}
+
+h8 {
+  font-size: 35px;
+  line-height: 20px;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 370;
+}
+
+h8a {
+  font-size: 35px;
+  line-height: 20px;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 200;
+}
+
+h8b {
+  font-size: 35px;
+  line-height: 20px;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 200;
+}
+
+h8c {
+  font-size: 35px;
+  line-height: 20px;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 200;
+}
+
+h8d {
+  font-size: 35px;
+  line-height: 20px;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 200;
+}
+
+h8e {
+  font-size: 35px;
+  line-height: 20px;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 200;
+}
+
+//.nav {
+//  position: sticky;
+//  top: 0;
+//width: 100%; /* Шапка займёт всю ширину окна браузера */
+//z-index: 1000; /* Высокое значение, чтобы шапка была всегда на первом плане */
+//}
+
+//.footer-container {
+//  //background-color: #ffffff;
+//  //background-size: 100%;
+//  //background-color: #ffffff;
+//  padding: 10px;
+//  text-align: left;
+//  margin: 5px;
+//  //border-radius: 10px;
+//
+//  width: 100%;
+//  max-width: 1270px;
+//}
+
+.footer-container {
+  width: 100%;
+  max-width: 1270px;
+  margin: 0 auto;
+}
+
+.footer {
+  width: 100%;
+  background: #fff;
+  //padding: 0 10px;
+}
+
+.navbar-my {
+  background-color: #ffffff;
+  //color: #e62e2e;
+  padding: 0;
+  border-radius: 20px 20px 20px 20px;
+  font-size: 17px;
+  //width: 100%;
+}
+
+.center-my {
+  background: #ffffff;
+  //height: auto;
+  //background-size: 100% auto;
+  //color: white;
+  margin: 0;
+  padding: 20px;
+  //border-radius: 20px 20px 20px 20px;
+  font-size: 17px;
+  //align-items: center;
+  //justify-content: center;
+  text-align: center;
+
+  //width: 100%;
+  //height: 100%;
+  min-width: 100%;
+  //min-height: 100%;
+  position: relative;
+  //top: 0;
+  //left: 0;
+  //display: flex;
+  //overflow: auto;
+  //width: 100%;
+}
+
+.block-white {
+  background: #ffffff;
+  //background-size:  contain;
+  //  height: auto;
+  margin: 0;
+  padding: 15px;
+  border-radius: 20px 20px 20px 20px;
+  font-size: 25px;
+
+}
+
+.block-all-white {
+  background: #ffffff;
+  //background-size:  contain;
+  //  height: auto;
+  margin: 0;
+  padding: 15px;
+  //border-radius: 20px 20px 20px 20px;
+  font-size: 25px;
+  //padding: 1em;
+  //height: 10em;
+  //display: flex;
+  //align-items: center;
+  //justify-content: center
+
+}
+
+.block-all-grey {
+  margin: 0;
+  padding: 5px;
+  font-size: 25px;
+}
+
+.card-grey {
+  background: #f6f6f6;
+  text-align: center;
+}
+
+.card-white {
+  background: #ffffff;
+  text-align: center;
+}
+
+.col-grey {
+  background: #f6f6f6;
+  //text-align: center;
+}
+
+.card-radius {
+  border-radius: 20px 20px 20px 20px;
+  border: none;
+}
+
+.border-none {
+  border: none; /* Убираем рамку */
+}
+
+
+.navbar-st {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  //left: 0;
+  //bottom: 100px;
+  //right: 50px;
+}
+
+.high-text {
+  font-size: 150%;
+  font-style: italic;
+}
+
+
+.hellow {
+  text-align: center
+}
+
+.h3-block-card-head {
+  color: #1e0e46;
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 450;
+  margin-bottom: 20px;
+  height: 40px;
+  cursor: default;
+}
+
+.h3-block-card-footer {
+  font-size: 18px;
+  line-height: 22px;
+  color: #666174;
+  cursor: default;
+}
+
+.text_footer {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0 0 5px;
+  color: #666174
+}
+
+.card_imad {
+  background-size: 100vh;
+  margin: 0;
+  background: radial-gradient(circle, #b8daf8, #cfe5f8, #f3f3fb, #f3f3fb);
+  color: #21217f;
+  text-shadow: 0 7.36px 8.896px #8e8ef3, 0 -2px 1px #f3f3fa;
+  letter-spacing: -1px;
+}
+
+.card_table {
+  background-size: 100vh;
+  margin: 0;
+  //{#background: radial-gradient(circle, #ffffff, #eceff8, #edf2fd, #cdd8f6);#}
+  color: #21217f;
+  text-shadow: 0 5.36px 4.896px #8e8ef3, 0 -2px 1px #f3f3fa;
+  letter-spacing: -0.5px;
+}
+
+.anon {
+  background-size: 100vh;
+  font-family: "Paytone One", cursive;
+  margin: 0;
+  //{#background: radial-gradient(circle, #ffffff, #eceff8, #edf2fd, #cdd8f6);#}
+  color: #f10303;
+  text-shadow: 0 7.36px 8.896px #4141f1, 0 -2px 1px #f9f9fb;
+  letter-spacing: -1px;
+}
+
+.zoom-effect {
+  transform: scale(1.2);
+}
+
+//{#.face-image {#}
+//{#    width: 206px;#}
+//{#    height: 268px;#}
+//{#background: url(img/face.png); margin: 0 100px 0 100px;#}
+
+//.text-center {
+//
+//}
+
+.blurred-block {
+  display: flex;
+  width: 48px;
+  height: 100px;
+  background: rgba(119, 119, 255, 0.5);
+  backdrop-filter: blur(200px);
+  border-radius: 20px;
+  margin: 30px 0 0 152px;
+}
+
+.scale {
+  transition: 1s; /* Время эффекта */
+}
+
+.scale:hover {
+  transform: scale(1.6); /* Увеличиваем масштаб */
+}
+
+.elem-button {
+  background: #6d37ff;
+  border: 1px solid #6d37ff;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  height: 42px;
+  font-size: 14px;
+  min-width: 130px;
+  outline: none;
+  padding: 12px 30px;
+  transition: .2s;
+  text-align: center;
+  display: inline-block;
+  box-sizing: border-box;
+  line-height: 1
+}
+
+.elem-button {
+  color: #fff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+
+.elem-button--no-margin {
+  margin: 0
+}
+
+.elem-button--input {
+  padding: 10px 16px
+}
+
+.elem-button:disabled {
+  background: #926aff;
+  border: 1px solid #926aff;
+  cursor: default;
+  opacity: 1
+}
+
+.elem-button:disabled:hover, .elem-button:disabled:focus, .elem-button:disabled:active {
+  background: #926aff;
+  border: 1px solid #926aff;
+  box-shadow: none
+}
+
+.elem-button:hover, .elem-button:focus, .elem-button:active {
+  background: #4f11f8;
+  border: 1px solid #4f11f8;
+}
+
+.nsh-button {
+  background: #6d37ff;
+  border: 1px solid #6d37ff;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  height: 42px; //высота кнопки
+  font-size: 19px; // размер шрифта
+  min-width: 130px;
+  outline: none;
+  padding: 12px 15px;
+  transition: .2s;
+  text-align: center;
+  //display: inline-block;
+  //box-sizing: border-box;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nsh-button {
+  color: #fff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+
+.nsh-button--no-margin {
+  margin: 0
+}
+
+.nsh-button--input {
+  padding: 10px 16px
+}
+
+.nsh-button:disabled {
+  background: #926aff;
+  border: 1px solid #926aff;
+  cursor: default;
+  opacity: 1
+}
+
+.nsh-button:disabled:hover, .nsh-button:disabled:focus, .nsh-button:disabled:active {
+  background: #6d37ff;
+  border: 1px solid #6d37ff;
+  box-shadow: none
+}
+
+.nsh-button:hover, .nsh-button:focus, .nsh-button:active {
+  background: #4f11f8;
+  border: 1px solid #4f11f8;
+}
+
+//a {
+//    cursor: pointer;
+//    text-decoration: none
+//}
+
+
+//section h8 {
+//  font-size: calc(5px + 2vw);
+//  //font-size: calc(1vw);
+//}
+
+//selector {
+//  background-image: url("../images/fon_mramor_black.jpg");
+//}
+
+.image-container {
+  width: 1000px;
+  height: 566.6px;
+  text-align: center;
+  //background-image: url("../images/white_fon.jpg");
+  //border-radius: 60px 60px 60px 60px;
+  //background-size: contain;
+  //display: flex;
+  //justify-content: center;
+  //align-items: center;
+  //background-size: cover; /* размер одного повторяющегося изображения */
+}
+
+.radius_card {
+  border-radius: 60px 60px 60px 60px;
+  border-collapse: collapse;
+}
+
+/* Стили для больших экранов */
+//h8 { width: 80%; margin: 0 auto; }
+
+/* Стили для маленьких экранов */
+//@media (max-width: 1200px) {
+//  h8 { display: none; }
+//}
+
+@media (max-width: 1023px) {
+  h7 {
+    font-size: 50px;
+  }
+}
+
+@media (max-width: 534px) {
+  h7 {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 448px) {
+  h7 {
+    font-size: 35px;
+  }
+}
+
+@media (max-width: 401px) {
+  h7 {
+    font-size: 33px;
+  }
+}
+
+@media (max-width: 1023px) {
+  h7a {
+    font-size: 33px;
+  }
+}
+
+@media (max-width: 534px) {
+  h7a {
+    font-size: 27px;
+  }
+}
+
+@media (max-width: 448px) {
+  h7a {
+    font-size: 23px;
+  }
+}
+
+@media (max-width: 401px) {
+  h7a {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  h8a {
+    display: none;
+  }
+}
+
+@media (max-width: 991px) {
+  h8b {
+    display: none;
+  }
+}
+
+@media (max-width: 991px) {
+  h8c {
+    display: none;
+  }
+}
+
+@media (max-width: 1199px) {
+  h8d {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  h8e {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  h8 {
+    font-size: 25px;
+  }
+}
+
+@media (max-width: 575px) {
+  h8 {
+    font-size: 25px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .image-container {
+    width: 700px;
+    height: 397px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 1120px) {
+  .image-container {
+    width: 675px;
+    height: 383px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 991px) {
+  .image-container {
+    width: 650px;
+    height: 368.5px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .image-container {
+    width: 500px;
+    height: 283px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 581px) {
+  .image-container {
+    width: 450px;
+    height: 255px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 535px) {
+  .image-container {
+    width: 400px;
+    height: 227px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 487px) {
+  .image-container {
+    width: 320px;
+    height: 181.4px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 1400px) {
+  a {
+    button {
+      position: relative;
+      left: 50%;
+      transform: translate(-50%, 0);
+    }
+  }
+}
+
+/* Обводка с градиентом */
+.icons--gradient .icon {
+  stroke-width: 9;
+  stroke: url(#stripes);
+}
+
