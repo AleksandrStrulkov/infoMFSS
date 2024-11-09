@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.shortcuts import redirect
 # from mailings.forms import MessageForm, ClientForm, MailingForm, MailingManagerForm, MailingOptionsForm, UserActiveForm
-from infoMFSS.models import Execution
+from infoMFSS.models import Execution, DateUpdate
 from infoMFSS.forms import SubsystemForm
 from django.shortcuts import render
 from users.models import User
@@ -18,7 +18,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin, 
 
 
 def sass_page_handler(request):
-    return render(request, 'mfss/home.html')
+    return render(request, 'mfss/base.html')
 
 
 class MFSSTemplateView(TemplateView):
@@ -150,12 +150,17 @@ class MFSSTemplateView(TemplateView):
 #
 #     return render(request, 'mfss/subsystem_list.html', context)
 
+class DataUpdate:
+    objects = None
+
+
 def index(request):
     # submitbutton = request.POST.get("submit")
 
     mine = ''
     subsystem = ''
     percent = ''
+    update = ''
     # emailvalue = ''
 
     form = SubsystemForm(request.POST or None)
@@ -167,6 +172,7 @@ def index(request):
     mine_count = Execution.objects.filter(number_mine__title=mine, subsystem__title=subsystem).count()
     mine_count_true = Execution.objects.filter(number_mine__title=mine, subsystem__title=subsystem,
                                                execution_bool=True).count()
+    update = DateUpdate.objects.latest('update')
     # print(mine_count, mine_count_true)
     try:
         percent = int(mine_count_true * 100 / mine_count)
@@ -182,6 +188,7 @@ def index(request):
                'mine': mine,
                'subsystem': subsystem,
                'percent': percent,
+               'update': update,
                }
 
     return render(request, 'mfss/subsystem_list.html', context)
