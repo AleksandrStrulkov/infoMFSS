@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import formats
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -8,7 +9,7 @@ class NumberMine(models.Model):
     NAME = (
             ('Нефтешахта №1', 'Нефтешахта №1'),
             ('Нефтешахта №2', 'Нефтешахта №2'),
-            ('Нефтешахта №3', 'Нефтешахта №3')
+            ('Нефтешахта №3', 'Нефтешахта №3'),
     )
 
     title = models.CharField(max_length=15, verbose_name='Шахта', choices=NAME)
@@ -36,12 +37,12 @@ class InclinedBlocks(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
-        return f'{self.title}'
+        return f'УБ {self.title} {self.number_mine}'
 
     class Meta:
         verbose_name = 'уклонный блок'
         verbose_name_plural = 'уклонные блоки'
-        ordering = ['title']
+        ordering = ['number_mine']
 
 
 class Unit(models.Model):
@@ -180,7 +181,7 @@ class CableMagazine(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.name}-{self.subsystem}-{self.number_mine}-{self.inclined_blocks}'
+        return f'{self.name}: -{self.subsystem}-{self.number_mine}-{self.inclined_blocks}'
 
     class Meta:
         verbose_name = 'отдельную позицию'
@@ -203,10 +204,19 @@ class Tunnel(models.Model):
             default=False
     )
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
+    name_slag = models.CharField(max_length=100, verbose_name='Генерация slag', **NULLABLE)
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
+    def save(self, *args, **kwargs):
+        # Генерируем name перед сохранением
+        self.name_slag = f"{self.title} {self.inclined_blocks.title}"
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f'{self.number_mine}-{self.title} {self.inclined_blocks}'
+        if self.inclined_blocks is not None:
+            return f'{self.title} {self.inclined_blocks}'
+        else:
+            return f'{self.title} {self.number_mine}'
 
     class Meta:
         verbose_name = 'выработка'
@@ -247,6 +257,7 @@ class BranchesBox(models.Model):
         verbose_name_plural = 'распред.коробки'
         ordering = ['title']
 
+
 class EquipmentInstallation(models.Model):
     """Место установки оборудования"""
 
@@ -254,6 +265,7 @@ class EquipmentInstallation(models.Model):
             Equipment, related_name='eq_installs', on_delete=models.CASCADE,
             verbose_name='Оборудование'
     )
+    name = models.CharField(max_length=100, verbose_name='Обозначение в проекте', **NULLABLE)
     subsystem = models.ForeignKey(
             Subsystem, related_name='sub_installs', on_delete=models.CASCADE,
             verbose_name='Подсистема'
@@ -274,7 +286,8 @@ class EquipmentInstallation(models.Model):
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
 
     def __str__(self):
-        return f'{self.title}-{self.subsystem}-{self.number_mine}-{self.tunnel}-{self.inclined_blocks}-{self.picket}'
+        return f'{self.title}-({self.name})/{self.subsystem}/{self.tunnel}/' \
+               f'ПК{self.picket}'
 
     class Meta:
         verbose_name = 'место установки оборудования'
@@ -287,29 +300,28 @@ class Execution(models.Model):
 
     equipment_install = models.ForeignKey(
             EquipmentInstallation, related_name='eq_executions', on_delete=models.CASCADE,
-            verbose_name='Оборудование', **NULLABLE
+            verbose_name='Список оборудования', **NULLABLE
     )
     cable_magazine = models.ForeignKey(
-            CableMagazine, related_name='cable_executions', verbose_name='Кабельный '
-                                                                         'журнал',
+            CableMagazine, related_name='cable_executions', verbose_name='Список трасс кабелей',
             on_delete=models.CASCADE, **NULLABLE
     )
-    subsystem = models.ForeignKey(
-            Subsystem, related_name='sub_executions', on_delete=models.CASCADE,
-            verbose_name='Подсистема'
-    )
-    number_mine = models.ForeignKey(
-            NumberMine, related_name='mine_executions', on_delete=models.CASCADE,
-            verbose_name='Шахта'
-    )
+    # subsystem = models.ForeignKey(
+    #         Subsystem, related_name='sub_executions', on_delete=models.CASCADE,
+    #         verbose_name='Подсистема', **NULLABLE
+    # )
+    # number_mine = models.ForeignKey(
+    #         NumberMine, related_name='mine_executions', on_delete=models.CASCADE,
+    #         verbose_name='Шахта', **NULLABLE
+    # )
     # tunnel = models.ForeignKey(
     #         Tunnel, related_name='tunnel_executions', on_delete=models.CASCADE,
     #         verbose_name='Выработка'
     # )
-    inclined_blocks = models.ForeignKey(
-            InclinedBlocks, related_name='incl_execution', on_delete=models.CASCADE, verbose_name='Уклонный блок',
-            **NULLABLE, default='Туффит',
-    )
+    # inclined_blocks = models.ForeignKey(
+    #         InclinedBlocks, related_name='incl_execution', on_delete=models.CASCADE, verbose_name='Уклонный блок',
+    #         **NULLABLE, default='Туффит',
+    # )
     # volume_total = models.PositiveIntegerField(verbose_name='Общий объем')
     # volume_used = models.PositiveIntegerField(verbose_name='Всего установлено', default=0)
     # volume_remaining = models.PositiveIntegerField(verbose_name='Остаток', default=0)
@@ -324,10 +336,28 @@ class Execution(models.Model):
     # slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
-        return f'{self.equipment_install}'
+        return f'{self.equipment_install}-{self.cable_magazine}'
 
 
     class Meta:
         verbose_name = 'выполнение работы'
-        verbose_name_plural = 'выполнения работы'
+        verbose_name_plural = 'отчет выполнения работ'
         ordering = ['equipment_install']
+
+
+class DateUpdate(models.Model):
+    """Дата последнего изменения"""
+    # update = models.DateField(default=timezone.now)
+    update = models.DateTimeField(verbose_name='Дата обновления данных', auto_now=False, auto_now_add=False, **NULLABLE)
+    description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
+
+    # def formatted_datetime(self):
+    #     return formats.date_format(self.update, "H:M:s D, d/M/Y")
+
+    def __str__(self) -> str:
+        return self.update.strftime('%d.%m.%Y %H:%M')
+
+    class Meta:
+        verbose_name = 'дата последнего изменения'
+        verbose_name_plural = 'даты последнего изменения'
+        ordering = ['-update']

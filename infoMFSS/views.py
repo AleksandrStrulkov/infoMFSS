@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.shortcuts import redirect
 # from mailings.forms import MessageForm, ClientForm, MailingForm, MailingManagerForm, MailingOptionsForm, UserActiveForm
-from infoMFSS.models import Execution
+from infoMFSS.models import Execution, DateUpdate
 from infoMFSS.forms import SubsystemForm
 from django.shortcuts import render
 from users.models import User
@@ -18,7 +18,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin, 
 
 
 def sass_page_handler(request):
-    return render(request, 'mfss/home.html')
+    return render(request, 'mfss/base.html')
 
 
 class MFSSTemplateView(TemplateView):
@@ -31,8 +31,14 @@ class MFSSTemplateView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         """Контекст для нефтешахты №1"""
-        mine1_count = Execution.objects.filter(number_mine__title="Нефтешахта №1").count()
-        mine1_count_true = Execution.objects.filter(number_mine__title="Нефтешахта №1", execution_bool=True).count()
+        mine1_count_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №1").count()
+        mine1_count_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №1").count()
+        mine1_count = mine1_count_eq + mine1_count_cab
+        mine1_count_true_eg = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №1",
+                                                       execution_bool=True).count()
+        mine1_count_true_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №1",
+                                                      execution_bool=True).count()
+        mine1_count_true = mine1_count_true_eg + mine1_count_true_cab
         try:
             mine1_count_percent = int(mine1_count_true * 100 / mine1_count)
         except ZeroDivisionError:
@@ -40,8 +46,14 @@ class MFSSTemplateView(TemplateView):
         context['percent_mine1'] = mine1_count_percent
 
         """Контекст для нефтешахты №2"""
-        mine2_count = Execution.objects.filter(number_mine__title="Нефтешахта №2").count()
-        mine2_count_true = Execution.objects.filter(number_mine__title="Нефтешахта №2", execution_bool=True).count()
+        mine2_count_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №2").count()
+        mine2_count_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №2").count()
+        mine2_count = mine2_count_eq + mine2_count_cab
+        mine2_count_true_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №2",
+                                                       execution_bool=True).count()
+        mine2_count_true_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №2",
+                                                        execution_bool=True).count()
+        mine2_count_true = mine2_count_true_eq + mine2_count_true_cab
         try:
             mine2_count_percent = int(mine2_count_true * 100 / mine2_count)
         except ZeroDivisionError:
@@ -49,8 +61,14 @@ class MFSSTemplateView(TemplateView):
         context['percent_mine2'] = mine2_count_percent
 
         """Контекст для нефтешахты №3"""
-        mine3_count = Execution.objects.filter(number_mine__title="Нефтешахта №3").count()
-        mine3_count_true = Execution.objects.filter(number_mine__title="Нефтешахта №3", execution_bool=True).count()
+        mine3_count_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №3").count()
+        mine3_count_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №3").count()
+        mine3_count = mine3_count_eq + mine3_count_cab
+        mine3_count_true_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №3",
+                                                     execution_bool=True).count()
+        mine3_count_true_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №3",
+                                                     execution_bool=True).count()
+        mine3_count_true = mine3_count_true_eq + mine3_count_true_cab
         try:
             mine3_count_percent = int(mine3_count_true * 100 / mine3_count)
         except ZeroDivisionError:
@@ -58,10 +76,11 @@ class MFSSTemplateView(TemplateView):
         context['percent_mine3'] = mine3_count_percent
 
         """Контекст для всех шахт"""
-        mine123_count = mine1_count + mine2_count + mine3_count
-        mine123_count_true = mine1_count_true + mine2_count_true + mine3_count_true
+
+        mine123_count_false = Execution.objects.filter(execution_bool=False).count()
+        mine123_count_true = Execution.objects.filter(execution_bool=True).count()
         try:
-            mine123_count_percent = int(mine123_count_true * 100 / mine123_count)
+            mine123_count_percent = int(mine123_count_true * 100 / mine123_count_false)
         except ZeroDivisionError:
             mine123_count_percent = 0
         context['percent_mine123'] = mine123_count_percent
@@ -150,12 +169,17 @@ class MFSSTemplateView(TemplateView):
 #
 #     return render(request, 'mfss/subsystem_list.html', context)
 
+class DataUpdate:
+    objects = None
+
+
 def index(request):
     # submitbutton = request.POST.get("submit")
 
     mine = ''
     subsystem = ''
     percent = ''
+    update = ''
     # emailvalue = ''
 
     form = SubsystemForm(request.POST or None)
@@ -167,6 +191,7 @@ def index(request):
     mine_count = Execution.objects.filter(number_mine__title=mine, subsystem__title=subsystem).count()
     mine_count_true = Execution.objects.filter(number_mine__title=mine, subsystem__title=subsystem,
                                                execution_bool=True).count()
+    update = DateUpdate.objects.latest('update')
     # print(mine_count, mine_count_true)
     try:
         percent = int(mine_count_true * 100 / mine_count)
@@ -182,6 +207,7 @@ def index(request):
                'mine': mine,
                'subsystem': subsystem,
                'percent': percent,
+               'update': update,
                }
 
     return render(request, 'mfss/subsystem_list.html', context)
