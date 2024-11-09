@@ -1,6 +1,6 @@
 from django.contrib import admin
 from infoMFSS.models import NumberMine, Unit, Subsystem, Equipment, InclinedBlocks, CableMagazine, Tunnel, \
-    EquipmentInstallation, Execution, BranchesBox, Cable, PointPhone
+    EquipmentInstallation, Execution, BranchesBox, Cable, PointPhone, DateUpdate
 
 
 @admin.register(NumberMine)
@@ -102,3 +102,7 @@ class ExecutionAdmin(admin.ModelAdmin):
     search_fields = ('equipment_install', 'cable_magazine', 'subsystem', 'number_mine', 'inclined_blocks', 'execution_bool',
                      'date_start', 'date_end')
 
+
+@admin.register(DateUpdate)
+class DateUpdateAdmin(admin.ModelAdmin):
+    list_display = ('update', 'description',)
