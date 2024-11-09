@@ -132,7 +132,7 @@ STATIC_URL = 'static/'
 
 # STATIC_DIRS = os.path.join(BASE_DIR, 'static/') # это пока не нужно
 # STATICFILES_DIRS = [(os.path.join(BASE_DIR, 'static'))] # это пока не нужно
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')  # это пока не нужно
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 SASS_PROCESSOR_ROOT = STATIC_ROOT
 
 STATICFILES_FINDERS = [
