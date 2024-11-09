@@ -80,26 +80,26 @@ class CableMagazineAdmin(admin.ModelAdmin):
 @admin.register(Tunnel)
 class TunnelAdmin(admin.ModelAdmin):
     list_display = ('number_mine', 'title', 'inclined_blocks', 'tuf_bool', 'inclined_bool', 'description', 'slug')
-    prepopulated_fields = {'slug': ('title', 'inclined_blocks')}
+    prepopulated_fields = {'slug': ('title', 'name_slag',)}
     list_filter = ('title', 'number_mine', 'inclined_blocks', 'tuf_bool', 'inclined_bool',)
     search_fields = ('title', 'number_mine', 'inclined_blocks', 'tuf_bool', 'inclined_bool',)
 
 
 @admin.register(EquipmentInstallation)
 class EquipmentInstallationAdmin(admin.ModelAdmin):
-    list_display = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subsystem', 'picket', 'description')
+    list_display = ('title', 'name', 'number_mine', 'tunnel', 'inclined_blocks', 'subsystem', 'picket', 'description')
     list_filter = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks',)
     search_fields = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks',)
 
 
 @admin.register(Execution)
 class ExecutionAdmin(admin.ModelAdmin):
-    list_display = ('equipment_install', 'cable_magazine', 'number_mine', 'inclined_blocks', 'execution_bool', 'date_start',
+    list_display = ('equipment_install', 'cable_magazine', 'execution_bool', 'date_start',
                     'date_end', 'description')
     # prepopulated_fields = {'slug': ['description']}
-    list_filter = ('equipment_install', 'cable_magazine', 'subsystem', 'number_mine', 'inclined_blocks', 'execution_bool',
+    list_filter = ('equipment_install', 'cable_magazine', 'execution_bool',
                    'date_start', 'date_end')
-    search_fields = ('equipment_install', 'cable_magazine', 'subsystem', 'number_mine', 'inclined_blocks', 'execution_bool',
+    search_fields = ('equipment_install', 'cable_magazine', 'execution_bool',
                      'date_start', 'date_end')
 
 
