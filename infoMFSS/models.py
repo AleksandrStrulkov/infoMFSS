@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import formats
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -180,7 +181,7 @@ class CableMagazine(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.name}-{self.subsystem}-{self.number_mine}-{self.inclined_blocks}'
+        return f'{self.name}: -{self.subsystem}-{self.number_mine}-{self.inclined_blocks}'
 
     class Meta:
         verbose_name = 'отдельную позицию'
@@ -331,3 +332,21 @@ class Execution(models.Model):
         verbose_name = 'выполнение работы'
         verbose_name_plural = 'выполнения работы'
         ordering = ['equipment_install']
+
+
+class DateUpdate(models.Model):
+    """Дата последнего изменения"""
+    # update = models.DateField(default=timezone.now)
+    update = models.DateTimeField(verbose_name='Дата обновления данных', auto_now=False, auto_now_add=False, **NULLABLE)
+    description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
+
+    # def formatted_datetime(self):
+    #     return formats.date_format(self.update, "H:M:s D, d/M/Y")
+
+    def __str__(self) -> str:
+        return self.update.strftime('%d.%m.%Y %H:%M')
+
+    class Meta:
+        verbose_name = 'дата последнего изменения'
+        verbose_name_plural = 'даты последнего изменения'
+        ordering = ['-update']
