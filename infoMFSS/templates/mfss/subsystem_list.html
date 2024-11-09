@@ -1,6 +1,6 @@
 {% extends 'mfss/base.html' %}
 {% load crispy_forms_tags %}
-
+{#{% load sass_tags %}#}
 {% block content %}
 
 <br>
@@ -37,7 +37,12 @@
                     <div class="container mt-5 mb-5">
                         {#                <h1>Your first name is {{ numbermine }}</h1>#}
                         {#                <h1>Your last name is {{ subsystem }}</h1>#}
+
                         <h8>Выполнение: {{ percent }}%</h8>
+                        <br>
+                        <br>
+{#                        <h8>Обновлено на дату и время: {{ update|date: 'Y-m-d H:i:s' }}%</h8>#}
+                        <h14>Обновлено на дату: {{ update }}</h14>
                         <br>
                         <br>
                     </div>
