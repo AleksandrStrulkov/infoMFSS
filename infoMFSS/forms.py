@@ -10,12 +10,12 @@ from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks
 
 class SubsystemForm(forms.ModelForm):
     number_mines = forms.ModelChoiceField(queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
-                                         help_text='Укажите нефтешахту', )
+                                          help_text='Укажите нефтешахту', blank=True)
     subsystems = forms.ModelChoiceField(queryset=Subsystem.objects.all(), label='Подсистема', to_field_name="title",
-                                         help_text='Укажите подсистему',)
+                                        help_text='Укажите подсистему', blank=True)
     incl_blocks = forms.ModelChoiceField(queryset=InclinedBlocks.objects.all(),
-                                        label='Уклонный блок', to_field_name="title",
-                                         help_text='Укажите уклонный блок',)
+                                         label='Уклонный блок', to_field_name="title",
+                                         help_text='Укажите уклонный блок', blank=True)
 
     class Meta:
         model = Execution
@@ -35,21 +35,19 @@ class SubsystemForm(forms.ModelForm):
     #     else:
     #         self.fields['incl_blocks'].queryset = InclinedBlocks.objects.all()
 
+    # if form.is_valid():
+    #     mine = form.cleaned_data.get("number_mine")
+    # self.fields['subsystems'].queryset = Subsystem.objects.filter(number_mine__title=mine)
 
-        # if form.is_valid():
-        #     mine = form.cleaned_data.get("number_mine")
-            # self.fields['subsystems'].queryset = Subsystem.objects.filter(number_mine__title=mine)
+    # self.fields['incl_blocks'].queryset = InclinedBlocks.objects.filter(number_mine__title=mine)
 
-        # self.fields['incl_blocks'].queryset = InclinedBlocks.objects.filter(number_mine__title=mine)
-
-        # fields = ('subsystem__title',)
+    # fields = ('subsystem__title',)
 
 # def __init__(self, *args, **kwargs):
 #     super().__init__(*args, **kwargs)
 #     self.fields['number_mine'].queryset = self.fields['number_mine'].queryset.filter(is_active=True)
 
 # from django import forms
-
 
 
 #
@@ -60,5 +58,5 @@ class SubsystemForm(forms.ModelForm):
 #
 #     number_mine = forms.CharField(max_length=100)
 #     sub_system = forms.CharField(max_length=100)
-    # email = forms.EmailField()
-    # email = forms.EmailField()
+# email = forms.EmailField()
+# email = forms.EmailField()
