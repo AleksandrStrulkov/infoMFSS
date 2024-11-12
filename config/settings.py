@@ -115,11 +115,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'ru-ru'
-
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 # end
 
@@ -237,7 +235,7 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'users:login'
 # end
-
+DATE_FORMAT = 'd E Y'
 # Настройка вывода формата времени
 TIME_INPUT_FORMATS = [
         "%H:%M",  # '14:30'
