@@ -80,7 +80,7 @@ class CableMagazineAdmin(admin.ModelAdmin):
 @admin.register(Tunnel)
 class TunnelAdmin(admin.ModelAdmin):
     list_display = ('number_mine', 'title', 'inclined_blocks', 'tuf_bool', 'inclined_bool', 'description', 'slug')
-    prepopulated_fields = {'slug': ('title', 'name_slag',)}
+    prepopulated_fields = {'slug': (f'title', 'name_slag',)}
     list_filter = ('title', 'number_mine', 'inclined_blocks', 'tuf_bool', 'inclined_bool',)
     search_fields = ('title', 'number_mine', 'inclined_blocks', 'tuf_bool', 'inclined_bool',)
 
