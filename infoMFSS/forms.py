@@ -10,55 +10,34 @@ from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks
 
 class SubsystemForm(forms.ModelForm):
     number_mines = forms.ModelChoiceField(queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
-                                         help_text='Укажите нефтешахту', )
-    subsystems = forms.ModelChoiceField(queryset=Subsystem.objects.all(), label='Подсистема', to_field_name="title",
-                                         help_text='Укажите подсистему',)
-    incl_blocks = forms.ModelChoiceField(queryset=InclinedBlocks.objects.all(),
-                                        label='Уклонный блок', to_field_name="title",
-                                         help_text='Укажите уклонный блок',)
+                                         help_text='Укажите нефтешахту', empty_label='Выберите один из пунктов списка',
+                                          label_suffix='')
+    subsystems = forms.ModelChoiceField(queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
+                                         help_text='Укажите подсистему', empty_label='Выберите один из пунктов списка')
+
+    incl_blocks = forms.ModelChoiceField(queryset=InclinedBlocks.objects.all(), label='Уклонный блок',
+                                         to_field_name="title", help_text='Укажите уклонный блок',
+                                         empty_label='Выберите один из пунктов списка')
 
     class Meta:
         model = Execution
         fields = ('number_mines', 'subsystems', 'incl_blocks',)
+        # fields = ('number_mines',)
 
-    # def __init__(self, *args, **kwargs):
-    #     # super().__init__(*args, **kwargs)
-    #
-    #     super(SubsystemForm, self, ).__init__(*args, **kwargs)
-    #     if 'number_mines' in kwargs:
-    #         self.number_mines = kwargs.pop('number_mines')
-    #     else:
-    #         self.number_mines = None
-    #     # super(self, SubsystemForm).__init__(*args, **kwargs)
-    #     if self.number_mines:
-    #         self.fields['incl_blocks'].queryset = InclinedBlocks.objects.filter(number_mine=self.number_mines)
-    #     else:
-    #         self.fields['incl_blocks'].queryset = InclinedBlocks.objects.all()
+    def clean(self):
+        cleaned_data = super().clean()
+        number_mines = cleaned_data.get('number_mines')
+        subsystems = cleaned_data.get('subsystems')
+        incl_blocks = cleaned_data.get('incl_blocks')
+        incl = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
+        a = []
+        for i in incl:
+            a.append(i.title)
+            a.append('Все уклонные блоки')
 
 
-        # if form.is_valid():
-        #     mine = form.cleaned_data.get("number_mine")
-            # self.fields['subsystems'].queryset = Subsystem.objects.filter(number_mine__title=mine)
+        if incl_blocks.title not in a:
+            raise forms.ValidationError(f'Не то')
 
-        # self.fields['incl_blocks'].queryset = InclinedBlocks.objects.filter(number_mine__title=mine)
+        return cleaned_data
 
-        # fields = ('subsystem__title',)
-
-# def __init__(self, *args, **kwargs):
-#     super().__init__(*args, **kwargs)
-#     self.fields['number_mine'].queryset = self.fields['number_mine'].queryset.filter(is_active=True)
-
-# from django import forms
-
-
-
-#
-# from django import forms
-#
-#
-# class UserForm(forms.Form):
-#
-#     number_mine = forms.CharField(max_length=100)
-#     sub_system = forms.CharField(max_length=100)
-    # email = forms.EmailField()
-    # email = forms.EmailField()
