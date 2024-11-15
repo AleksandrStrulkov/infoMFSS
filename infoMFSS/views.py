@@ -104,155 +104,6 @@ class MFSSTemplateView(TemplateView):
         return context
 
 
-# class SubsystemTemplateView(TemplateView):
-#     template_name = 'mfss/subsystem_list.html'
-#     extra_context = {
-#             'title': "Подсистема",
-#     }
-#     form_class = SubsystemForm
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-
-
-# class SubsystemListView(ListView):
-#     model = Execution
-#     template_name = 'mfss/subsystem_list.html'
-#     context_object_name = 'execution_list'
-#     form_class = SubsystemForm
-#     percent = ''
-# mine3_count = Execution.objects.filter(number_mine__title="Нефтешахта №3").count()
-
-
-# def index(request):
-#     submitbutton = request.POST.get("submit")
-#
-#     numbermine = ''
-#     subsystem = ''
-# # emailvalue = ''
-#
-#     form = UserForm(request.POST or None)
-#     if form.is_valid():
-#         numbermine = form.cleaned_data.get("number_mine")
-#         subsystem = form.cleaned_data.get("sub_system")
-#     # emailvalue = form.cleaned_data.get("email")
-#
-#     context = {'form': form, 'numbermine': numbermine,
-#            'subsystem': subsystem, 'submitbutton': submitbutton}
-#
-#     return render(request, 'mfss/subsystem_list.html', context)
-
-
-# def get_queryset(self):
-#     queryset = super().get_queryset()
-# form = self.form_class(self.request.GET)
-#
-# queryset_mine = queryset.filter(number_mine=self.kwargs.get('pk')).count()
-# queryset_mine_bool = queryset.filter(number_mine=self.kwargs.get('pk'), execution_bool=True).count()
-# queryset_subsystem = queryset.filter(subsystem=self.kwargs.get('pk')).count()
-# queryset_subsystem_bool = queryset.filter(subsystem=self.kwargs.get('pk'), execution_bool=True).count()
-
-# if form.is_valid():
-#     number_mine = form.cleaned_data.get('number_mine')
-#     subsystem = form.cleaned_data.get('subsystem')
-#     if number_mine and subsystem:
-#         queryset_mine = queryset.filter(number_mine=number_mine, subsystem=subsystem).count()
-#         queryset_mine_bool = queryset.filter(number_mine=number_mine, subsystem=subsystem, execution_bool=True).count()
-#         percent = int(queryset_mine_bool.count() * 100 / queryset_mine.count())
-#
-# context = {percent: percent}
-#
-# return context
-
-# def get_queryset(self):
-#     queryset = super().get_queryset()
-#     queryset = queryset.all()
-#     return queryset
-
-# def index(request):
-#     submit_button = request.POST.get("submit")
-#
-#     numbermine = ''
-#     subsystem_ = ''
-#
-#     form = SubsystemForm(request.POST or None)
-#     if form.is_valid():
-#         numbermine = form.cleaned_data.get("number_mine")
-#         subsystem_ = form.cleaned_data.get("subsystem")
-#
-#     context = {'form': form, 'number-mine': numbermine,
-#                'subsystem_': subsystem_, 'submit_button': submit_button,}
-#
-#     return render(request, 'mfss/subsystem_list.html', context)
-
-# class DataFormView(FormView):
-#     form_class = SubsystemForm
-#     template_name = 'mfss/subsystem_list.html'
-#     success_url = reverse_lazy('mfss:subsystem')
-#     extra_context = {
-#             'title': 'Критерии выбора',
-#     }
-#     mine = ''
-#     subsystem = ''
-#     incl_blocks = ''
-#     percent = ''
-#     update = ''
-#     mine_count = 0
-#     mine_count_true = 0
-
-
-
-    # def post(self, request):
-    #     # cleaned_data = super(SubsystemForm).clean()
-    #     cleaned_data = SubsystemForm(request.POST or None)
-    #     # if form.is_valid():
-    #     # self.mine = request.POST.get("number_mine")
-    #
-    #     self.subsystem = request.POST.get("subsystem")
-    #     self.incl_blocks = request.POST.get("incl_blocks")
-    #     if self.mine == 'Все шахты' and self.subsystem == 'Все подсистемы' and self.incl_blocks == 'Все уклонные блоки':
-    #         mine_count = Execution.objects.all().count()
-    #         mine_count_true = Execution.objects.filter(execution_bool=True).count()
-    #         try:
-    #             percent = int(mine_count_true * 100 / mine_count)
-    #         except ZeroDivisionError:
-    #             percent = 0
-    #     return self.post(request)
-    #
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     update = DateUpdate.objects.latest('update')
-    #     context['percent'] = self.percent
-    #     context['update'] = update
-    #     context['data'] = [self.mine, self.subsystem, self.incl_blocks]
-    #
-    #     return context
-
-
-
-
-
-
-# def get_context_data(self, **kwargs):
-#     context = super().get_context_data(**kwargs)
-#     if 'number_mines' in self.kwargs:
-# number_mines = self.kwargs['number_mines']
-# subsystems = self.kwargs['subsystems']
-# incl_blocks = self.kwargs['incl_blocks']
-#     mine = form.cleaned_data.get("number_mines")
-#     number_mines = self.kwargs['number_mines']
-#     context['data'] = Execution.objects.filter(equipment_install__number_mine__title=number_mines).count()
-# context['incl_blocks'] = self.kwargs['incl_blocks']
-# context['data'] = [context['number_mines'], context['subsystems'], context['incl_blocks']]
-# return context
-
-# def form_valid(self, form):
-#     mine = form.cleaned_data.get("number_mines")
-#
-#
-#     return super().form_valid(form)
-
-
 def percent_view(request):
     mine = ''
     subsystem = ''
@@ -372,6 +223,25 @@ def percent_view(request):
                 except ZeroDivisionError:
                     percent = 0
 
+            # """True-False-True"""
+            elif mine in number_mines_list and subsystem == 'Все подсистемы' and incl_blocks in incl_blocks_list:
+                mine_count_eq = Execution.objects.filter(equipment_install__number_mine__title=mine,
+                                                         equipment_install__inclined_blocks__title=incl_blocks).count()
+                mine_count_cab = Execution.objects.filter(cable_magazine__number_mine__title=mine,
+                                                          cable_magazine__inclined_blocks__title=incl_blocks).count()
+                mine_count = mine_count_eq + mine_count_cab
+                mine_count_eq_true = Execution.objects.filter(equipment_install__number_mine__title=mine,
+                                                              equipment_install__inclined_blocks__title=incl_blocks,
+                                                              execution_bool=True).count()
+                mine_count_cab_true = Execution.objects.filter(cable_magazine__number_mine__title=mine,
+                                                               cable_magazine__inclined_blocks__title=incl_blocks,
+                                                               execution_bool=True).count()
+                mine_count_true = mine_count_eq_true + mine_count_cab_true
+                try:
+                    percent = int(mine_count_true * 100 / mine_count)
+                except ZeroDivisionError:
+                    percent = 0
+
 
 
             update = DateUpdate.objects.latest('update')
@@ -392,112 +262,3 @@ def percent_view(request):
         form = SubsystemForm()
     context = {'form': form}
     return render(request, 'mfss/subsystem_list.html', context)
-
-    # elif mine == 'Все шахты' and subsystem in subsystems_list and incl_blocks == 'Все уклонные блоки':
-    #     mine_count_eq = Execution.objects.filter(equipment_install__subsystem__title=subsystem).count()
-    #     mine_count_cab = Execution.objects.filter(cable_magazine__subsystem__title=subsystem).count()
-    #     mine_count = mine_count_eq + mine_count_cab
-    #     mine_count_eq_true = Execution.objects.filter(equipment_install__subsystem__title=subsystem,
-    #                                                        execution_bool=True).count()
-    #     mine_count_cab_true = Execution.objects.filter(cable_magazine__subsystem__title=subsystem,
-    #                                                         execution_bool=True).count()
-    #     mine_count_true = mine_count_eq_true + mine_count_cab_true
-    #     try:
-    #         percent = int(mine_count_true * 100 / mine_count)
-    #     except ZeroDivisionError:
-    #         percent = 0
-    # if mine and subsystem.title == 'Все подсистемы' and incl_blocks.title == 'Все уклонные блоки':
-    #     mine_count_eq = Execution.objects.filter(equipment_install__number_mine__title=mine).count()
-    #     mine_count_cab = Execution.objects.filter(cable_magazine__number_mine__title=mine).count()
-    #     mine_count = mine_count_eq + mine_count_cab
-    #     mine_count_eq_true = Execution.objects.filter(equipment_install__number_mine__title=mine,
-    #                                                   execution_bool=True).count()
-    #     mine_count_cab_true = Execution.objects.filter(cable_magazine__number_mine__title=mine,
-    #                                                    execution_bool=True).count()
-    #     mine_count_true = mine_count_eq_true + mine_count_cab_true
-    #     try:
-    #         percent = int(mine_count_true * 100 / mine_count)
-    #     except ZeroDivisionError:
-    #         percent = 0
-    # elif mine and subsystem and incl_blocks.title == 'Все уклонные блоки':
-    #     mine_count_eq = Execution.objects.filter(equipment_install__number_mine__title=mine,
-    #                                              equipment_install__subsystem__title=subsystem).count()
-    #     mine_count_cab = Execution.objects.filter(cable_magazine__number_mine__title=mine,
-    #                                               cable_magazine__subsystem__title=subsystem).count()
-    #     mine_count = mine_count_eq + mine_count_cab
-    #     mine_count_eq_true = Execution.objects.filter(equipment_install__number_mine__title=mine,
-    #                                                   equipment_install__subsystem__title=subsystem,
-    #                                                   execution_bool=True).count()
-    #     mine_count_cab_true = Execution.objects.filter(cable_magazine__number_mine__title=mine,
-    #                                                    cable_magazine__subsystem__title=subsystem,
-    #                                                    execution_bool=True).count()
-    #     mine_count_true = mine_count_eq_true + mine_count_cab_true
-    #     try:
-    #         percent = int(mine_count_true * 100 / mine_count)
-    #     except ZeroDivisionError:
-    #         percent = 0
-    # elif mine and subsystem and incl_blocks:
-    #     mine_count_eq = Execution.objects.filter(equipment_install__number_mine__title=mine,
-    #                                              equipment_install__subsystem__title=subsystem,
-    #                                              equipment_install__inclined_blocks__title=incl_blocks).count()
-    #     mine_count_cab = Execution.objects.filter(cable_magazine__number_mine__title=mine,
-    #                                               cable_magazine__subsystem__title=subsystem,
-    #                                               cable_magazine__inclined_blocks__title=incl_blocks).count()
-    #     mine_count = mine_count_eq + mine_count_cab
-    #     mine_count_eq_true = Execution.objects.filter(equipment_install__number_mine__title=mine,
-    #                                                   equipment_install__subsystem__title=subsystem,
-    #                                                   equipment_install__inclined_blocks__title=incl_blocks,
-    #                                                   execution_bool=True).count()
-    #     mine_count_cab_true = Execution.objects.filter(cable_magazine__number_mine__title=mine,
-    #                                                    cable_magazine__subsystem__title=subsystem,
-    #                                                    cable_magazine__inclined_blocks__title=incl_blocks,
-    #                                                    execution_bool=True).count()
-    #     mine_count_true = mine_count_eq_true + mine_count_cab_true
-    #     try:
-    #         percent = int(mine_count_true * 100 / mine_count)
-    #     except ZeroDivisionError:
-    #         percent = 0
-
-
-
-
-
-
-
-# def percent_view(request):
-#     mine_in_form = ''
-#     subsystem_in_form = ''
-#     incl_blocks_in_form = ''
-#     percent = 0
-#
-#     if request.method == 'POST':
-#         form = SubsystemForm(request.POST)
-#         if form.is_valid():
-#             mine_in_form = form.cleaned_data.get("number_mines")
-#             subsystem_in_form = form.cleaned_data.get("subsystems")
-#             incl_blocks_in_form = form.cleaned_data.get("incl_blocks")
-#             percent = 0
-#             # mine_count_eq = Execution.objects.filter(equipment_install__number_mine__title=mine_in_form,
-#             #                                               equipment_install__subsystem__title=subsystem_in_form).count()
-#             if mine_in_form.title == 'Все шахты' and subsystem_in_form.title == 'Все подсистемы' and \
-#                     incl_blocks_in_form.title == \
-#                     'Все уклонные блоки':
-#                 mine_count = Execution.objects.all().count()
-#                 mine_count_true = Execution.objects.filter(execution_bool=True).count()
-#                 try:
-#                     percent = int(mine_count_true * 100 / mine_count)
-#                 except ZeroDivisionError:
-#                     percent = 0
-#             context = {percent: percent}
-#             return render(request, 'mfss/subsystem_list.html', context)
-
-
-
-
-    # if mine == 'Все шахты' and subsystem in subsystems_list and incl_blocks == 'Все уклонные блоки':
-    #     mine_count_eq = Execution.objects.filter(equipment_install__subsystem__title=subsystem).count()
-    #     mine_count_cab = Execution.objects.filter(cable_magazine__subsystem__title=subsystem).count()
-    #     mine_count = mine_count_eq + mine_count_cab
-    #     mine_count_eq_true = Execution.objects.filter(equipment_install__subsystem__title=subsystem,
-    #                                                            execution_bool=True).count()
-

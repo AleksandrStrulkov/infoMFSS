@@ -86,7 +86,7 @@ class Subsystem(models.Model):
     class Meta:
         verbose_name = 'подсистема'
         verbose_name_plural = 'подсистемы'
-        ordering = ['title']
+        ordering = ['id']
 
 
 class Equipment(models.Model):
