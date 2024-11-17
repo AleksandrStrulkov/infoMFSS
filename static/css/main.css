@@ -56,10 +56,6 @@ h7 {
   margin: auto;
   font-weight: 550; }
 
-h14 {
-  font-size: 18px;
-  font-weight: 300; }
-
 .h7modal {
   font-size: 35px;
   justify-content: left;
@@ -125,10 +121,17 @@ h8e {
   cursor: default;
   font-weight: 200; }
 
-h9 {
-  font-size: 69px;
+h11 {
+  font-size: 25px;
   line-height: 20px;
-  font-weight: 200; }
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 370; }
+
+h14 {
+  font-size: 18px;
+  font-weight: 300; }
 
 hfy {
   font-size: 35px;

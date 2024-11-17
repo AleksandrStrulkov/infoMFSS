@@ -37,6 +37,7 @@ class MFSSTemplateView(TemplateView):
         """Контекст для нефтешахты №1"""
         mine1_count_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №1").count()
         mine1_count_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №1").count()
+        update = update = DateUpdate.objects.latest('update')
         mine1_count = mine1_count_eq + mine1_count_cab
         mine1_count_true_eg = Execution.objects.filter(
             equipment_install__number_mine__title="Нефтешахта №1",
@@ -52,6 +53,7 @@ class MFSSTemplateView(TemplateView):
         except ZeroDivisionError:
             mine1_count_percent = 0
         context['percent_mine1'] = mine1_count_percent
+        context['update'] = update
 
         """Контекст для нефтешахты №2"""
         mine2_count_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №2").count()
@@ -102,6 +104,7 @@ class MFSSTemplateView(TemplateView):
         context['percent_mine123'] = mine123_count_percent
 
         return context
+
 
 
 def percent_view(request):
