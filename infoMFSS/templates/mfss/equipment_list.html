@@ -1,0 +1,95 @@
+{% extends 'mfss/base.html' %}
+{% load crispy_forms_tags %}
+{#{% load sass_tags %}#}
+{% block content %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <form method="get" action="" class="">
+            <div class="row text-start mx-auto mt-4">
+                <div class="col-sm">
+                </div>
+                <div class="col-sm card mb-4 box-shadow card_imad">
+                    <div class="text-center">
+                        <h4 class="my-0 font-weight-normal">
+                            Выбор критерия
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        {% load crispy_forms_tags %}
+                        {% csrf_token %}
+                        {% crispy form %}
+                        {#                    {{ my_filter.form.as_p }}#}
+
+                        <button type="submit" class="btn elem-button btn-md mx-2">
+                            {#                            {% if object %}#}
+                            {#                                Сохранить#}
+                            {#                            {% else %}#}
+                            Выполнить
+                            {#                            {% endif %}#}
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm">
+                </div>
+            </div>
+        <div class="container text-center">
+            {% if mine %}
+            <h6>По критериям: <{{ mine }}> <{{ subsystem }}> <{{ incl_blocks }}></h6>
+            {% endif %}
+        </div>
+        <div class="container text-center">
+            <h6>Условие №: <{{ result }}> </h6>
+        </div>
+            <div class="container text-center mt-5 mb-5">
+                <div class="mt-sm-5 mb-sm-5">
+                    <div class="container mt-5 mb-5">
+                        {% if mine %}
+                            <table class="table table-sm">
+                            <tr>
+                                <th>Шахта</th>
+                                <th>Подсистема</th>
+                                <th>Выработка</th>
+                                <th>Уклонный блок</th>
+
+                                <th>Пикет</th>
+                                <th>Оборудование</th>
+                                <th>Обозначение по проекту</th>
+                            </tr>
+                        {% endif %}
+                        {% for object in object_list %}
+                            {% if object.equipment_install %}
+                                <tr>
+                                    <td>{{ object.equipment_install.number_mine.title }}</td>
+                                    <td>{{ object.equipment_install.subsystem.title }}</td>
+                                    <td>{{ object.equipment_install.tunnel.title }}</td>
+                                    <td>{{ object.equipment_install.inclined_blocks.title }}</td>
+
+                                    <td>{{ object.equipment_install.picket }}</td>
+                                    <td>{{ object.equipment_install.title }}</td>
+                                    <td>{{ object.equipment_install.name }}</td>
+                                    {#                            <td>{{ object.equipment_install }}</td>#}
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="container">
+        </div>
+        <div class="container">
+        </div>
+    </div>
+
+{% endblock %}

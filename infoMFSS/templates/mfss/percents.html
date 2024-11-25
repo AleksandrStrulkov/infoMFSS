@@ -3,14 +3,22 @@
 {#{% load sass_tags %}#}
 {% block content %}
 
-<br>
-<br>
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    Просмотр процента выполнения
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <form method="post" action="" class="">
             <div class="row text-start mx-auto mt-4">
                 <div class="col-sm">
                 </div>
-                <div class="col-sm card mb-4 box-shadow card_imad" Style="border-color:#7777ff;">
+                <div class="col-sm card mb-4 box-shadow card_imad">
                     <div class="text-center">
                         <h4 class="my-0 font-weight-normal">
                             Выбор критерия
@@ -21,11 +29,11 @@
                         {% csrf_token %}
                         {% crispy form %}
                         <button type="submit" class="btn elem-button btn-md mx-2">
-                            {% if object %}
-                                Сохранить
-                            {% else %}
-                                Отправить
-                            {% endif %}
+                            {#                            {% if object %}#}
+                            {#                                Сохранить#}
+                            {#                            {% else %}#}
+                            Выполнить
+                            {#                            {% endif %}#}
                         </button>
                     </div>
                 </div>
@@ -41,7 +49,7 @@
                         <h8>Выполнение: {{ percent }}%</h8>
                         <br>
                         <br>
-{#                        <h8>Обновлено на дату и время: {{ update|date: 'Y-m-d H:i:s' }}%</h8>#}
+                        {#                        <h8>Обновлено на дату и время: {{ update|date: 'Y-m-d H:i:s' }}%</h8>#}
                         <h14>Обновлено: {{ update }}</h14>
                         <br>
                         <br>
@@ -51,7 +59,6 @@
             </div>
         </form>
         <div class="container">
-            <br>
         </div>
         <div class="container">
         </div>
