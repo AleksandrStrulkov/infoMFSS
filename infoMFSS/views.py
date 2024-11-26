@@ -313,6 +313,7 @@ def percent_view(request):
 
 
 class FormListView(FormMixin, ListView):
+
     def get(self, request, *args, **kwargs):
         # From ProcessFormMixin
         form_class = self.get_form_class()
@@ -329,8 +330,35 @@ class FormListView(FormMixin, ListView):
         context = self.get_context_data(object_list=self.object_list, form=self.form)
         return self.render_to_response(context)
 
+    # def get(self, request, *args, **kwargs):
+    #     form_class = self.get_form_class()
+    #     form = form_class(self.request.GET)
+    #     if form.is_valid():
+    #         self.object_list = self.get_queryset()
+    #         # allow_empty = self.get_allow_empty()
+    #     # else:
+    #     self.form = self.get_form(form_class)
+    #     context = self.get_context_data(object_list=self.object_list, form=self.form)
+    #     return self.render_to_response(context)
+
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
+
+    # def post(self, request, *args, **kwargs):
+    #     form_class = self.get_form_class()
+    #     self.form = self.get_form(form_class)
+    #     self.object_list = self.get_queryset()
+    #     # allow_empty = self.get_allow_empty()
+    #     # if form.is_valid():
+    #     context = self.get_context_data(object_list=self.object_list, form=self.form)
+    #     return self.render_to_response(context)
+    #
+    #     # form = self.get_form()
+    #     # if form.is_valid():
+    #     #     return self.form_valid(form)
+    #     # else:
+    #     #     return self.form_invalid(form)
+
 
     # def get_queryset(self):
     #     return Execution.objects.filter(execution_bool=True)
@@ -344,7 +372,7 @@ class MyListView(FormListView):
     extra_context = {
             'title': "Просмотр установленного оборудования",
     }
-    # result = ['Нефтешахта №1', 'Нефтешахта №2', 'Нефтешахта №2']
+    result = 0
 
     def get_queryset(self):
         mine = self.request.GET.get('number_mines')
@@ -394,3 +422,10 @@ class MyListView(FormListView):
         context['new'] = self.object_list
         context['result'] = self.result
         return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+        # send_params = form.save()
+        # send_params.save()
+        self.object.save()
+        return super().form_valid(form)
