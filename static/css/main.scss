@@ -99,11 +99,6 @@ h7 {
   font-weight: 550;
 }
 
-h14 {
-  font-size: 18px;
-  font-weight: 300;
-}
-
 .h7modal {
   font-size: 35px;
   //background: rgba(109, 55, 255, .3);
@@ -195,10 +190,18 @@ h8e {
   font-weight: 200;
 }
 
-h9 {
-  font-size: 69px;
+h11 {
+  font-size: 25px;
   line-height: 20px;
-  font-weight: 200;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 370;
+}
+
+h14 {
+  font-size: 18px;
+  font-weight: 300;
 }
 
 hfy {
@@ -378,12 +381,15 @@ hfy {
 }
 
 .card_imad {
-  background-size: 100vh;
+  background-size: 50vh;
   margin: 0;
-  background: radial-gradient(circle, #b8daf8, #cfe5f8, #f3f3fb, #f3f3fb);
-  color: #21217f;
-  text-shadow: 0 7.36px 8.896px #8e8ef3, 0 -2px 1px #f3f3fa;
-  letter-spacing: -1px;
+  //background: radial-gradient(circle, #f1f6fb, #f7fafd, #f6f6ff, #f6f6fa);
+  background: #f7f7fa;
+  //background: radial-gradient(circle, #373737, #373737, #373737, #373737);
+  //color: #f3f3f6;
+  border-radius: 20px 20px 20px 20px;
+  text-shadow: 0 3px 4px #8e8ef3, 0 -1px 1px #f3f3fa;
+  //letter-spacing: -1px;
 }
 
 .card_table {

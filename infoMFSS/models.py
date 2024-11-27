@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import formats
+import locale
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -7,9 +8,10 @@ NULLABLE = {'blank': True, 'null': True}
 class NumberMine(models.Model):
     """Номера шахт"""
     NAME = (
-        ('Нефтешахта №1', 'Нефтешахта №1'),
-        ('Нефтешахта №2', 'Нефтешахта №2'),
-        ('Нефтешахта №3', 'Нефтешахта №3'),
+            ('Нефтешахта №1', 'Нефтешахта №1'),
+            ('Нефтешахта №2', 'Нефтешахта №2'),
+            ('Нефтешахта №3', 'Нефтешахта №3'),
+            ('Все шахты', 'Все шахты')
     )
 
     title = models.CharField(max_length=15, verbose_name='Шахта', choices=NAME)
@@ -30,14 +32,16 @@ class InclinedBlocks(models.Model):
 
     title = models.CharField(max_length=100, verbose_name='Название уклонного блока')
     number_mine = models.ForeignKey(
-        NumberMine, related_name='mine_bloxs', on_delete=models.CASCADE,
-        verbose_name='Шахта'
+            NumberMine, related_name='mine_bloxs', on_delete=models.CASCADE,
+            verbose_name='Шахта', **NULLABLE,
     )
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
-        return f'УБ {self.title} {self.number_mine}'
+        if self.number_mine is None:
+            return self.title
+        return f'{self.title} {self.number_mine}'
 
     class Meta:
         verbose_name = 'уклонный блок'
@@ -82,7 +86,7 @@ class Subsystem(models.Model):
     class Meta:
         verbose_name = 'подсистема'
         verbose_name_plural = 'подсистемы'
-        ordering = ['title']
+        ordering = ['id']
 
 
 class Equipment(models.Model):
@@ -200,10 +204,10 @@ class Tunnel(models.Model):
         InclinedBlocks, related_name='incl_tunnels', on_delete=models.CASCADE,
         verbose_name='Уклонный блок', **NULLABLE, default='Туффит',
     )
-    tuf_bool = models.BooleanField(verbose_name='Признак туффитового горизонта', default=False)
+    tuf_bool = models.BooleanField(verbose_name='Признак туффитового горизонта', default=False, **NULLABLE)
     inclined_bool = models.BooleanField(
-        verbose_name='Признак уклонного блока',
-        default=False
+            verbose_name='Признак уклонного блока',
+            default=False, **NULLABLE
     )
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
     name_slag = models.CharField(max_length=100, verbose_name='Генерация slag', **NULLABLE)
@@ -211,7 +215,10 @@ class Tunnel(models.Model):
 
     def save(self, *args, **kwargs):
         # Генерируем name перед сохранением
-        self.name_slag = f"{self.title} {self.inclined_blocks.title}"
+        if self.inclined_blocks is not None:
+            self.name_slag = f"{self.title} {self.inclined_blocks}"
+        else:
+            self.name_slag = f"{self.title} {self.number_mine}"
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -350,14 +357,15 @@ class Execution(models.Model):
 class DateUpdate(models.Model):
     """Дата последнего изменения"""
     # update = models.DateField(default=timezone.now)
-    update = models.DateTimeField(verbose_name='Дата обновления данных', auto_now=False, auto_now_add=False, **NULLABLE)
+    update = models.DateTimeField(verbose_name='Дата обновления данных', auto_now=False, auto_now_add=False,
+                                  **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
 
     # def formatted_datetime(self):
     #     return formats.date_format(self.update, "H:M:s D, d/M/Y")
 
     def __str__(self) -> str:
-        return self.update.strftime('%d.%m.%Y %H:%M')
+        return self.update.strftime('%d.%m.%Y %H:%M',)
 
     class Meta:
         verbose_name = 'дата последнего изменения'

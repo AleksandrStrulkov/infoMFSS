@@ -24,6 +24,8 @@ django-compressor = "^4.5.1"
 django-sass-processor = "^1.4.1"
 django-crispy-forms = "^2.3"
 crispy-bootstrap5 = "^2024.10"
+django-smart-selects = "^1.6.0"
+django-filter = "^24.3"
 
 
 [build-system]

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
         'sass_processor',
         'crispy_forms',
         'crispy_bootstrap5',
+        'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -115,11 +116,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'ru-ru'
-
 TIME_ZONE = 'Europe/Moscow'
-
 USE_I18N = True
-
+USE_L10N = True
 USE_TZ = True
 # end
 
@@ -237,7 +236,7 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'users:login'
 # end
-
+DATE_FORMAT = 'd E Y'
 # Настройка вывода формата времени
 TIME_INPUT_FORMATS = [
         "%H:%M",  # '14:30'
@@ -251,3 +250,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# Настройка django-smart-select
+JQUERY_URL = True
+# end
