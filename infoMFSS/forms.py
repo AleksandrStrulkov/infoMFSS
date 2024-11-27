@@ -1,62 +1,105 @@
 from django import forms
 from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks
+from django.core.exceptions import ValidationError
 
 
-# class SubsystemForm(forms.ModelForm):
-#     class Meta:
-#         model = Execution
-#         fields = ('number_mine', 'subsystem',)
+class InfoFormMixin(forms.ModelForm):
+    number_mines = forms.ModelChoiceField(
+        queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
+        initial='Все шахты'
+        )
+    subsystems = forms.ModelChoiceField(
+        queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
+        initial='Все подсистемы'
+        )
 
-
-class SubsystemForm(forms.ModelForm):
-    number_mines = forms.ModelChoiceField(queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
-                                          help_text='Укажите нефтешахту', blank=True)
-    subsystems = forms.ModelChoiceField(queryset=Subsystem.objects.all(), label='Подсистема', to_field_name="title",
-                                        help_text='Укажите подсистему', blank=True)
-    incl_blocks = forms.ModelChoiceField(queryset=InclinedBlocks.objects.all(),
-                                         label='Уклонный блок', to_field_name="title",
-                                         help_text='Укажите уклонный блок', blank=True)
+    incl_blocks = forms.ModelChoiceField(
+        queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
+        initial='Все уклонные блоки'
+        )
 
     class Meta:
         model = Execution
         fields = ('number_mines', 'subsystems', 'incl_blocks',)
 
-    # def __init__(self, *args, **kwargs):
-    #     # super().__init__(*args, **kwargs)
-    #
-    #     super(SubsystemForm, self, ).__init__(*args, **kwargs)
-    #     if 'number_mines' in kwargs:
-    #         self.number_mines = kwargs.pop('number_mines')
-    #     else:
-    #         self.number_mines = None
-    #     # super(self, SubsystemForm).__init__(*args, **kwargs)
-    #     if self.number_mines:
-    #         self.fields['incl_blocks'].queryset = InclinedBlocks.objects.filter(number_mine=self.number_mines)
-    #     else:
-    #         self.fields['incl_blocks'].queryset = InclinedBlocks.objects.all()
 
-    # if form.is_valid():
-    #     mine = form.cleaned_data.get("number_mine")
-    # self.fields['subsystems'].queryset = Subsystem.objects.filter(number_mine__title=mine)
+class PercentForm(InfoFormMixin):
 
-    # self.fields['incl_blocks'].queryset = InclinedBlocks.objects.filter(number_mine__title=mine)
+    def clean(self):
+        cleaned_data = super().clean()
+        number_mines = cleaned_data.get('number_mines').title
+        subsystems = cleaned_data.get('subsystems').title
+        incl_blocks = cleaned_data.get('incl_blocks').title
+        incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
+        incl_all_blocks = InclinedBlocks.objects.all()
+        subsystems_all = Subsystem.objects.all()
+        incl_list = []
+        incl_all_list = []
+        subsystems_list = []
 
-    # fields = ('subsystem__title',)
+        for incl_in_mine in incl_in_mines:
+            incl_list.append(incl_in_mine.title)
+            incl_list.append('Все уклонные блоки')
 
-# def __init__(self, *args, **kwargs):
-#     super().__init__(*args, **kwargs)
-#     self.fields['number_mine'].queryset = self.fields['number_mine'].queryset.filter(is_active=True)
+        for incl_all_block in incl_all_blocks:
+            incl_all_list.append(incl_all_block.title)
 
-# from django import forms
+        for subsystem_all in subsystems_all:
+            subsystems_list.append(subsystem_all.title)
+
+        incl_all_list.remove('Все уклонные блоки')
+
+        if incl_in_mines:
+            if incl_blocks not in incl_list:
+                raise forms.ValidationError('Не верно указан уклонный блок')
+
+        if number_mines == 'Все шахты' and subsystems == 'Все подсистемы' and incl_blocks in incl_all_list:
+            raise forms.ValidationError('Нефтешахта не выбрана')
+
+        if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
+            raise forms.ValidationError('Нефтешахта не выбрана')
 
 
-#
-# from django import forms
-#
-#
-# class UserForm(forms.Form):
-#
-#     number_mine = forms.CharField(max_length=100)
-#     sub_system = forms.CharField(max_length=100)
-# email = forms.EmailField()
-# email = forms.EmailField()
+class EquipmentForm(InfoFormMixin):
+
+    def clean(self):
+
+        # cleaned_data = super(EquipmentForm, self).clean()
+        super().clean()
+        errors = {}
+        number_mines = self.cleaned_data['number_mines'].title
+        subsystems = self.cleaned_data['subsystems'].title
+        incl_blocks = self.cleaned_data['incl_blocks'].title
+        incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
+        incl_all_blocks = InclinedBlocks.objects.all()
+        subsystems_all = Subsystem.objects.all()
+        incl_list = []
+        incl_all_list = []
+        subsystems_list = []
+
+        for incl_in_mine in incl_in_mines:
+            incl_list.append(incl_in_mine.title)
+            incl_list.append('Все уклонные блоки')
+
+        for incl_all_block in incl_all_blocks:
+            incl_all_list.append(incl_all_block.title)
+
+        for subsystem_all in subsystems_all:
+            subsystems_list.append(subsystem_all.title)
+
+        incl_all_list.remove('Все уклонные блоки')
+
+
+
+        if incl_in_mines:
+            if incl_blocks not in incl_list:
+                errors['number_mines'] = ValidationError('Не верно указан уклонный блок')
+
+        if number_mines == 'Все шахты' and subsystems == 'Все подсистемы' and incl_blocks in incl_all_list:
+            raise forms.ValidationError('Нефтешахта не выбрана')
+
+        if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
+            raise forms.ValidationError('Нефтешахта не выбрана')
+
+        if errors:
+            raise forms.ValidationError(errors)
