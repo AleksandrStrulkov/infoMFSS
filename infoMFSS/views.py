@@ -34,7 +34,7 @@ def sass_page_handler(request):
 class MFSSTemplateView(TemplateView):
     template_name = 'mfss/home.html'
     extra_context = {
-            'title': "МФСС",
+        'title': "МФСС",
     }
 
     def get_context_data(self, **kwargs):
@@ -318,6 +318,7 @@ class FormListView(FormMixin, ListView):
         # From ProcessFormMixin
         form_class = self.get_form_class()
         self.form = self.get_form(form_class)
+
 
         # From BaseListView
         self.object_list = self.get_queryset()

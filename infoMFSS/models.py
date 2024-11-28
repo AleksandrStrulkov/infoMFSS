@@ -52,14 +52,14 @@ class InclinedBlocks(models.Model):
 class Unit(models.Model):
     """Единица измерения количества"""
     NAME = (
-            ('м.', 'м.'),
-            ('км.', 'км.'),
-            ('шт.', 'шт.')
+        ('м.', 'м.'),
+        ('км.', 'км.'),
+        ('шт.', 'шт.')
     )
     DESCRIPTION = (
-            ('метр', 'метр'),
-            ('километр', 'километр'),
-            ('штук', 'штук'),
+        ('метр', 'метр'),
+        ('километр', 'километр'),
+        ('штук', 'штук'),
     )
 
     title = models.CharField(max_length=10, verbose_name='Краткое описание', choices=NAME)
@@ -124,14 +124,15 @@ class Cable(models.Model):
 class PointPhone(models.Model):
     """Точка телефонии"""
     title = models.CharField(max_length=100, verbose_name='Точка телефонии')
-    number_mine = models.ForeignKey(NumberMine, verbose_name='Шахта', related_name='mine_phones', on_delete=models.CASCADE)
+    number_mine = models.ForeignKey(NumberMine, verbose_name='Шахта', related_name='mine_phones',
+                                    on_delete=models.CASCADE)
     tunnel = models.ForeignKey(
-            'Tunnel', related_name='tunnel_phones', on_delete=models.CASCADE,
-            verbose_name='Выработка'
+        'Tunnel', related_name='tunnel_phones', on_delete=models.CASCADE,
+        verbose_name='Выработка'
     )
     inclined_blocks = models.ForeignKey(
-            InclinedBlocks, related_name='block_phones', on_delete=models.CASCADE,
-            verbose_name='Уклонный блок', default='Туффит', **NULLABLE,
+        InclinedBlocks, related_name='block_phones', on_delete=models.CASCADE,
+        verbose_name='Уклонный блок', default='Туффит', **NULLABLE,
     )
     subscriber_number = models.CharField(max_length=10, verbose_name='Абонентский номер', **NULLABLE)
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
@@ -151,27 +152,27 @@ class CableMagazine(models.Model):
     """Кабельный журнал"""
 
     cable = models.ForeignKey(
-            Cable, related_name='equipment_cables', on_delete=models.CASCADE,
-            verbose_name='Кабель',)
+        Cable, related_name='equipment_cables', on_delete=models.CASCADE,
+        verbose_name='Кабель', )
     name = models.CharField(max_length=61, editable=False, verbose_name='Трасса от - до')
     subsystem = models.ForeignKey(
-            Subsystem, related_name='sub_magazines', on_delete=models.CASCADE,
-            verbose_name='Подсистема'
+        Subsystem, related_name='sub_magazines', on_delete=models.CASCADE,
+        verbose_name='Подсистема'
     )
     number_mine = models.ForeignKey(
-            NumberMine, related_name='mine_magazines', on_delete=models.CASCADE,
-            verbose_name='Шахта'
+        NumberMine, related_name='mine_magazines', on_delete=models.CASCADE,
+        verbose_name='Шахта'
     )
     inclined_blocks = models.ForeignKey(
-            InclinedBlocks, related_name='incl_magazines', on_delete=models.CASCADE,
-            verbose_name='Уклонный блок', default='Туффит', **NULLABLE,
+        InclinedBlocks, related_name='incl_magazines', on_delete=models.CASCADE,
+        verbose_name='Уклонный блок', default='Туффит', **NULLABLE,
     )
     track_from = models.CharField(max_length=100, verbose_name='Начало трассы')
     track_to = models.CharField(max_length=100, verbose_name='Конец трассы')
     distance = models.PositiveIntegerField(verbose_name='Протяженность')
     unit = models.ForeignKey(
-            Unit, related_name='unit_magazines', on_delete=models.CASCADE, verbose_name='Единица '
-                                                                                        'измерения'
+        Unit, related_name='unit_magazines', on_delete=models.CASCADE, verbose_name='Единица '
+                                                                                    'измерения'
     )
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
@@ -197,10 +198,11 @@ class Tunnel(models.Model):
     """Выработка"""
 
     title = models.CharField(max_length=100, verbose_name='Выработка')
-    number_mine = models.ForeignKey(NumberMine, related_name='mine_tunnels', on_delete=models.CASCADE, verbose_name='Шахта')
+    number_mine = models.ForeignKey(NumberMine, related_name='mine_tunnels', on_delete=models.CASCADE,
+                                    verbose_name='Шахта')
     inclined_blocks = models.ForeignKey(
-            InclinedBlocks, related_name='incl_tunnels', on_delete=models.CASCADE,
-            verbose_name='Уклонный блок', **NULLABLE, default='Туффит',
+        InclinedBlocks, related_name='incl_tunnels', on_delete=models.CASCADE,
+        verbose_name='Уклонный блок', **NULLABLE, default='Туффит',
     )
     tuf_bool = models.BooleanField(verbose_name='Признак туффитового горизонта', default=False, **NULLABLE)
     inclined_bool = models.BooleanField(
@@ -236,20 +238,20 @@ class BranchesBox(models.Model):
 
     title = models.CharField(max_length=100, verbose_name='Название')
     inclined_blocks = models.ForeignKey(
-            InclinedBlocks, related_name='incl_boxs', on_delete=models.CASCADE,
-            verbose_name='Уклонный блок', default='Туффит', **NULLABLE,
+        InclinedBlocks, related_name='incl_boxs', on_delete=models.CASCADE,
+        verbose_name='Уклонный блок', default='Туффит', **NULLABLE,
     )
     number_mine = models.ForeignKey(
         NumberMine, verbose_name='Шахта', related_name='mine_boxs',
         on_delete=models.CASCADE
-        )
+    )
     tunnel = models.ForeignKey(
-            Tunnel, related_name='tunnel_boxs', on_delete=models.CASCADE,
-            verbose_name='Выработка'
+        Tunnel, related_name='tunnel_boxs', on_delete=models.CASCADE,
+        verbose_name='Выработка'
     )
     subsystem = models.ForeignKey(
-            Subsystem, related_name='sub_boxs', on_delete=models.CASCADE,
-            verbose_name='Подсистема'
+        Subsystem, related_name='sub_boxs', on_delete=models.CASCADE,
+        verbose_name='Подсистема'
     )
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
     boolean_block = models.BooleanField(verbose_name='Признак уклонного блока', default=False)
@@ -269,25 +271,25 @@ class EquipmentInstallation(models.Model):
     """Место установки оборудования"""
 
     title = models.ForeignKey(
-            Equipment, related_name='eq_installs', on_delete=models.CASCADE,
-            verbose_name='Оборудование'
+        Equipment, related_name='eq_installs', on_delete=models.CASCADE,
+        verbose_name='Оборудование'
     )
     name = models.CharField(max_length=100, verbose_name='Обозначение в проекте', **NULLABLE)
     subsystem = models.ForeignKey(
-            Subsystem, related_name='sub_installs', on_delete=models.CASCADE,
-            verbose_name='Подсистема'
+        Subsystem, related_name='sub_installs', on_delete=models.CASCADE,
+        verbose_name='Подсистема'
     )
     number_mine = models.ForeignKey(
-            NumberMine, related_name='mine_installs', on_delete=models.CASCADE,
-            verbose_name='Шахта'
+        NumberMine, related_name='mine_installs', on_delete=models.CASCADE,
+        verbose_name='Шахта'
     )
     tunnel = models.ForeignKey(
-            Tunnel, related_name='tunnel_installs', on_delete=models.CASCADE,
-            verbose_name='Выработка'
+        Tunnel, related_name='tunnel_installs', on_delete=models.CASCADE,
+        verbose_name='Выработка'
     )
     inclined_blocks = models.ForeignKey(
-            InclinedBlocks, related_name='incl_installs', on_delete=models.CASCADE,
-            verbose_name='Уклонный блок', default="Туффит", **NULLABLE,
+        InclinedBlocks, related_name='incl_installs', on_delete=models.CASCADE,
+        verbose_name='Уклонный блок', default="Туффит", **NULLABLE,
     )
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
@@ -306,12 +308,12 @@ class Execution(models.Model):
     """Отчет выполнения работ"""
 
     equipment_install = models.ForeignKey(
-            EquipmentInstallation, related_name='eq_executions', on_delete=models.CASCADE,
-            verbose_name='Список оборудования', **NULLABLE
+        EquipmentInstallation, related_name='eq_executions', on_delete=models.CASCADE,
+        verbose_name='Список оборудования', **NULLABLE
     )
     cable_magazine = models.ForeignKey(
-            CableMagazine, related_name='cable_executions', verbose_name='Список трасс кабелей',
-            on_delete=models.CASCADE, **NULLABLE
+        CableMagazine, related_name='cable_executions', verbose_name='Список трасс кабелей',
+        on_delete=models.CASCADE, **NULLABLE
     )
     # subsystem = models.ForeignKey(
     #         Subsystem, related_name='sub_executions', on_delete=models.CASCADE,
@@ -340,11 +342,11 @@ class Execution(models.Model):
     date_start = models.DateField(verbose_name='Дата начала', **NULLABLE)
     date_end = models.DateField(verbose_name='Дата завершения', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
+
     # slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
         return f'{self.equipment_install}-{self.cable_magazine}'
-
 
     class Meta:
         verbose_name = 'выполнение работы'
