@@ -64,42 +64,42 @@ class EquipmentForm(InfoFormMixin):
 
     def clean(self):
 
-        # cleaned_data = super(EquipmentForm, self).clean()
-        super().clean()
+        cleaned_data = super(EquipmentForm, self).clean()
+        # super().clean()
         errors = {}
         number_mines = self.cleaned_data['number_mines'].title
         subsystems = self.cleaned_data['subsystems'].title
         incl_blocks = self.cleaned_data['incl_blocks'].title
-        incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
-        incl_all_blocks = InclinedBlocks.objects.all()
-        subsystems_all = Subsystem.objects.all()
-        incl_list = []
-        incl_all_list = []
-        subsystems_list = []
+        # incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
+        # incl_all_blocks = InclinedBlocks.objects.all()
+        # subsystems_all = Subsystem.objects.all()
+        # incl_list = []
+        # incl_all_list = []
+        # subsystems_list = []
 
-        for incl_in_mine in incl_in_mines:
-            incl_list.append(incl_in_mine.title)
-            incl_list.append('Все уклонные блоки')
+        # for incl_in_mine in incl_in_mines:
+        #     incl_list.append(incl_in_mine.title)
+        #     incl_list.append('Все уклонные блоки')
+        #
+        # for incl_all_block in incl_all_blocks:
+        #     incl_all_list.append(incl_all_block.title)
+        #
+        # for subsystem_all in subsystems_all:
+        #     subsystems_list.append(subsystem_all.title)
+        #
+        # incl_all_list.remove('Все уклонные блоки')
 
-        for incl_all_block in incl_all_blocks:
-            incl_all_list.append(incl_all_block.title)
 
-        for subsystem_all in subsystems_all:
-            subsystems_list.append(subsystem_all.title)
-
-        incl_all_list.remove('Все уклонные блоки')
-
-
-
-        if incl_in_mines:
-            if incl_blocks not in incl_list:
+        if number_mines == 'Все шахты':
                 errors['number_mines'] = ValidationError('Не верно указан уклонный блок')
 
-        if number_mines == 'Все шахты' and subsystems == 'Все подсистемы' and incl_blocks in incl_all_list:
-            raise forms.ValidationError('Нефтешахта не выбрана')
 
-        if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
-            raise forms.ValidationError('Нефтешахта не выбрана')
+
+        # if number_mines == 'Все шахты' and subsystems == 'Все подсистемы' and incl_blocks in incl_all_list:
+        #     raise forms.ValidationError('Нефтешахта не выбрана')
+        #
+        # if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
+        #     raise forms.ValidationError('Нефтешахта не выбрана')
 
         if errors:
-            raise forms.ValidationError(errors)
+            raise ValidationError(errors)
