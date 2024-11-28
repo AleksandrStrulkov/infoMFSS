@@ -424,9 +424,9 @@ class MyListView(FormListView):
         context['result'] = self.result
         return context
 
-    def form_valid(self, form):
-        self.object = form.save()
-        # send_params = form.save()
-        # send_params.save()
-        self.object.save()
-        return super().form_valid(form)
+    # def form_valid(self, form):
+    #     self.object = form.save()
+    #     # send_params = form.save()
+    #     # send_params.save()
+    #     self.object.save()
+    #     return super().form_valid(form)
