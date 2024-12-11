@@ -34,7 +34,7 @@ def sass_page_handler(request):
 class MFSSTemplateView(TemplateView):
     template_name = 'mfss/home.html'
     extra_context = {
-        'title': "МФСС",
+            'title': "МФСС",
     }
 
     def get_context_data(self, **kwargs):
@@ -313,67 +313,47 @@ def percent_view(request):
 
 
 class FormListView(FormMixin, ListView):
-
+    result = 0
     def get(self, request, *args, **kwargs):
         # From ProcessFormMixin
         form_class = self.get_form_class()
         self.form = self.get_form(form_class)
-
 
         # From BaseListView
         self.object_list = self.get_queryset()
         allow_empty = self.get_allow_empty()
         if not allow_empty and len(self.object_list) == 0:
             raise Http404(
-                u"Empty list and '%(class_name)s.allow_empty' is False."
-                % {'class_name': self.__class__.__name__})
+                    u"Empty list and '%(class_name)s.allow_empty' is False."
+                    % {'class_name': self.__class__.__name__}
+            )
 
         context = self.get_context_data(object_list=self.object_list, form=self.form)
         return self.render_to_response(context)
 
-    # def get(self, request, *args, **kwargs):
-    #     form_class = self.get_form_class()
-    #     form = form_class(self.request.GET)
-    #     if form.is_valid():
-    #         self.object_list = self.get_queryset()
-    #         # allow_empty = self.get_allow_empty()
-    #     # else:
-    #     self.form = self.get_form(form_class)
-    #     context = self.get_context_data(object_list=self.object_list, form=self.form)
-    #     return self.render_to_response(context)
-
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
-    # def post(self, request, *args, **kwargs):
-    #     form_class = self.get_form_class()
-    #     self.form = self.get_form(form_class)
-    #     self.object_list = self.get_queryset()
-    #     # allow_empty = self.get_allow_empty()
-    #     # if form.is_valid():
-    #     context = self.get_context_data(object_list=self.object_list, form=self.form)
-    #     return self.render_to_response(context)
-    #
-    #     # form = self.get_form()
-    #     # if form.is_valid():
-    #     #     return self.form_valid(form)
-    #     # else:
-    #     #     return self.form_invalid(form)
-
-
-    # def get_queryset(self):
-    #     return Execution.objects.filter(execution_bool=True)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mine'] = self.request.GET.get('number_mines')
+        context['subsystem'] = self.request.GET.get('subsystems')
+        context['incl_blocks'] = self.request.GET.get('incl_blocks')
+        context['equipment'] = self.request.GET.get('equipment')
+        context['cable'] = self.request.GET.get('cable')
+        context['new'] = self.object_list
+        context['result'] = self.result
+        # context['phone_number'] = PointPhone.objects.all()
+        return context
 
 
 class EquipmentListView(FormListView):
     form_class = EquipmentForm
     model = Execution
     template_name = 'mfss/equipment_list.html'
-    # context_object_name = "equipment_list"
     extra_context = {
             'title': "Просмотр установленного оборудования",
     }
-    result = 0
 
     def get_queryset(self):
         mine = self.request.GET.get('number_mines')
@@ -381,125 +361,167 @@ class EquipmentListView(FormListView):
         incl_blocks = self.request.GET.get('incl_blocks')
         equipment = self.request.GET.get('equipment')
 
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
+        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
+                equipment == 'Все оборудование':
             self.result = 1
             object_list = Execution.objects.filter(execution_bool=True)
             return object_list
 
-        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки':
+        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки' and \
+                equipment == 'Все оборудование':
             self.result = 2
-            object_list = Execution.objects.filter(equipment_install__subsystem__title=subsystem,
-                                                   execution_bool=True)
+            object_list = Execution.objects.filter(
+                equipment_install__subsystem__title=subsystem,
+                execution_bool=True
+                )
             return object_list
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
+                equipment == 'Все оборудование':
             self.result = 3
-            object_list = Execution.objects.filter(equipment_install__number_mine__title=mine,
-                                                   execution_bool=True)
+            object_list = Execution.objects.filter(
+                equipment_install__number_mine__title=mine,
+                execution_bool=True
+                )
             return object_list
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки':
+        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and \
+                equipment == 'Все оборудование':
             self.result = 4
-            object_list = Execution.objects.filter(equipment_install__number_mine__title=mine,
-                                                   equipment_install__subsystem__title=subsystem,
-                                                   execution_bool=True)
+            object_list = Execution.objects.filter(
+                equipment_install__number_mine__title=mine,
+                equipment_install__subsystem__title=subsystem,
+                execution_bool=True
+                )
             return object_list
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks:
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks and \
+                equipment == 'Все оборудование':
             self.result = 5
-            object_list = Execution.objects.filter(equipment_install__number_mine__title=mine,
-                                                   equipment_install__inclined_blocks__title=incl_blocks,
-                                                   execution_bool=True)
+            object_list = Execution.objects.filter(
+                equipment_install__number_mine__title=mine,
+                equipment_install__inclined_blocks__title=incl_blocks,
+                execution_bool=True
+                )
             return object_list
-        elif mine and subsystem and incl_blocks:
+        elif mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
+                equipment:
             self.result = 6
-            object_list = Execution.objects.filter(equipment_install__number_mine__title=mine,
-                                                   equipment_install__subsystem__title=subsystem,
-                                                   equipment_install__inclined_blocks__title=incl_blocks,
-                                                   execution_bool=True)
+            object_list = Execution.objects.filter(equipment_install__title__title=equipment, execution_bool=True)
             return object_list
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['mine'] = self.request.GET.get('number_mines')
-        context['subsystem'] = self.request.GET.get('subsystems')
-        context['incl_blocks'] = self.request.GET.get('incl_blocks')
-        context['new'] = self.object_list
-        context['result'] = self.result
-        # context['phone_number'] = PointPhone.objects.all()
-        return context
-
-    # def form_valid(self, form):
-    #     self.object = form.save()
-    #     # send_params = form.save()
-    #     # send_params.save()
-    #     self.object.save()
-    #     return super().form_valid(form)
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
+                equipment:
+            self.result = 7
+            object_list = Execution.objects.filter(
+                equipment_install__number_mine__title=mine,
+                equipment_install__title__title=equipment, execution_bool=True
+                )
+            return object_list
+        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and equipment:
+            self.result = 8
+            object_list = Execution.objects.filter(
+                equipment_install__number_mine__title=mine,
+                equipment_install__subsystem__title=subsystem,
+                equipment_install__title__title=equipment,
+                execution_bool=True
+                )
+            return object_list
+        elif mine and subsystem and incl_blocks and equipment:
+            self.result = 9
+            object_list = Execution.objects.filter(
+                equipment_install__number_mine__title=mine,
+                equipment_install__subsystem__title=subsystem,
+                equipment_install__inclined_blocks__title=incl_blocks,
+                equipment_install__title__title=equipment,
+                execution_bool=True
+                )
+            return object_list
 
 
 class CableListView(FormListView):
     form_class = CableForm
     model = Execution
     template_name = 'mfss/cable_list.html'
-    # context_object_name = "equipment_list"
     extra_context = {
             'title': "Просмотр проложенных трасс кабелей",
     }
-    result = 0
 
     def get_queryset(self):
         mine = self.request.GET.get('number_mines')
         subsystem = self.request.GET.get('subsystems')
         incl_blocks = self.request.GET.get('incl_blocks')
+        cable = self.request.GET.get('cable')
 
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
+        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
+                cable == 'Все кабели':
             self.result = 1
             object_list = Execution.objects.filter(execution_bool=True)
             return object_list
 
-        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки':
+        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки' and \
+                cable == 'Все кабели':
             self.result = 2
             object_list = Execution.objects.filter(
-                cable_magazine__subsystem__title=subsystem,
-                execution_bool=True
-                )
+                    cable_magazine__subsystem__title=subsystem,
+                    execution_bool=True
+            )
             return object_list
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
+                cable == 'Все кабели':
             self.result = 3
             object_list = Execution.objects.filter(
-                cable_magazine__number_mine__title=mine,
-                execution_bool=True
-                )
+                    cable_magazine__number_mine__title=mine,
+                    execution_bool=True
+            )
             return object_list
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки':
+        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and \
+                cable == 'Все кабели':
             self.result = 4
             object_list = Execution.objects.filter(
-                cable_magazine__number_mine__title=mine,
-                cable_magazine__subsystem__title=subsystem,
-                execution_bool=True
-                )
+                    cable_magazine__number_mine__title=mine,
+                    cable_magazine__subsystem__title=subsystem,
+                    execution_bool=True
+            )
             return object_list
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks:
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks and \
+                cable == 'Все кабели':
             self.result = 5
             object_list = Execution.objects.filter(
+                    cable_magazine__number_mine__title=mine,
+                    cable_magazine__inclined_blocks__title=incl_blocks,
+                    execution_bool=True
+            )
+            return object_list
+        elif mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
+                cable:
+            self.result = 6
+            object_list = Execution.objects.filter(cable_magazine__cable__title=cable, execution_bool=True)
+            return object_list
+
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
+                cable:
+            self.result = 7
+            object_list = Execution.objects.filter(
                 cable_magazine__number_mine__title=mine,
-                cable_magazine__inclined_blocks__title=incl_blocks,
-                execution_bool=True
+                cable_magazine__cable__title=cable, execution_bool=True
                 )
             return object_list
-        elif mine and subsystem and incl_blocks:
-            self.result = 6
+        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and cable:
+            self.result = 8
             object_list = Execution.objects.filter(
                 cable_magazine__number_mine__title=mine,
                 cable_magazine__subsystem__title=subsystem,
-                cable_magazine__inclined_blocks__title=incl_blocks,
+                cable_magazine__cable__title=cable,
                 execution_bool=True
                 )
             return object_list
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['mine'] = self.request.GET.get('number_mines')
-        context['subsystem'] = self.request.GET.get('subsystems')
-        context['incl_blocks'] = self.request.GET.get('incl_blocks')
-        context['new'] = self.object_list
-        context['result'] = self.result
-        return context
+        elif mine and subsystem and incl_blocks and cable:
+            self.result = 9
+            object_list = Execution.objects.filter(
+                    cable_magazine__number_mine__title=mine,
+                    cable_magazine__subsystem__title=subsystem,
+                    cable_magazine__inclined_blocks__title=incl_blocks,
+                    cable_magazine__cable__title=cable,
+                    execution_bool=True
+            )
+            return object_list
 
