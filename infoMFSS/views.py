@@ -13,8 +13,8 @@ from django.views.generic.edit import FormMixin
 
 from infoMFSS.filters import MineSabInclFilter
 # from mailings.forms import MessageForm, ClientForm, MailingForm, MailingManagerForm, MailingOptionsForm, UserActiveForm
-from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks
-from infoMFSS.forms import PercentForm, EquipmentForm
+from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone
+from infoMFSS.forms import PercentForm, EquipmentForm, CableForm
 from django.shortcuts import render
 from users.models import User
 import random
@@ -365,7 +365,7 @@ class FormListView(FormMixin, ListView):
     #     return Execution.objects.filter(execution_bool=True)
 
 
-class MyListView(FormListView):
+class EquipmentListView(FormListView):
     form_class = EquipmentForm
     model = Execution
     template_name = 'mfss/equipment_list.html'
@@ -379,6 +379,7 @@ class MyListView(FormListView):
         mine = self.request.GET.get('number_mines')
         subsystem = self.request.GET.get('subsystems')
         incl_blocks = self.request.GET.get('incl_blocks')
+        equipment = self.request.GET.get('equipment')
 
         if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
             self.result = 1
@@ -422,6 +423,7 @@ class MyListView(FormListView):
         context['incl_blocks'] = self.request.GET.get('incl_blocks')
         context['new'] = self.object_list
         context['result'] = self.result
+        # context['phone_number'] = PointPhone.objects.all()
         return context
 
     # def form_valid(self, form):
@@ -430,3 +432,74 @@ class MyListView(FormListView):
     #     # send_params.save()
     #     self.object.save()
     #     return super().form_valid(form)
+
+
+class CableListView(FormListView):
+    form_class = CableForm
+    model = Execution
+    template_name = 'mfss/cable_list.html'
+    # context_object_name = "equipment_list"
+    extra_context = {
+            'title': "Просмотр проложенных трасс кабелей",
+    }
+    result = 0
+
+    def get_queryset(self):
+        mine = self.request.GET.get('number_mines')
+        subsystem = self.request.GET.get('subsystems')
+        incl_blocks = self.request.GET.get('incl_blocks')
+
+        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
+            self.result = 1
+            object_list = Execution.objects.filter(execution_bool=True)
+            return object_list
+
+        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки':
+            self.result = 2
+            object_list = Execution.objects.filter(
+                cable_magazine__subsystem__title=subsystem,
+                execution_bool=True
+                )
+            return object_list
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
+            self.result = 3
+            object_list = Execution.objects.filter(
+                cable_magazine__number_mine__title=mine,
+                execution_bool=True
+                )
+            return object_list
+        elif mine and subsystem and incl_blocks == 'Все уклонные блоки':
+            self.result = 4
+            object_list = Execution.objects.filter(
+                cable_magazine__number_mine__title=mine,
+                cable_magazine__subsystem__title=subsystem,
+                execution_bool=True
+                )
+            return object_list
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks:
+            self.result = 5
+            object_list = Execution.objects.filter(
+                cable_magazine__number_mine__title=mine,
+                cable_magazine__inclined_blocks__title=incl_blocks,
+                execution_bool=True
+                )
+            return object_list
+        elif mine and subsystem and incl_blocks:
+            self.result = 6
+            object_list = Execution.objects.filter(
+                cable_magazine__number_mine__title=mine,
+                cable_magazine__subsystem__title=subsystem,
+                cable_magazine__inclined_blocks__title=incl_blocks,
+                execution_bool=True
+                )
+            return object_list
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['mine'] = self.request.GET.get('number_mines')
+        context['subsystem'] = self.request.GET.get('subsystems')
+        context['incl_blocks'] = self.request.GET.get('incl_blocks')
+        context['new'] = self.object_list
+        context['result'] = self.result
+        return context
+
