@@ -142,9 +142,9 @@ h11 {
   font-size: 25px;
   line-height: 20px;
   text-align: center;
-  margin: 0 0 36px;
+  margin: 0 0 25px;
   cursor: default;
-  font-weight: 370; }
+  font-weight: 300; }
 
 h14 {
   font-size: 18px;
@@ -268,6 +268,36 @@ hfy {
   line-height: 20px;
   margin: 0;
   font-weight: 500; }
+
+.contentTable {
+  margin: 0;
+  padding-top: 10mm;
+  table-layout: auto;
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  overflow: hidden; }
+
+.contentTable th {
+  font-size: medium;
+  border: 1px solid rgba(25, 25, 44, 0.36);
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 100; }
+
+.contentTable td {
+  background-color: #ffffff;
+  font-size: 15px;
+  border: 1px solid rgba(218, 219, 220, 0.79);
+  border-right: 0;
+  border-left: 0; }
+
+.contentTableHeader {
+  background-color: #6d37ff;
+  color: azure; }
+
+.card_head {
+  background: #6d37ff;
+  color: #ffe; }
 
 .anon {
   background-size: 100vh;
@@ -455,6 +485,22 @@ hfy {
 @media (max-width: 575px) {
   h8 {
     font-size: 25px; } }
+
+@media (max-width: 1023px) {
+  h9 {
+    font-size: 21px; } }
+
+@media (max-width: 534px) {
+  h9 {
+    font-size: 19px; } }
+
+@media (max-width: 448px) {
+  h9 {
+    font-size: 17px; } }
+
+@media (max-width: 401px) {
+  h9 {
+    font-size: 15px; } }
 
 @media (max-width: 1200px) {
   .image-container {
