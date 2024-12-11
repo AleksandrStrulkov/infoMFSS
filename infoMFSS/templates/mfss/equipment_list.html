@@ -42,60 +42,82 @@
                 <div class="col-sm">
                 </div>
             </div>
-            <div class="container text-center">
-            {% if mine is not None %}
-                {% if object_list %}
-                    <h9>По критериям: {{ mine }} &#128073; {{ subsystem }} &#128073; {{ incl_blocks }} &#9989;</h9>
-                {% else %}
-                    <h9a>По критериям: {{ mine }} &#128073; {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>
-                    <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
-                {% endif %}
-            {% endif %}
-                <div class="container text-center mt-5 mb-5">
-                    <div class="mt-sm-5 mb-sm-5">
-                        <div class="container mt-5 mb-5">
-                            {% if object_list %}
-                                <table class="table table-sm">
-                                <tr>
-                                    <th class="card_table">Шахта</th>
-                                    <th class="card_table">Подсистема</th>
-                                    <th class="card_table">Выработка</th>
-                                    <th class="card_table">Уклонный блок</th>
-
-                                    <th class="card_table">Пикет</th>
-                                    <th class="card_table">Оборудование</th>
-                                    <th class="card_table">Обозначение в проекте</th>
-                                </tr>
-                            {% endif %}
-                            {% for object in object_list %}
-                                {% if object.equipment_install %}
-                                    <tr>
-                                        <td>{{ object.equipment_install.number_mine.title }}</td>
-                                        <td>{{ object.equipment_install.subsystem.title }}</td>
-                                        <td>{{ object.equipment_install.tunnel.title }}</td>
-                                        <td>{{ object.equipment_install.inclined_blocks.title }}</td>
-
-                                        <td>{{ object.equipment_install.picket }}</td>
-                                        <td>{{ object.equipment_install.title }}</td>
-                                        <td>{{ object.equipment_install.name }}</td>
-                                        {#                            <td>{{ object.equipment_install }}</td>#}
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
         </form>
     </div>
+    <div class="container text-center">
+        {% if mine is not None %}
+            {% if object_list %}
+                <h9>По критериям: {{ mine }} &#128073; {{ subsystem }} &#128073; {{ incl_blocks }} &#9989;</h9>
+            {% else %}
+                <h9a>По критериям: {{ mine }} &#128073; {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>
+                <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
+            {% endif %}
+        {% endif %}
+    {{ result }}
+        <div class="container-xxl text-center mt-5 mb-5 table-responsive">
+            {#                    <div class="mt-sm-5 mb-sm-5 radius_card">#}
+            {#                        <div class="container mt-5 mb-5">#}
+            {% if object_list %}
+                {#                                <table class="table-sm contentTable">#}
+
+                <table class="table table-hover">
+                <tr class="table-active">
+                    <th>Шахта</th>
+                    <th>Подсистема</th>
+                    <th>Выработка</th>
+                    <th>Уклонный блок</th>
+                    <th>Пикет</th>
+                    <th>Оборудование</th>
+                    <th>Обозначение в проекте</th>
+                </tr>
+            {% endif %}
+            {% for object in object_list %}
+                {% if object.equipment_install %}
+                {#                    {% if object.equipment_install.number_mine.title == 'Нефтешахта №1' %}#}
+                {#                        <tr class="table-primary">#}
+                {#                            {% elif object.equipment_install.number_mine.title == 'Нефтешахта №2' %}#}
+                {#                        <tr class="table-warning">#}
+                {#                            {% else %}#}
+                {#                        <tr class="table-success">#}
+                {#                    {% endif %}#}
+                <tr>
+                    <td>{{ object.equipment_install.number_mine.title }}</td>
+                    <td>{{ object.equipment_install.subsystem.title }}</td>
+                    <td>{{ object.equipment_install.tunnel.title }}</td>
+                    <td>{{ object.equipment_install.inclined_blocks.title }}</td>
+
+                    <td>{{ object.equipment_install.picket }}</td>
+                    {% if object.equipment_install.point_phone %}
+                        <td>{{ object.equipment_install.title }}(
+                            АН {{ object.equipment_install.point_phone.subscriber_number }})</td>
+                        {% else %}
+                        <td>{{ object.equipment_install.title }}</td>
+                        {% endif %}
+                        <td>{{ object.equipment_install.name }}</td>
+                        {#                            <td>{{ object.equipment_install }}</td>#}
+                        </tr>
+                    {% endif %}
+            {% endfor %}
+            </table>
+        </div>
+    </div>
     {#    </div>#}
     <div class="container">
     </div>
     <div class="container">
     </div>
     {#    </div>#}
+    {#    <table class="contentTable">#}
+    {#        <tr class="contentTableHeader">#}
+    {#            <th>Шахта</th>#}
+    {#            <th>Подсистема</th>#}
+    {#            <th>Выработка</th>#}
+    {#            <th>Уклонный блок</th>#}
+    {##}
+    {#            <th>Пикет</th>#}
+    {#            <th>Оборудование</th>#}
+    {#            <th>Обозначение в проекте</th>#}
+    {#        </tr>#}
+    {#    </table>#}
 
 {% endblock %}

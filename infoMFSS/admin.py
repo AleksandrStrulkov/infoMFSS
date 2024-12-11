@@ -45,10 +45,10 @@ class EquipmentAdmin(admin.ModelAdmin):
 @admin.register(BranchesBox)
 class BranchesBoxAdmin(admin.ModelAdmin):
     list_display = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subsystem', 'picket', 'boolean_block',
-                    'description', 'slug')
+                    'description', 'name_slag', 'slug')
     list_filter = ('title', 'inclined_blocks', 'number_mine', 'tunnel', 'subsystem', 'picket', 'boolean_block')
     search_fields = ('title', 'inclined_blocks', 'number_mine', 'tunnel', 'subsystem', 'picket', 'boolean_block')
-    prepopulated_fields = {'slug': ('title',)}
+    prepopulated_fields = {'slug': ('title', 'number_mine')}
 
 
 @admin.register(Cable)
@@ -65,13 +65,15 @@ class PointPhoneAdmin(admin.ModelAdmin):
                     'description', 'slug')
     list_filter = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number', 'picket')
     search_fields = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number', 'picket')
-    prepopulated_fields = {'slug': ('title',)}
+    prepopulated_fields = {'slug': ('title', 'number_mine')}
 
 
 @admin.register(CableMagazine)
 class CableMagazineAdmin(admin.ModelAdmin):
-    list_display = ('cable', 'name', 'subsystem', 'number_mine', 'inclined_blocks', 'track_from',
-                    'track_to', 'distance', 'unit', 'slug')
+    list_display = ('cable', 'name', 'subsystem', 'number_mine', 'inclined_blocks', 'track_from', 'track_from_box',
+                    'track_to_box', 'track_to_phone',
+                 'distance', 'unit', 'slug')
+    # prepopulated_fields = {'slug': ('track_from')}
     prepopulated_fields = {'slug': ('track_from', 'track_to')}
     list_filter = ('cable', 'name', 'subsystem', 'number_mine', 'inclined_blocks',)
     search_fields = ('cable', 'name', 'subsystem', 'number_mine', 'inclined_blocks',)
@@ -87,9 +89,10 @@ class TunnelAdmin(admin.ModelAdmin):
 
 @admin.register(EquipmentInstallation)
 class EquipmentInstallationAdmin(admin.ModelAdmin):
-    list_display = ('title', 'name', 'number_mine', 'tunnel', 'inclined_blocks', 'subsystem', 'picket', 'description')
-    list_filter = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks',)
-    search_fields = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks',)
+    list_display = ('title', 'name', 'point_phone__subscriber_number', 'number_mine', 'tunnel', 'inclined_blocks', 'subsystem', 'picket',
+                    'description')
+    list_filter = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'point_phone')
+    search_fields = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'point_phone')
 
 
 @admin.register(Execution)

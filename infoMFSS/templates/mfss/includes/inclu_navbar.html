@@ -22,18 +22,20 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                aria-expanded="false">
-                                Объекты
+                                Функционал
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="#">Нефтешахта №1</a></li>
+                            <ul class="dropdown-menu dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'mfss:percents' %}">Процент
+                                    выполнения</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="#">Нефтешахта №2</a></li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:equipment' %}">Установленное
+                                    оборудование</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="#">Нефтешахта №3</a></li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:cable' %}">Кабельная продукция</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">

@@ -213,9 +213,10 @@ h11 {
   font-size: 25px;
   line-height: 20px;
   text-align: center;
-  margin: 0 0 36px;
+  margin: 0 0 25px;
+
   cursor: default;
-  font-weight: 370;
+  font-weight: 300;
 }
 
 h14 {
@@ -426,6 +427,102 @@ hfy {
   font-weight: 500;
 }
 
+//table {
+//    width: 100%; /* Ширина таблицы */
+//    border-collapse: collapse; /*  Убираем двойные линии между ячейками */
+//   }
+//   td, th {
+//    padding: 4px; /* Поля в ячейках */
+//    border: 1px solid #000080; /* Граница между ячейками */
+//   }
+//   th {
+//    background: #000080; /* Цвет фона строки заголовка */
+//    color: #ffe; /* Цвет текста */
+//    text-align: left; /* Выравнивание по левому краю */
+//    font-family: Arial, Helvetica, sans-serif; /* Выбор гарнитуры */
+//    font-size: 0.9em; /* Размер текста */
+//   }
+
+.contentTable {
+  //background-size: 50vh;
+  margin: 0;
+  padding-top: 10mm;
+  table-layout: auto;
+  width: 100%;
+  max-width: 100%;
+
+  //text-shadow: 0 3px 4px #8e8ef3, 0 -1px 1px #f3f3fa;
+  border-collapse: collapse;
+  overflow: hidden;
+  //border-right:0;
+  //overflow: hidden;
+  //border-radius: 10px;
+}
+
+.contentTable th {
+  //background: #f7f7fa;
+  //    background-color: #ffffff;
+  font-size: medium;
+  border: 1px solid rgba(25, 25, 44, 0.36);
+  //border-right:0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 100;
+
+}
+
+.contentTable td {
+  background-color: #ffffff;
+  font-size: 15px;
+  border: 1px solid rgba(218, 219, 220, 0.79);
+  border-right: 0;
+  border-left: 0;
+
+}
+
+.contentTableHeader {
+  //background-color: #6d37ff;
+  background-color: #6d37ff;
+  color: azure;
+}
+
+//table {
+//  border-collapse: separate;
+//  overflow: hidden;
+//}
+
+th, td {
+  //border: 1px solid black;
+  //padding: 10px;
+  //text-align: left;
+}
+
+//th:first-child,
+//td:first-child {
+//  border-top-left-radius: 10px;
+//  border-bottom-left-radius: 10px;
+//}
+
+//th:last-child,
+//td:last-child {
+//  border-top-right-radius: 10px;
+//  border-bottom-right-radius: 10px;
+//}
+
+.card_head {
+  //background-size: 50vh;
+  background: #6d37ff;
+  color: #ffe;
+  //text-shadow: 0 3px 4px #8e8ef3, 0 -1px 1px #f3f3fa;
+  ////letter-spacing: -0.5px;
+  //font-size: 17px;
+  //line-height: 20px;
+  ////text-align: center;
+  ////margin: 0 0 2px;
+  //margin: 0;
+  ////cursor: default;
+  //font-weight: 500;
+}
+
 .anon {
   background-size: 100vh;
   font-family: "Paytone One", cursive;
@@ -615,6 +712,7 @@ hfy {
   border-collapse: collapse;
 }
 
+
 /* Стили для больших экранов */
 //h8 { width: 80%; margin: 0 auto; }
 
@@ -710,6 +808,30 @@ hfy {
 @media (max-width: 575px) {
   h8 {
     font-size: 25px;
+  }
+}
+
+@media (max-width: 1023px) {
+  h9 {
+    font-size: 21px;
+  }
+}
+
+@media (max-width: 534px) {
+  h9 {
+    font-size: 19px;
+  }
+}
+
+@media (max-width: 448px) {
+  h9 {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 401px) {
+  h9 {
+    font-size: 15px;
   }
 }
 
