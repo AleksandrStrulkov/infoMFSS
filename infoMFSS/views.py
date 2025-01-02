@@ -13,8 +13,9 @@ from django.views.generic.edit import FormMixin
 
 from infoMFSS.filters import MineSabInclFilter
 # from mailings.forms import MessageForm, ClientForm, MailingForm, MailingManagerForm, MailingOptionsForm, UserActiveForm
-from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone
-from infoMFSS.forms import PercentForm, EquipmentForm, CableForm
+from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone, BranchesBox, \
+    Equipment
+from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm
 from django.shortcuts import render
 from users.models import User
 import random
@@ -343,6 +344,7 @@ class FormListView(FormMixin, ListView):
         context['cable'] = self.request.GET.get('cable')
         context['new'] = self.object_list
         context['result'] = self.result
+        context['bool'] = Execution.objects.all()
         # context['phone_number'] = PointPhone.objects.all()
         return context
 
@@ -524,4 +526,66 @@ class CableListView(FormListView):
                     execution_bool=True
             )
             return object_list
+
+
+class BoxListView(FormListView):
+    form_class = BoxForm
+    model = BranchesBox
+    template_name = 'mfss/box_list.html'
+    extra_context = {
+            'title': "Просмотр подключенных устройств",
+    }
+
+    def get_queryset(self):
+        mine = self.request.GET.get('number_mines')
+        subsystem = self.request.GET.get('subsystems')
+        incl_blocks = self.request.GET.get('incl_blocks')
+
+        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
+            self.result = 1
+            object_list = BranchesBox.objects.all()
+            return object_list
+
+        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки':
+            self.result = 2
+            object_list = BranchesBox.objects.filter(
+                    subsystem__title=subsystem,
+            )
+            return object_list
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
+            self.result = 3
+            object_list = BranchesBox.objects.filter(
+                    number_mine__title=mine,
+            )
+            return object_list
+        elif mine and subsystem and incl_blocks == 'Все уклонные блоки':
+            self.result = 4
+            object_list = BranchesBox.objects.filter(
+                    number_mine__title=mine,
+                    subsystem__title=subsystem,
+            )
+            return object_list
+        elif mine and subsystem == 'Все подсистемы' and incl_blocks:
+            self.result = 5
+            object_list = BranchesBox.objects.filter(
+                    number_mine__title=mine,
+                    inclined_blocks__title=incl_blocks,
+            )
+            return object_list
+        elif mine and subsystem and incl_blocks:
+            self.result = 9
+            object_list = BranchesBox.objects.filter(
+                    number_mine__title=mine,
+                    subsystem__title=subsystem,
+                    inclined_blocks__title=incl_blocks,
+            )
+            return object_list
+
+class EquipmentFileListView(ListView):
+    model = Equipment
+    template_name ='mfss/equipment_file_list.html'
+    extra_context = {
+            'title': "Документация на оборудование",
+    }
+
 

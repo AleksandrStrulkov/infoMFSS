@@ -36,7 +36,7 @@ class SubsystemAdmin(admin.ModelAdmin):
 
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'slug')
+    list_display = ('title', 'description', 'slug', 'file_pdf')
     prepopulated_fields = {'slug': ('title',)}
     list_filter = ('title',)
     search_fields = ('title',)
@@ -44,11 +44,12 @@ class EquipmentAdmin(admin.ModelAdmin):
 
 @admin.register(BranchesBox)
 class BranchesBoxAdmin(admin.ModelAdmin):
-    list_display = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subsystem', 'picket', 'boolean_block',
-                    'description', 'name_slag', 'slug')
+    list_display = (
+    'title', 'number_mine', 'equipment', 'tunnel', 'inclined_blocks', 'subsystem', 'picket', 'boolean_block',
+    'description', 'name_slag',)
     list_filter = ('title', 'inclined_blocks', 'number_mine', 'tunnel', 'subsystem', 'picket', 'boolean_block')
     search_fields = ('title', 'inclined_blocks', 'number_mine', 'tunnel', 'subsystem', 'picket', 'boolean_block')
-    prepopulated_fields = {'slug': ('title', 'number_mine')}
+    # prepopulated_fields = {'slug': ('title', 'number_mine')}
 
 
 @admin.register(Cable)
@@ -61,7 +62,7 @@ class CableAdmin(admin.ModelAdmin):
 
 @admin.register(PointPhone)
 class PointPhoneAdmin(admin.ModelAdmin):
-    list_display = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number', 'picket',
+    list_display = ('id', 'title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number', 'picket',
                     'description', 'slug')
     list_filter = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number', 'picket')
     search_fields = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number', 'picket')
@@ -72,7 +73,7 @@ class PointPhoneAdmin(admin.ModelAdmin):
 class CableMagazineAdmin(admin.ModelAdmin):
     list_display = ('cable', 'name', 'subsystem', 'number_mine', 'inclined_blocks', 'track_from', 'track_from_box',
                     'track_to_box', 'track_to_phone',
-                 'distance', 'unit', 'slug')
+                    'distance', 'unit', 'slug')
     # prepopulated_fields = {'slug': ('track_from')}
     prepopulated_fields = {'slug': ('track_from', 'track_to')}
     list_filter = ('cable', 'name', 'subsystem', 'number_mine', 'inclined_blocks',)
@@ -81,16 +82,19 @@ class CableMagazineAdmin(admin.ModelAdmin):
 
 @admin.register(Tunnel)
 class TunnelAdmin(admin.ModelAdmin):
-    list_display = ('number_mine', 'title', 'inclined_blocks', 'tuf_bool', 'inclined_bool', 'description', 'slug')
-    prepopulated_fields = {'slug': (f'title', 'name_slag',)}
+    list_display = ('number_mine', 'title', 'inclined_blocks', 'tuf_bool', 'inclined_bool', 'description',)
+    # prepopulated_fields = {'slug': ('title', 'name_slag',)}
     list_filter = ('title', 'number_mine', 'inclined_blocks', 'tuf_bool', 'inclined_bool',)
     search_fields = ('title', 'number_mine', 'inclined_blocks', 'tuf_bool', 'inclined_bool',)
 
 
 @admin.register(EquipmentInstallation)
 class EquipmentInstallationAdmin(admin.ModelAdmin):
-    list_display = ('title', 'name', 'point_phone__subscriber_number', 'number_mine', 'tunnel', 'inclined_blocks', 'subsystem', 'picket',
-                    'description')
+    list_display = (
+    'title', 'name', 'point_phone', 'point_phone__subscriber_number', 'branches_box', 'number_mine', 'tunnel',
+    'inclined_blocks',
+    'subsystem', 'picket',
+    'description')
     list_filter = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'point_phone')
     search_fields = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'point_phone')
 

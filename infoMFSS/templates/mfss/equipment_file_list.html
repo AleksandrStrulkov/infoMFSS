@@ -1,0 +1,76 @@
+{% extends 'mfss/base.html' %}
+{% load crispy_forms_tags %}
+{#{% load sass_tags %}#}
+{% block content %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <div class="container text-center">
+        {#        {% if mine is not None %}#}
+        {#            {% if object_list %}#}
+        {#                <h9>По критериям: {{ mine }} &#128073; {{ subsystem }} &#128073; {{ incl_blocks }} &#9989;</h9>#}
+        {#            {% else %}#}
+        {#                <h9a>По критериям: {{ mine }} &#128073; {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>#}
+        {#                <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>#}
+        {#            {% endif %}#}
+        {#        {% endif %}#}
+        {#        {{ result }}#}
+        {#        <div class="container-xxl text-center mt-5 mb-5 table-responsive">#}
+        {#                    <div class="mt-sm-5 mb-sm-5 radius_card">#}
+        {#                        <div class="container mt-5 mb-5">#}
+        {#            {% if object_list %}#}
+        {#                                <table class="table-sm contentTable">#}
+
+        <table class="table table-hover">
+            <tr class="table-active">
+                <th>Оборудование</th>
+                <th>Описание</th>
+                <th>Просмотр</th>
+            </tr>
+            {#            {% endif %}#}
+            {% for object in object_list %}
+                {#                {% if object.equipment_install %}#}
+                <tr>
+                    {#                        {% if object.equipment_install.point_phone %}#}
+                    <td>{{ object.title }}</td>
+                    <td>{{ object.description }}</td>
+                    <td><a class="btn btn-link"
+                           href="{{ object.file_pdf.url }}">Ok</a></td>
+                    {#                    <td><a class="btn btn-link"#}
+                    {#                           href="{{ item.file.url }}">скачать</a></td>#}
+
+                </tr>
+                {#                {% endif %}#}
+            {% endfor %}
+        </table>
+    </div>
+    {#    </div>#}
+    {#    </div>#}
+    <div class="container">
+    </div>
+    <div class="container">
+    </div>
+    {#    </div>#}
+    {#    <table class="contentTable">#}
+    {#        <tr class="contentTableHeader">#}
+    {#            <th>Шахта</th>#}
+    {#            <th>Подсистема</th>#}
+    {#            <th>Выработка</th>#}
+    {#            <th>Уклонный блок</th>#}
+    {##}
+    {#            <th>Пикет</th>#}
+    {#            <th>Оборудование</th>#}
+    {#            <th>Обозначение в проекте</th>#}
+    {#        </tr>#}
+    {#    </table>#}
+
+{% endblock %}
