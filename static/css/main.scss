@@ -592,7 +592,7 @@ th, td {
 
 .elem-button {
   color: #fff !important;
-  display: flex;
+  //display: flex;
   align-items: center;
   justify-content: center
 }
@@ -608,7 +608,7 @@ th, td {
 .elem-button:disabled {
   background: #926aff;
   border: 1px solid #926aff;
-  cursor: default;
+  //cursor: default;
   opacity: 1
 }
 
