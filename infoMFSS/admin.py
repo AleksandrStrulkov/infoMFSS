@@ -1,6 +1,7 @@
 from django.contrib import admin
 from infoMFSS.models import NumberMine, Unit, Subsystem, Equipment, InclinedBlocks, CableMagazine, Tunnel, \
-    EquipmentInstallation, Execution, BranchesBox, Cable, PointPhone, DateUpdate
+    EquipmentInstallation, Execution, BranchesBox, Cable, PointPhone, DateUpdate, Violations, Visual
+from infoMFSS.views import VisualListView
 
 
 @admin.register(NumberMine)
@@ -36,7 +37,7 @@ class SubsystemAdmin(admin.ModelAdmin):
 
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'slug', 'file_pdf')
+    list_display = ('title', 'description', 'subsystem', 'slug', 'file_pdf', 'file_passport', 'file_certificate')
     prepopulated_fields = {'slug': ('title',)}
     list_filter = ('title',)
     search_fields = ('title',)
@@ -45,8 +46,8 @@ class EquipmentAdmin(admin.ModelAdmin):
 @admin.register(BranchesBox)
 class BranchesBoxAdmin(admin.ModelAdmin):
     list_display = (
-    'title', 'number_mine', 'equipment', 'tunnel', 'inclined_blocks', 'subsystem', 'picket', 'boolean_block',
-    'description', 'name_slag',)
+            'title', 'number_mine', 'equipment', 'tunnel', 'inclined_blocks', 'subsystem', 'picket', 'boolean_block',
+            'description', 'name_slag',)
     list_filter = ('title', 'inclined_blocks', 'number_mine', 'tunnel', 'subsystem', 'picket', 'boolean_block')
     search_fields = ('title', 'inclined_blocks', 'number_mine', 'tunnel', 'subsystem', 'picket', 'boolean_block')
     # prepopulated_fields = {'slug': ('title', 'number_mine')}
@@ -54,7 +55,7 @@ class BranchesBoxAdmin(admin.ModelAdmin):
 
 @admin.register(Cable)
 class CableAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'slug')
+    list_display = ('title', 'description', 'subsystem', 'slug', 'file_pdf', 'file_passport', 'file_certificate')
     list_filter = ('title',)
     search_fields = ('title',)
     prepopulated_fields = {'slug': ('title',)}
@@ -91,10 +92,10 @@ class TunnelAdmin(admin.ModelAdmin):
 @admin.register(EquipmentInstallation)
 class EquipmentInstallationAdmin(admin.ModelAdmin):
     list_display = (
-    'title', 'name', 'point_phone', 'point_phone__subscriber_number', 'branches_box', 'number_mine', 'tunnel',
-    'inclined_blocks',
-    'subsystem', 'picket',
-    'description')
+            'title', 'name', 'point_phone', 'point_phone__subscriber_number', 'branches_box', 'number_mine', 'tunnel',
+            'inclined_blocks',
+            'subsystem', 'picket',
+            'description')
     list_filter = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'point_phone')
     search_fields = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'point_phone')
 
@@ -113,3 +114,22 @@ class ExecutionAdmin(admin.ModelAdmin):
 @admin.register(DateUpdate)
 class DateUpdateAdmin(admin.ModelAdmin):
     list_display = ('update', 'description',)
+
+
+@admin.register(Violations)
+class ViolationsAdmin(admin.ModelAdmin):
+    list_display = ('number_act', 'date_act', 'issued_by_act', 'number_mine', 'title', 'execution_bool', 'file_act',
+                    'file_notification')
+    list_filter = ('number_act', 'date_act', 'issued_by_act',
+                   'number_mine', 'execution_bool')
+    search_fields = ('number_act', 'date_act', 'issued_by_act',
+                   'number_mine', 'execution_bool')
+
+
+@admin.register(Visual)
+class VisualAdmin(admin.ModelAdmin):
+    list_display = ('id', 'number_mines', 'subsystems', 'equipment', 'file_pdf', 'data',)
+    list_filter = ('number_mines', 'subsystems', 'equipment',
+                   'data')
+    search_fields = ('number_mines', 'subsystems', 'equipment',
+                   'data')
