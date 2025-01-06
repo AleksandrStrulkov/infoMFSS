@@ -1,5 +1,5 @@
 from django import forms
-from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox
+from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, Visual
 from django.core.exceptions import ValidationError
 
 
@@ -76,3 +76,10 @@ class CableForm(InfoFormMixin):
 
 class BoxForm(InfoFormMixin):
     pass
+
+
+class VisualCreateForm(forms.ModelForm):
+    class Meta:
+        model = Visual
+        fields = ('number_mines', 'equipment')
+
