@@ -352,7 +352,6 @@ hfy {
 
 .elem-button {
   color: #fff !important;
-  display: flex;
   align-items: center;
   justify-content: center; }
 
@@ -365,7 +364,6 @@ hfy {
 .elem-button:disabled {
   background: #926aff;
   border: 1px solid #926aff;
-  cursor: default;
   opacity: 1; }
 
 .elem-button:hover {
