@@ -4,9 +4,9 @@
     <br>
     <br>
     <br>
-{#    <section class="container text-center">#}
-{#        <h7>Проект МФСБ</h7>#}
-{#    </section>#}
+    {#    <section class="container text-center">#}
+    {#        <h7>Проект МФСБ</h7>#}
+    {#    </section>#}
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -73,30 +73,29 @@
     <div class="container-xxl">
         <div class="container-xxl">
             <div class="block-white text-center mt-sm-4">
-{#                <h8>#}
-{#                    Выполнение#}
-{#                </h8>#}
-                <div class="container text-center mt-4">
+                {#                <h8>#}
+                {#                    Выполнение#}
+                {#                </h8>#}
+                <div class="container text-center mt-3">
                     <h11>
                         Нефтешахта №1: {{ percent_mine1 }} %
                     </h11>
                 </div>
-                <div class="container text-center mt-4">
+                <div class="container text-center mt-5">
                     <h11>
                         Нефтешахта №2: {{ percent_mine2 }} %
                     </h11>
                 </div>
-                <div class="container text-center mt-4">
+                <div class="container text-center mt-5">
                     <h11>
                         Нефтешахта №3: {{ percent_mine3 }} %
                     </h11>
                 </div>
-                <div class="container text-center mt-4">
+                <div class="container text-center mt-5 mb-3">
                     <h11>
                         Общее: {{ percent_mine123 }} %
                     </h11>
                 </div>
-
 
 
                 {#                <div class="container text-center mt-5">#}
@@ -153,11 +152,11 @@
                 {#                </div>#}
             </div>
         </div>
-    <div class="container text-center mt-1">
-                    <h14>
-                        Обновлено: {{ update }}
-                    </h14>
-                </div>
+        <div class="container text-center mt-1">
+            <h14>
+                Обновлено: {{ update }}
+            </h14>
+        </div>
     </div>
 
     <br>
@@ -187,8 +186,9 @@
 
                         <div class="card-body">
                             <h3 class="card-title h3-block-card-head">Процент выполнения</h3>
-                            <p class="card-text h3-block-card-footer">Просмотр выполнения с выбранным критерием.
-                                Здесь вы сможете выбрать нефтешахту, подсистему и уклонный блок. </p>
+                            <p class="card-text h3-block-card-footer">Просмотр процента выполнения с выбранным
+                                критерием.
+                            </p>
                             <a href="{% url 'mfss:percents' %}" class="stretched-link"></a>
                         </div>
                     </div>
@@ -201,7 +201,7 @@
                         <div class="card-body">
                             <h5 class="card-title h3-block-card-head">Оборудование</h5>
                             <p class="card-text h3-block-card-footer">Просмотр установленного оборудования
-                            с выбором по фильтру.</p>
+                                с выбором по фильтру.</p>
                             <a href="{% url 'mfss:equipment' %}" class="stretched-link"></a>
                         </div>
                     </div>
@@ -214,7 +214,7 @@
                         <div class="card-body">
                             <h5 class="card-title h3-block-card-head">Кабельная продукция</h5>
                             <p class="card-text h3-block-card-footer">Просмотр смонтированных кабельных линий
-                            с возможностью фильтрации запроса</p>
+                                с возможностью фильтрации запроса</p>
                             <a href="{% url 'mfss:cable' %}" class="stretched-link"></a>
                         </div>
                     </div>
@@ -250,31 +250,32 @@
 
                         <div class="card-body">
                             <h3 class="card-title h3-block-card-head">Распределительное оборудование</h3>
-                            <p class="card-text h3-block-card-footer">Этот раздел позволяет осуществить просмотр
-                                мест монтажа распределительных устройств и подключенного к нему оборудования</p>
+                            <p class="card-text h3-block-card-footer">Просмотр
+                                мест монтажа распределительных устройств и подключенного к ним оборудования</p>
                             <a href="{% url 'mfss:box' %}" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/filetype-pdf.svg" class="card-grey card-radius icon card-white"
+                        <img src="../../../static/images/svg/filetype-pdf.svg"
+                             class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
 
-{#                        <div class="card-body">#}
-{#                            <h5 class="card-title h3-block-card-head">Сервис рассылок</h5>#}
-{#                            <p class="card-text h3-block-card-footer">В этом разделе есть возможность написать письмо и#}
-{#                                настроить#}
-{#                                отправку по графику, вы можете сохранять свои письма и получателей (клиентов),#}
-{#                                выбирать их в#}
-{#                                последующем формировании. Выбор периодичности отправки: ежедневно, еженедельно,#}
-{#                                ежемесячно и ежегодно. </p>#}
-{#                            <a href="#" class="stretched-link"></a>#}
-{#                        </div>#}
+                        {#                        <div class="card-body">#}
+                        {#                            <h5 class="card-title h3-block-card-head">Сервис рассылок</h5>#}
+                        {#                            <p class="card-text h3-block-card-footer">В этом разделе есть возможность написать письмо и#}
+                        {#                                настроить#}
+                        {#                                отправку по графику, вы можете сохранять свои письма и получателей (клиентов),#}
+                        {#                                выбирать их в#}
+                        {#                                последующем формировании. Выбор периодичности отправки: ежедневно, еженедельно,#}
+                        {#                                ежемесячно и ежегодно. </p>#}
+                        {#                            <a href="#" class="stretched-link"></a>#}
+                        {#                        </div>#}
                         <div class="card-body">
                             <h5 class="card-title h3-block-card-head">Документация на оборудование</h5>
-                            <p class="card-text h3-block-card-footer">В этом разделе осуществлен просмотр
-                            документации на оборудование и кабельную продукцию</p>
+                            <p class="card-text h3-block-card-footer">Просмотр
+                                документации на оборудование и кабельную продукцию</p>
                             <a href="{% url 'mfss:equipment_file' %}" class="stretched-link"></a>
                         </div>
                     </div>
@@ -285,18 +286,18 @@
                              class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
 
-{#                        <div class="card-body">#}
-{#                            <h5 class="card-title h3-block-card-head">Сервис напоминаний</h5>#}
-{#                            <p class="card-text h3-block-card-footer">В этом разделе можно организовать напоминания#}
-{#                            в виде сообщения в telegram бот.</p>#}
-{#                            <a href="#" class="stretched-link"></a>#}
-{#                        </div>#}
+                        {#                        <div class="card-body">#}
+                        {#                            <h5 class="card-title h3-block-card-head">Сервис напоминаний</h5>#}
+                        {#                            <p class="card-text h3-block-card-footer">В этом разделе можно организовать напоминания#}
+                        {#                            в виде сообщения в telegram бот.</p>#}
+                        {#                            <a href="#" class="stretched-link"></a>#}
+                        {#                        </div>#}
                         <div class="card-body">
                             <h5 class="card-title h3-block-card-head">Отчет исправления замечаний</h5>
-                            <p class="card-text h3-block-card-footer">В этом разделе вы можете просмотреть
-                            выданные замечания и ознакомиться
-                            с отчетом об их исправлении</p>
-                            <a href="#" class="stretched-link"></a>
+                            <p class="card-text h3-block-card-footer">Просмотр
+                                выданных замечаний и ознакомление
+                                с отчетом об их исправлении</p>
+                            <a href="{% url 'mfss:violations' %}" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>
@@ -304,37 +305,26 @@
             <div class="row row-cols-1 row-cols-xxl-3 g-4">
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/list-check.svg"
+                        <img src="../../../static/images/svg/binocle.svg"
                              class="card-grey card-radius icon card-white"
                              width="416" height="200" alt="#">
 
                         <div class="card-body">
-                            <h3 class="card-title h3-block-card-head">Справочная информация</h3>
-                            <p class="card-text h3-block-card-footer">Этот раздел позволяет осуществить просмотр
-                                справочной информации</p>
-                            <a href="#" class="stretched-link"></a>
+                            <h3 class="card-title h3-block-card-head">Места установки оборудования</h3>
+                            <p class="card-text h3-block-card-footer">Просмотр мест установленного оборудования
+                                с визуализацией в файле PDF</p>
+                            <a href="{% url 'mfss:visual' %}" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/database-check.svg" class="card-grey card-radius icon card-white"
+                        <img src="../../../static/images/svg/subsystem.svg"
+                             class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
-
-{#                        <div class="card-body">#}
-{#                            <h5 class="card-title h3-block-card-head">Сервис рассылок</h5>#}
-{#                            <p class="card-text h3-block-card-footer">В этом разделе есть возможность написать письмо и#}
-{#                                настроить#}
-{#                                отправку по графику, вы можете сохранять свои письма и получателей (клиентов),#}
-{#                                выбирать их в#}
-{#                                последующем формировании. Выбор периодичности отправки: ежедневно, еженедельно,#}
-{#                                ежемесячно и ежегодно. </p>#}
-{#                            <a href="#" class="stretched-link"></a>#}
-{#                        </div>#}
                         <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Проект МФСБ</h5>
-                            <p class="card-text h3-block-card-footer">В этом разделе осуществлен просмотр
-                            проектных решений по всем шахтам и подсистемам</p>
+                            <h5 class="card-title h3-block-card-head">Проектные решения</h5>
+                            <p class="card-text h3-block-card-footer">Просмотр проектного решения</p>
                             <a href="#" class="stretched-link"></a>
                         </div>
                     </div>
@@ -344,17 +334,10 @@
                         <img src="../../../static/images/svg/chat-left-text.svg"
                              class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
-
-{#                        <div class="card-body">#}
-{#                            <h5 class="card-title h3-block-card-head">Сервис напоминаний</h5>#}
-{#                            <p class="card-text h3-block-card-footer">В этом разделе можно организовать напоминания#}
-{#                            в виде сообщения в telegram бот.</p>#}
-{#                            <a href="#" class="stretched-link"></a>#}
-{#                        </div>#}
                         <div class="card-body">
                             <h5 class="card-title h3-block-card-head">Обратная связь</h5>
-                            <p class="card-text h3-block-card-footer">Напишите письмо администратору ресурса
-                                и укажите свои пожелания и предложения по изменению структуры сайта</p>
+                            <p class="card-text h3-block-card-footer">В случае обнаружения ошибки в данных
+                            напишите письмо администратору ресурса</p>
                             <a href="#" class="stretched-link"></a>
                         </div>
                     </div>
@@ -384,18 +367,18 @@
                              width="390" height="200" alt="#">
 
                         <div class="card-body">
-{#                            <h5 class="card-title h3-block-card-head">Admin</h5>#}
-{#                            <p class="card-text h3-block-card-footer"><font color="#6d37ff">Уважаемые гости</font>#}
-{#                                ресурса, данный <font color="#6d37ff">проект</font>#}
-{#                                выполнен только <font color="#6d37ff">в учебных целях</font>#}
-{#                                и без каких либо коммерческих интересов. <font color="#6d37ff">Но</font> стоит#}
-{#                                отметить, что без вложений сил и времени, без абонентской оплаты хоста, домена и#}
-{#                                прочих ежемесячных выплат было бы трудно и даже невозможно выполнить и поддерживать#}
-{#                                проект в дальнейшем. Поэтому финансовая помощь на чашку <font color="#6d37ff">latte#}
-{#                                    приветствуется</font>)#}
-{##}
-{#                            </p>#}
-{#                            <a href="#" class="stretched-link"></a>#}
+                            {#                            <h5 class="card-title h3-block-card-head">Admin</h5>#}
+                            {#                            <p class="card-text h3-block-card-footer"><font color="#6d37ff">Уважаемые гости</font>#}
+                            {#                                ресурса, данный <font color="#6d37ff">проект</font>#}
+                            {#                                выполнен только <font color="#6d37ff">в учебных целях</font>#}
+                            {#                                и без каких либо коммерческих интересов. <font color="#6d37ff">Но</font> стоит#}
+                            {#                                отметить, что без вложений сил и времени, без абонентской оплаты хоста, домена и#}
+                            {#                                прочих ежемесячных выплат было бы трудно и даже невозможно выполнить и поддерживать#}
+                            {#                                проект в дальнейшем. Поэтому финансовая помощь на чашку <font color="#6d37ff">latte#}
+                            {#                                    приветствуется</font>)#}
+                            {##}
+                            {#                            </p>#}
+                            {#                            <a href="#" class="stretched-link"></a>#}
                             <h5 class="card-title h3-block-card-head">Сформировать отчет</h5>
                             <p class="card-text h3-block-card-footer">Выберите по фильтру требуемые для вывода данные,
                                 сформируйте отчет и отправьте себе на электронную почту.
