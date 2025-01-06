@@ -14,49 +14,76 @@
         </div>
     </div>
 
-    <div class="container text-center">
-        {#        {% if mine is not None %}#}
-        {#            {% if object_list %}#}
-        {#                <h9>По критериям: {{ mine }} &#128073; {{ subsystem }} &#128073; {{ incl_blocks }} &#9989;</h9>#}
-        {#            {% else %}#}
-        {#                <h9a>По критериям: {{ mine }} &#128073; {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>#}
-        {#                <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>#}
-        {#            {% endif %}#}
-        {#        {% endif %}#}
-        {#        {{ result }}#}
-        {#        <div class="container-xxl text-center mt-5 mb-5 table-responsive">#}
-        {#                    <div class="mt-sm-5 mb-sm-5 radius_card">#}
-        {#                        <div class="container mt-5 mb-5">#}
-        {#            {% if object_list %}#}
-        {#                                <table class="table-sm contentTable">#}
+    <div class="row mb-5">
+        <div class="col">
+        </div>
+        <div class="col">
+        </div>
+        <div class="col">
+            <a href="{% url 'mfss:equipment_file' %}" class="btn nsh-button me-md-2" type="button">Оборудование
+            </a>
+        </div>
+        <div class="col">
+            <a href="{% url 'mfss:cable_file' %}" class="btn nsh-button me-md-2" type="button">Кабель
+            </a>
+        </div>
+        <div class="col">
+        </div>
+        <div class="col">
+        </div>
+    </div>
 
+    <div class="container text-center">
         <table class="table table-hover">
             <tr class="table-active">
                 <th>Оборудование</th>
+                <th>Подсистема</th>
                 <th>Описание</th>
-                <th>Просмотр</th>
+                <th class="text-center">Руководство по эксплуатации</th>
+                <th class="text-center">Паспорт</th>
+                <th class="text-center">Сертификат</th>
             </tr>
-            {#            {% endif %}#}
             {% for object in object_list %}
-                {#                {% if object.equipment_install %}#}
-                <tr>
-                    {#                        {% if object.equipment_install.point_phone %}#}
+                {% if object.title != 'Все оборудование' %}
+                    <tr>
                     <td>{{ object.title }}</td>
+                    <td>{{ object.subsystem }}</td>
                     <td>{{ object.description }}</td>
-                    <td><a class="btn btn-link"
-                           href="{{ object.file_pdf.url }}">Ok</a></td>
-                    {#                    <td><a class="btn btn-link"#}
-                    {#                           href="{{ item.file.url }}">скачать</a></td>#}
 
-                </tr>
-                {#                {% endif %}#}
+                    {% if object.file_pdf %}
+                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                   href="{{ object.file_pdf.url }}">Просмотр</a></td>
+                    {% else %}
+                        <td class="text-center"><a>-</a></td>
+                    {% endif %}
+
+                    {% if object.file_passport %}
+                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                   href="{{ object.file_passport.url }}">Просмотр</a></td>
+                    {% else %}
+                        <td class="text-center"><a>-</a></td>
+                    {% endif %}
+
+                    {% if object.file_certificate %}
+                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                   href="{{ object.file_certificate.url }}">Просмотр</a></td>
+                    {% else %}
+                        <td class="text-center"><a>-</a></td>
+                    {% endif %}
+                {% endif %}
             {% endfor %}
         </table>
     </div>
     {#    </div>#}
     {#    </div>#}
-    <div class="container">
-    </div>
+{#    <div class="container">#}
+{#        {% for object in object_list %}#}
+{#            <embed src="{{ object.file_pdf.url }}" type="application/pdf" width="100%" height="600px"/>#}
+            {#            <a href="{% url 'mfss:cable_file' %}" class="btn nsh-button me-md-2" type="button">Кабель#}
+            {#            </a>#}
+{#        {% endfor %}#}
+{#    </div>#}
+
     <div class="container">
     </div>
     {#    </div>#}
@@ -72,5 +99,7 @@
     {#            <th>Обозначение в проекте</th>#}
     {#        </tr>#}
     {#    </table>#}
+
+
 
 {% endblock %}
