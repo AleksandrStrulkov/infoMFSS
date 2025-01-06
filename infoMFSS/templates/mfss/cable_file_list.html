@@ -1,0 +1,60 @@
+{% extends 'mfss/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+
+    <div class="container text-center">
+        <table class="table table-hover">
+            <tr class="table-active">
+                <th>Кабель</th>
+                <th>Описание</th>
+                <th class="text-center">Руководство по эксплуатации</th>
+                <th class="text-center">Паспорт</th>
+                <th class="text-center">Сертификат</th>
+            </tr>
+            {% for object in object_list %}
+                {% if object.title != 'Все кабели' %}
+                    <tr>
+                    <td>{{ object.title }}</td>
+                    <td>{{ object.description }}</td>
+
+                    {% if object.file_pdf %}
+                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                               href="{{ object.file_pdf.url }}">Просмотр</a></td>
+                    {% else %}
+                        <td class="text-center"><a>-</a></td>
+                    {% endif %}
+
+                    {% if object.file_passport %}
+                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                               href="{{ object.file_passport.url }}">Просмотр</a></td>
+                    {% else %}
+                        <td class="text-center"><a>-</a></td>
+                    {% endif %}
+
+                    {% if object.file_certificate %}
+                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                               href="{{ object.file_certificate.url }}">Просмотр</a></td>
+                    {% else %}
+                        <td class="text-center"><a>-</a></td>
+                    {% endif %}
+                {% endif %}
+
+            {% endfor %}
+        </table>
+    </div>
+{#    <div class="container">#}
+{#    </div>#}
+{#    <div class="container">#}
+{#    </div>#}
+{% endblock %}

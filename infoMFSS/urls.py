@@ -1,6 +1,7 @@
 from infoMFSS.apps import InfomfssConfig
 from django.urls import path
-from infoMFSS.views import MFSSTemplateView, percent_view, EquipmentListView, CableListView
+from infoMFSS.views import MFSSTemplateView, percent_view, EquipmentListView, CableListView, BoxListView, \
+    EquipmentFileListView, CableFileListView, ViolationsListView, VisualListView
 
 # from mfss.views import SubsystemTemplateView
 # from infoMFSS.views import index
@@ -11,5 +12,10 @@ urlpatterns = [
     path('', MFSSTemplateView.as_view(), name='home'),
     path('percents/', percent_view, name='percents'),
     path('equipment_list/', EquipmentListView.as_view(), name='equipment'),
-    path('cable_list/', CableListView.as_view(), name='cable')
+    path('cable_list/', CableListView.as_view(), name='cable'),
+    path('box_list/', BoxListView.as_view(), name='box'),
+    path('equipment_file/', EquipmentFileListView.as_view(), name='equipment_file'),
+    path('cable_file/', CableFileListView.as_view(), name='cable_file'),
+    path('violations/', ViolationsListView.as_view(), name='violations'),
+    path('visual/', VisualListView.as_view(), name='visual'),
 ]

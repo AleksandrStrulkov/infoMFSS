@@ -1,22 +1,22 @@
 from django import forms
-from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable
+from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, Visual
 from django.core.exceptions import ValidationError
 
 
 class InfoFormMixin(forms.ModelForm):
     number_mines = forms.ModelChoiceField(
-        queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
-        initial='Все шахты'
-        )
+            queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
+            initial='Все шахты'
+    )
     subsystems = forms.ModelChoiceField(
-        queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
-        initial='Все подсистемы'
-        )
+            queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
+            initial='Все подсистемы'
+    )
 
     incl_blocks = forms.ModelChoiceField(
-        queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
-        initial='Все уклонные блоки'
-        )
+            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
+            initial='Все уклонные блоки'
+    )
 
     class Meta:
         model = Execution
@@ -72,3 +72,14 @@ class CableForm(InfoFormMixin):
             queryset=Cable.objects.all(), to_field_name="title", label='Кабель',
             initial='Все кабели'
     )
+
+
+class BoxForm(InfoFormMixin):
+    pass
+
+
+class VisualCreateForm(forms.ModelForm):
+    class Meta:
+        model = Visual
+        fields = ('number_mines', 'equipment')
+

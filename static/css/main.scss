@@ -99,6 +99,14 @@ h7 {
   font-weight: 550;
 }
 
+.box-table-th {
+  font-size: 13px;
+}
+
+.box-table-td {
+  font-size: 13px;
+}
+
 .h7modal {
   font-size: 35px;
   //background: rgba(109, 55, 255, .3);
@@ -584,7 +592,7 @@ th, td {
 
 .elem-button {
   color: #fff !important;
-  display: flex;
+  //display: flex;
   align-items: center;
   justify-content: center
 }
@@ -600,7 +608,7 @@ th, td {
 .elem-button:disabled {
   background: #926aff;
   border: 1px solid #926aff;
-  cursor: default;
+  //cursor: default;
   opacity: 1
 }
 

@@ -1,0 +1,60 @@
+{% extends 'mfss/base.html' %}
+{% load crispy_forms_tags %}
+{#{% load sass_tags %}#}
+{% block content %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <form method="get" action="" class="">
+            <div class="row text-start mx-auto mt-4">
+                <div class="col-sm">
+                </div>
+                <div class="col-sm card mb-4 box-shadow card_imad">
+                    <div class="text-center">
+                        <h4 class="my-0 font-weight-normal">
+                            Выбор критерия
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        {% load crispy_forms_tags %}
+                        {% csrf_token %}
+                        {% crispy form %}
+                        <button type="submit" class="btn elem-button btn-md mx-2">
+                            Сгенерировать ссылку
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm">
+                </div>
+            </div>
+        </form>
+    </div>
+    {% if mine is not None %}
+        <div class="container-xxl text-center">
+            <div class="col-xxl">
+                <div class="row mb-5">
+                    <div class="col">
+                        {% if pdf_visual %}
+                            <a href="{{ pdf_visual.url }}" class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
+                                >&#128409;Ссылка для просмотра по фильтру: {{ mine }}, {{ equipment }}&#128408;
+                            </a>
+                        {% else %}
+                            <a class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
+                                >&#128409;Ссылка отсутствует&#128408;
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
