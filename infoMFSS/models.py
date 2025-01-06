@@ -133,8 +133,13 @@ class Equipment(models.Model):
 
     title = models.CharField(max_length=150, verbose_name='Оборудование')
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
+    subsystem = models.ForeignKey(
+            Subsystem, related_name='subsystem_equipment', on_delete=models.CASCADE,
+            verbose_name='Подсистема', **NULLABLE)
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
-    file_pdf = models.FileField(upload_to='pdf')
+    file_pdf = models.FileField(upload_to='pdf', **NULLABLE)
+    file_passport = models.FileField(upload_to='pdf_passport', **NULLABLE)
+    file_certificate = models.FileField(upload_to='pdf_certificate', **NULLABLE)
 
     def __str__(self):
         return f'{self.title}'
@@ -149,8 +154,16 @@ class Cable(models.Model):
     """Перечень кабелей"""
 
     title = models.CharField(max_length=100, verbose_name='Кабель')
+    subsystem = models.ForeignKey(
+            Subsystem, related_name='subsystem_cable', on_delete=models.CASCADE,
+            verbose_name='Подсистема', **NULLABLE
+    )
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
+    file_pdf = models.FileField(upload_to='pdf', **NULLABLE)
+    file_passport = models.FileField(upload_to='pdf_passport', **NULLABLE)
+    file_certificate = models.FileField(upload_to='pdf_certificate', **NULLABLE)
+
 
     def __str__(self):
         return f'{self.title}'
@@ -334,6 +347,7 @@ class EquipmentInstallation(models.Model):
                                        verbose_name='Выполнение',  **NULLABLE,)
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
+    file_graphics = models.FileField(upload_to='pdf_graphics', **NULLABLE)
 
     def __str__(self):
         return f'{self.title}-({self.name})/{self.subsystem}/{self.tunnel}/' \
@@ -413,3 +427,66 @@ class DateUpdate(models.Model):
         verbose_name = 'дата последнего изменения'
         verbose_name_plural = 'даты последнего изменения'
         ordering = ['-update']
+
+
+class Violations(models.Model):
+    """Нарушения"""
+
+    number_act = models.CharField(max_length=100, verbose_name='Номер акта', **NULLABLE)
+    date_act = models.DateField(verbose_name='Дата выдачи', **NULLABLE)
+    issued_by_act = models.CharField(max_length=100, verbose_name='Кем выдано', **NULLABLE)
+    number_mine = models.ForeignKey(NumberMine, verbose_name='Шахта', on_delete=models.CASCADE, related_name='mine_act')
+    title = models.TextField(verbose_name='Описание нарушения', **NULLABLE)
+    execution_bool = models.BooleanField(verbose_name='Устранение нарушения', default=False)
+    file_act = models.FileField(upload_to='pdf_act', **NULLABLE)
+    file_notification = models.FileField(upload_to='pdf_notifications', **NULLABLE)
+
+    def __str__(self):
+        return f'{self.number_act} от {self.date_act}'
+
+    class Meta:
+        verbose_name = 'нарушение'
+        verbose_name_plural = 'нарушения'
+        ordering = ['date_act']
+
+
+class Visual(models.Model):
+    MINE = (
+            (None, 'Выберите один из пунктов списка'),
+            ('Нефтешахта №1', 'Нефтешахта №1'),
+            ('Нефтешахта №2', 'Нефтешахта №2'),
+            ('Нефтешахта №3', 'Нефтешахта №3'),
+    )
+
+    SUBSYSTEM = (
+            (None, 'Выберите один из пунктов списка'),
+            ('АТС', 'АТС'),
+            ('АГК', 'АГК'),
+            ('Позиционирование', 'Позиционирование'),
+            ('Видеонаблюдение', 'Видеонаблюдение'),
+    )
+
+    EQUIPMENT = (
+            (None, 'Выберите один из пунктов списка'),
+            ('Телефоны', 'Телефоны'),
+            ('Респред.коробки', 'Распред.коробки'),
+            ('Датчики ПДК', 'Датчики ПДК'),
+            ('Станции связи', 'Станции связи'),
+            ('Точки доступа wi-fi', 'Точки доступа wi-fi'),
+            ('Видеокамеры', 'Видеокамеры'),
+    )
+
+    number_mines = models.CharField(max_length=15, verbose_name='Шахта', choices=MINE)
+    subsystems = models.CharField(max_length=20, verbose_name='Подсистема', choices=SUBSYSTEM)
+    equipment = models.CharField(max_length=50, verbose_name='Оборудование', choices=EQUIPMENT)
+    file_pdf = models.FileField(upload_to='pdf_visual', **NULLABLE)
+    data = models.DateTimeField(auto_now=True, verbose_name='Дата изменения')
+
+    def __str__(self):
+        return f'{self.equipment} ({self.number_mines}, {self.subsystems})'
+
+    class Meta:
+        verbose_name = 'визуализация'
+        verbose_name_plural = 'визуализации'
+        ordering = ['number_mines']
+
