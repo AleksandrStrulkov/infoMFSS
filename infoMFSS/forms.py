@@ -1,5 +1,6 @@
 from django import forms
-from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, Visual
+from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, Visual, \
+    EquipmentInstallation, CableMagazine
 from django.core.exceptions import ValidationError
 
 
@@ -13,17 +14,16 @@ class InfoFormMixin(forms.ModelForm):
             initial='Все подсистемы'
     )
 
+    class Meta:
+        model = Execution
+        fields = ('number_mines', 'subsystems',)
+
+
+class PercentForm(InfoFormMixin):
     incl_blocks = forms.ModelChoiceField(
             queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
             initial='Все уклонные блоки'
     )
-
-    class Meta:
-        model = Execution
-        fields = ('number_mines', 'subsystems', 'incl_blocks',)
-
-
-class PercentForm(InfoFormMixin):
 
     def clean(self):
         cleaned_data = super().clean()
@@ -61,6 +61,10 @@ class PercentForm(InfoFormMixin):
 
 
 class EquipmentForm(InfoFormMixin):
+    incl_blocks = forms.ModelChoiceField(
+            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
+            initial='Все уклонные блоки'
+    )
     equipment = forms.ModelChoiceField(
             queryset=Equipment.objects.all(), to_field_name="title", label='Оборудование',
             initial='Все оборудование'
@@ -68,6 +72,10 @@ class EquipmentForm(InfoFormMixin):
 
 
 class CableForm(InfoFormMixin):
+    incl_blocks = forms.ModelChoiceField(
+            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
+            initial='Все уклонные блоки'
+    )
     cable = forms.ModelChoiceField(
             queryset=Cable.objects.all(), to_field_name="title", label='Кабель',
             initial='Все кабели'
@@ -75,6 +83,17 @@ class CableForm(InfoFormMixin):
 
 
 class BoxForm(InfoFormMixin):
+    incl_blocks = forms.ModelChoiceField(
+            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
+            initial='Все уклонные блоки'
+    )
+
+
+class ProjectEquipmentForm(InfoFormMixin):
+    pass
+
+
+class ProjectCableForm(InfoFormMixin):
     pass
 
 
