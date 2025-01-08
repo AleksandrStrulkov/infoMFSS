@@ -15,7 +15,8 @@ from infoMFSS.filters import MineSabInclFilter
 # from mailings.forms import MessageForm, ClientForm, MailingForm, MailingManagerForm, MailingOptionsForm, UserActiveForm
 from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone, BranchesBox, \
     Equipment, Cable, Violations, Visual, EquipmentInstallation, CableMagazine
-from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, VisualCreateForm
+from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, VisualCreateForm, ProjectEquipmentForm, \
+    ProjectCableForm
 from django.shortcuts import render
 from users.models import User
 import random
@@ -305,17 +306,7 @@ def percent_view(request):
     return render(request, 'mfss/percents.html', context)
 
 
-# class EquipmentListView(FormMixin, ListView):
-#     model = Execution
-#     form_class = SubsystemForm
-#     template_name = 'mfss/equipment_list.html'
-#     context_object_name = "equipment"
-#     extra_context = {
-#             'title': "Просмотр установленного оборудования",
-#     }
-
-
-class FormListView(FormMixin, ListView):
+class FormListViewMixin(FormMixin, ListView):
     result = 0
 
     def get(self, request, *args, **kwargs):
@@ -351,8 +342,40 @@ class FormListView(FormMixin, ListView):
         # context['phone_number'] = PointPhone.objects.all()
         return context
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        mine = self.request.GET.get('number_mines')
+        subsystem = self.request.GET.get('subsystems')
 
-class EquipmentListView(FormListView):
+        if mine == 'Все шахты' and subsystem == 'Все подсистемы':
+            self.result = 1
+            object_list = queryset.all()
+            return object_list
+
+        elif mine == 'Все шахты' and subsystem:
+            self.result = 2
+            object_list = queryset.filter(
+                    subsystem__title=subsystem,
+            )
+            return object_list
+
+        elif mine and subsystem == 'Все подсистемы':
+            self.result = 3
+            object_list = queryset.filter(
+                    number_mine__title=mine,
+            )
+            return object_list
+
+        elif mine and subsystem:
+            self.result = 4
+            object_list = queryset.filter(
+                    number_mine__title=mine,
+                    subsystem__title=subsystem,
+            )
+            return object_list
+
+
+class EquipmentListView(FormListViewMixin):
     form_class = EquipmentForm
     model = Execution
     template_name = 'mfss/equipment_list.html'
@@ -441,7 +464,7 @@ class EquipmentListView(FormListView):
             return object_list
 
 
-class CableListView(FormListView):
+class CableListView(FormListViewMixin):
     form_class = CableForm
     model = Execution
     template_name = 'mfss/cable_list.html'
@@ -531,7 +554,7 @@ class CableListView(FormListView):
             return object_list
 
 
-class BoxListView(FormListView):
+class BoxListView(FormListViewMixin):
     form_class = BoxForm
     model = BranchesBox
     template_name = 'mfss/box_list.html'
@@ -540,44 +563,45 @@ class BoxListView(FormListView):
     }
 
     def get_queryset(self):
+        queryset = super().get_queryset()
         mine = self.request.GET.get('number_mines')
         subsystem = self.request.GET.get('subsystems')
         incl_blocks = self.request.GET.get('incl_blocks')
 
         if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
             self.result = 1
-            object_list = BranchesBox.objects.all()
+            object_list = queryset.all()
             return object_list
 
         elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки':
             self.result = 2
-            object_list = BranchesBox.objects.filter(
+            object_list = queryset.filter(
                     subsystem__title=subsystem,
             )
             return object_list
         elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
             self.result = 3
-            object_list = BranchesBox.objects.filter(
+            object_list = queryset.filter(
                     number_mine__title=mine,
             )
             return object_list
         elif mine and subsystem and incl_blocks == 'Все уклонные блоки':
             self.result = 4
-            object_list = BranchesBox.objects.filter(
+            object_list = queryset.filter(
                     number_mine__title=mine,
                     subsystem__title=subsystem,
             )
             return object_list
         elif mine and subsystem == 'Все подсистемы' and incl_blocks:
             self.result = 5
-            object_list = BranchesBox.objects.filter(
+            object_list = queryset.filter(
                     number_mine__title=mine,
                     inclined_blocks__title=incl_blocks,
             )
             return object_list
         elif mine and subsystem and incl_blocks:
             self.result = 9
-            object_list = BranchesBox.objects.filter(
+            object_list = queryset.filter(
                     number_mine__title=mine,
                     subsystem__title=subsystem,
                     inclined_blocks__title=incl_blocks,
@@ -653,7 +677,7 @@ class ViolationsListView(ListView):
         return context
 
 
-class VisualListView(FormListView):
+class VisualListView(FormListViewMixin):
     model = Visual
     form_class = VisualCreateForm
     template_name = 'mfss/visual_list.html'
@@ -677,17 +701,22 @@ class VisualListView(FormListView):
         return context
 
 
-class ProjectEquipmentListView(ListView):
+class ProjectEquipmentListView(FormListViewMixin):
     model = EquipmentInstallation
+    form_class = ProjectEquipmentForm
     template_name = 'mfss/project_equipment_list.html'
+    context_object_name = 'project_equipment'
     extra_context = {
-            'title': "Проект МФСБ",
+            'title': "Проект МФСБ (оборудование)",
     }
 
 
-class ProjectCableListView(ListView):
+class ProjectCableListView(FormListViewMixin):
     model = CableMagazine
+    form_class = ProjectCableForm
     template_name = 'mfss/project_cable_list.html'
+    context_object_name = 'project_cable'
     extra_context = {
-            'title': "Проект МФСБ",
+            'title': "Проект МФСБ (кабельная продукция)",
     }
+
