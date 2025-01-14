@@ -41,7 +41,7 @@ class InclinedBlocks(models.Model):
     def __str__(self):
         if self.number_mine is None:
             return self.title
-        return f'{self.title} {self.number_mine}'
+        return f'{self.title}'
 
     class Meta:
         verbose_name = 'уклонный блок'
@@ -83,7 +83,7 @@ class Tunnel(models.Model):
         if self.inclined_blocks is not None:
             return f'{self.title} {self.inclined_blocks}'
         else:
-            return f'{self.title} {self.number_mine}'
+            return f'{self.title}'
 
     class Meta:
         verbose_name = 'выработка'
@@ -186,11 +186,11 @@ class PointPhone(models.Model):
         )
     tunnel = models.ForeignKey(
             Tunnel, related_name='tunnel_phones', on_delete=models.CASCADE,
-            verbose_name='Выработка'
+            verbose_name='Выработка', **NULLABLE,
     )
     inclined_blocks = models.ForeignKey(
             InclinedBlocks, related_name='block_phones', on_delete=models.CASCADE,
-            verbose_name='Уклонный блок', default='Туффит', **NULLABLE,
+            verbose_name='Уклонный блок', **NULLABLE,
     )
     subscriber_number = models.CharField(max_length=10, verbose_name='Абонентский номер', unique=True, )
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
@@ -198,7 +198,7 @@ class PointPhone(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
-        return f'{self.title}({self.tunnel}/{self.subscriber_number})'
+        return f'{self.title}/{self.subscriber_number}/{self.number_mine}'
 
     class Meta:
         verbose_name = 'точка телефонии'
@@ -212,7 +212,7 @@ class BranchesBox(models.Model):
     title = models.CharField(max_length=100, verbose_name='Название')
     inclined_blocks = models.ForeignKey(
             InclinedBlocks, related_name='incl_boxs', on_delete=models.CASCADE,
-            verbose_name='Уклонный блок', default='Туффит', **NULLABLE,
+            verbose_name='Уклонный блок', **NULLABLE,
     )
     name_slag = models.CharField(max_length=100, verbose_name='Генерация slag', **NULLABLE)
     number_mine = models.ForeignKey(
@@ -221,11 +221,11 @@ class BranchesBox(models.Model):
     )
     tunnel = models.ForeignKey(
             Tunnel, related_name='tunnel_boxs', on_delete=models.CASCADE,
-            verbose_name='Выработка'
+            verbose_name='Выработка', **NULLABLE
     )
     subsystem = models.ForeignKey(
             Subsystem, related_name='sub_boxs', on_delete=models.CASCADE,
-            verbose_name='Подсистема'
+            verbose_name='Подсистема', **NULLABLE
     )
     equipment = models.ForeignKey(
             'EquipmentInstallation', related_name='equipment_boxs', on_delete=models.CASCADE,
@@ -244,7 +244,7 @@ class BranchesBox(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.title}({self.tunnel})'
+        return f'{self.title}'
         # return f'{self.title}({self.number_mine})'
 
     class Meta:
