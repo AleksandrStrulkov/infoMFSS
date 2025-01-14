@@ -145,8 +145,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # это пока не нужно
 # end
 
 # Настройка отправки сообщений по электронной почте
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 587
 EMAIL_USE_SSL = True
@@ -172,9 +172,9 @@ if CASH_ENABLE:
 # end
 
 # Защита от CSRF атак
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_USE_SESSION_ID = False
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_USE_SESSION_ID = False
 # end
 
 # Конфигурация CORS

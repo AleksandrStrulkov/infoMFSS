@@ -79,7 +79,7 @@
                                     <th>Установлено</th>
                                 </tr>
                             {% endif %}
-                            {% for object in project_equipment %}
+                            {% for object in project_equipment_list %}
                                 {% if object.title %}
                                     <tr class="box-table-td">
                                         {#                                        <td>{{ object.number_mine.title }}</td>#}
@@ -91,7 +91,13 @@
                                             {% else %}
                                                 <td>{{ object.name }}
                                             {% endif %}
+                                    {% if object.point_phone %}
+                                        <td>{{ object.point_phone.tunnel.title }}(ПК{{ object.picket }})</td>
+                                        {% elif  object.branches_box %}
+                                        <td>{{ object.branches_box.tunnel.title }}(ПК{{ object.picket }})</td>
+                                        {% else %}
                                         <td>{{ object.tunnel.title }}(ПК{{ object.picket }})</td>
+                                        {% endif %}
                                         <td>{{ object.inclined_blocks.title }}</td>
                                         {% if object.equipment_bool.execution_bool == True %}
                                             <td class="text-center">&#9989;</td>

@@ -70,6 +70,10 @@ class EquipmentForm(InfoFormMixin):
             initial='Все оборудование'
     )
 
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.fields['equipment'].queryset = Equipment.objects.filter(subsystem=self.initial.subsystems)
+
 
 class CableForm(InfoFormMixin):
     incl_blocks = forms.ModelChoiceField(

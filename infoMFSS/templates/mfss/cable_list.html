@@ -43,75 +43,61 @@
                 <div class="col-sm">
                 </div>
             </div>
-
-
-            <div class="container text-center">
-                {% if mine is not None %}
-                    {% if object_list %}
-                        <h9>По критериям: {{ mine }} ➡️ {{ subsystem }} ➡️ {{ incl_blocks }} &#9989;</h9>
-                    {% else %}
-                        <h9a>По критериям: {{ mine }} ➡️ {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>
-                        <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
-                    {% endif %}
-                {% endif %}
-                {{ result }}
-                <div class="container text-center mt-5 mb-5">
-                    <div class="mt-sm-5 mb-sm-5">
-                        <div class="container mt-5 mb-5 table-responsive">
-                            {% if object_list %}
-                                <table class="table table-hover">
-                                <tr class="table-active">
-                                    <th>Шахта</th>
-                                    <th>Подсистема</th>
-                                    <th>Начало трассы</th>
-                                    <th>Конец трассы</th>
-                                    <th>Уклонный блок</th>
-                                    <th>Протяженность</th>
-                                    <th>Марка кабеля</th>
-                                    <th>Обозначение в проекте</th>
-                                </tr>
-                            {% endif %}
-                            {% for object in object_list %}
-                                {% if object.cable_magazine %}
-                                    <tr>
-                                        <td>{{ object.cable_magazine.number_mine.title }}</td>
-                                        <td>{{ object.cable_magazine.subsystem.title }}</td>
-                                        <td>{{ object.cable_magazine.track_from_box.title }}
-                                            ({{ object.cable_magazine.track_from_box.tunnel.title }} -
-                                            {{ object.cable_magazine.track_from_box.picket }})
-                                        </td>
-                                        {% if object.cable_magazine.track_to_box.title %}
-                                            <td>{{ object.cable_magazine.track_to_box.title }}
-                                                ({{ object.cable_magazine.track_to_box.tunnel.title }}
-                                                -{{ object.cable_magazine.track_to_box.picket }})
-                                            </td>
-                                        {% else %}
-                                            <td>{{ object.cable_magazine.track_to_phone.title }}
-                                                ({{ object.cable_magazine.track_to_phone.tunnel.title }} -
-                                                {{ object.cable_magazine.track_to_phone.picket }})
-                                            </td>
-                                        {% endif %}
-                                        <td>{{ object.cable_magazine.inclined_blocks.title }}</td>
-                                        <td>{{ object.cable_magazine.distance }}</td>
-                                        <td>{{ object.cable_magazine.cable.title }}</td>
-                                        <td>{{ object.cable_magazine.name }}</td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
         </form>
     </div>
-    {#    </div>#}
-    <div class="container">
+    <div class="container text-center">
+        {% if mine is not None %}
+            {% if object_list %}
+                <h9>По критериям: {{ mine }} ➡️ {{ subsystem }} ➡️ {{ incl_blocks }} &#9989;</h9>
+            {% else %}
+                <h9a>По критериям: {{ mine }} ➡️ {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>
+                <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
+            {% endif %}
+        {% endif %}
     </div>
-    <div class="container">
+    {#                {{ result }}#}
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5 table-responsive">
+                {% if object_list %}
+                    <table class="table table-hover">
+                    <tr class="table-active box-table-th">
+                        <th>Шахта</th>
+                        <th>Подсистема</th>
+                        <th>Начало трассы</th>
+                        <th>Конец трассы</th>
+                        <th>Уклонный блок</th>
+                        <th>Протяженность</th>
+                        <th>Марка кабеля</th>
+                        <th class="text-center">Обозначение в проекте</th>
+                    </tr>
+                {% endif %}
+                {% for object in cable_list %}
+                    {% if object.cable_magazine %}
+                        <tr class="box-table-td">
+                            <td>{{ object.cable_magazine.number_mine.title }}</td>
+                            <td>{{ object.cable_magazine.subsystem.title }}</td>
+                            <td>{{ object.cable_magazine.track_from_box.title }}
+                                ({{ object.cable_magazine.track_from_box.tunnel.title }})
+                            </td>
+                            {% if object.cable_magazine.track_to_box.title %}
+                                <td>{{ object.cable_magazine.track_to_box.title }}
+                                    ({{ object.cable_magazine.track_to_box.tunnel.title }})
+                                </td>
+                            {% else %}
+                                <td>{{ object.cable_magazine.track_to_phone.title }}
+                                    ({{ object.cable_magazine.track_to_phone.tunnel.title }})
+                                </td>
+                            {% endif %}
+                            <td>{{ object.cable_magazine.inclined_blocks.title }}</td>
+                            <td>{{ object.cable_magazine.distance }}</td>
+                            <td>{{ object.cable_magazine.cable.title }}</td>
+                            <td class="text-center">{{ object.cable_magazine.name }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                </table>
+            </div>
+        </div>
     </div>
-    {#    </div>#}
-
 {% endblock %}
