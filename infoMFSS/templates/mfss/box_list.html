@@ -42,75 +42,84 @@
                 <div class="col-sm">
                 </div>
             </div>
-
-
-            <div class="container text-center">
-                {% if mine is not None %}
-                    {% if object_list %}
-                        <h9>По критериям: {{ mine }} ➡️ {{ subsystem }} ➡️ {{ incl_blocks }} &#9989;</h9>
-                    {% else %}
-                        <h9a>По критериям: {{ mine }} ➡️ {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>
-                        <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
-                    {% endif %}
-                {% endif %}
-                {{ result }}
-                <div class="container text-center mt-5 mb-5">
-                    <div class="mt-sm-5 mb-sm-5">
-                        <div class="container mt-5 mb-5 table-responsive">
-                            {% if object_list %}
-                                <table class="table table-hover">
-                                <tr class="table-active box-table-th">
-                                    {#                                    <th>Шахта</th>#}
-                                    <th>Подсистема</th>
-                                    <th>Обозн. в проекте</th>
-                                    <th>Описание</th>
-                                    <th>Место монтажа</th>
-                                    {#                                    <th>Пикет</th>#}
-                                    <th>Оборудование</th>
-                                    <th>Обозн. в проекте</th>
-                                    <th>Место монтажа</th>
-                                    {#                                    <th>Пикет</th>#}
-                                    <th>Установлено</th>
-                                    {#                                    <th>Обозначение в проекте</th>#}
-                                </tr>
-                            {% endif %}
-                            {% for object in object_list %}
-                                {% if object.title %}
-                                    <tr class="box-table-td">
-                                        {#                                        <td>{{ object.number_mine.title }}</td>#}
-                                        <td>{{ object.subsystem.title }}</td>
-                                        <td>{{ object.title }}
-                                        <td>{{ object.description }}
-                                        <td>{{ object.tunnel }}(ПК{{ object.picket }})</td>
-                                        {#                                        <td>{{ object.picket}}</td>#}
-                                        {% if object.equipment.point_phone.subscriber_number %}
-                                            <td>{{ object.equipment.title }}(АН{{ object.equipment.point_phone.subscriber_number }})</td>
-                                        {% else %}
-                                            <td>{{ object.equipment.title }}
-                                        {% endif %}
-                                    <td>{{ object.equipment.name }}</td>
-                                        <td>{{ object.equipment.point_phone.tunnel.title }}(ПК{{ object.equipment.picket }})
-                                        </td>
-                                        {#                                        <td>{{ object.equipment.picket }}</td>#}
-                                        {% if object.equipment.equipment_bool.execution_bool == True %}
-                                        <td class="text-center">&#9989;</td>
-                                            {% else %}
-                                        <td class="text-center">&#128500;</td>
-                                            {% endif %}
-                                        {#                                        <td>{{ object.equipment.equipment_bool.execution_bool }}</td>#}
-                                        {#                            <td>{{ object.equipment_install }}</td>#}
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
         </form>
     </div>
+
+
+    <div class="container text-center">
+        {% if mine is not None %}
+            {% if object_list %}
+                <h9>По критериям: {{ mine }} ➡️ {{ subsystem }} ➡️ {{ incl_blocks }} &#9989;</h9>
+            {% else %}
+                <h9a>По критериям: {{ mine }} ➡️ {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>
+                <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
+            {% endif %}
+        {% endif %}
+        {#                {{ result }}#}
+        <div class="container text-center mt-5 mb-5">
+            <div class="mt-sm-5 mb-sm-5">
+                <div class="container mt-5 mb-5 table-responsive">
+                    {% if object_list %}
+                        <table class="table table-hover">
+                        <tr class="table-active box-table-th">
+                            <th>Подсистема</th>
+                            <th>Нефтешахта</th>
+                            <th>Обозн. в проекте</th>
+                            <th>Описание</th>
+                            <th>Место монтажа</th>
+                            <th>Подключенное оборудование</th>
+                            <th>Обозн. в проекте</th>
+                            <th>Место монтажа</th>
+                            <th>Установлено</th>
+                        </tr>
+                    {% endif %}
+                    {% for object in object_list %}
+                        {% if object.title %}
+                            <tr class="box-table-td">
+                                <td>{{ object.subsystem.title }}</td>
+                                <td>{{ object.number_mine.title }}</td>
+                                <td class="text-center">{{ object.title }}</td>
+                                <td>{{ object.description }}</td>
+                                <td>{{ object.tunnel }} (ПК{{ object.picket }})</td>
+                                {% if object.equipment.point_phone.subscriber_number %}
+                                    <td>{{ object.equipment.title }}(АН{{ object.equipment.point_phone.subscriber_number }})</td>
+                                {% else %}
+                                    <td>{{ object.equipment.title }}
+                                {% endif %}
+                                <td class="text-center">{{ object.equipment.name }}</td>
+                                {% if object.equipment.point_phone and object.equipment.inclined_blocks %}
+                                    <td>{{ object.equipment.tunnel.title }}
+                                        {{ object.equipment.inclined_blocks }} (ПК{{ object.equipment.picket }})
+                                    </td>
+                                {% elif object.equipment.point_phone and not object.equipment.inclined_blocks %}
+                                    <td>{{ object.equipment.tunnel.title }}
+                                        (ПК{{ object.equipment.picket }})
+                                    </td>
+                                {% else %}
+                                    <td>{{ object.equipment.tunnel.title }}
+                                        {{ object.equipment.inclined_blocks }} (ПК{{ object.equipment.picket }})
+                                    </td>
+                                {% endif %}
+                                {#                                        <td>{{ object.equipment.picket }}</td>#}
+                                {% if object.equipment.equipment_bool.execution_bool == True %}
+                                    <td class="text-center">&#9989;</td>
+                                {% else %}
+                                    <td class="text-center">&#128500;</td>
+                                {% endif %}
+                                {#                                        <td>{{ object.equipment.equipment_bool.execution_bool }}</td>#}
+                                {#                            <td>{{ object.equipment_install }}</td>#}
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+{#    </div>#}
     {#    </div>#}
     <div class="container">
     </div>

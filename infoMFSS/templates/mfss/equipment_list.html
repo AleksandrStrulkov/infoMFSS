@@ -68,53 +68,24 @@
                     <th>Уклонный блок</th>
                     <th>Пикет</th>
                     <th>Оборудование</th>
-                    <th>Обозначение в проекте</th>
+                    <th class="text-center">Обозначение в проекте</th>
                 </tr>
             {% endif %}
-            {% for object in object_list %}
+            {% for object in equipment_list %}
                 {% if object.equipment_install %}
                     <tr>
-                        {% if object.equipment_install.point_phone %}
-                            <td>{{ object.equipment_install.point_phone.number_mine.title }}</td>
-                        {% elif object.equipment_install.branches_box %}
-                            <td>{{ object.equipment_install.branches_box.number_mine.title }}</td>
-                        {% else %}
-                            <td>{{ object.equipment_install.number_mine.title }}</td>
-                        {% endif %}
-
+                        <td>{{ object.equipment_install.number_mine.title }}</td>
                         <td>{{ object.equipment_install.subsystem.title }}</td>
-
-                        {% if object.equipment_install.point_phone %}
-                            <td>{{ object.equipment_install.point_phone.tunnel.title }}</td>
-                        {% elif object.equipment_install.branches_box %}
-                            <td>{{ object.equipment_install.branches_box.tunnel.title }}</td>
-                        {% else %}
-                            <td>{{ object.equipment_install.tunnel.title }}</td>
-                        {% endif %}
-
-                        {% if object.equipment_install.point_phone %}
-                            <td>{{ object.equipment_install.point_phone.inclined_blocks.title }}</td>
-                        {% elif object.equipment_install.branches_box %}
-                            <td>{{ object.equipment_install.branches_box.inclined_blocks.title }}</td>
-                        {% else %}
-                            <td>{{ object.equipment_install.inclined_blocks.title }}</td>
-                        {% endif %}
-
-                        {% if object.equipment_install.point_phone %}
-                            <td>{{ object.equipment_install.point_phone.picket }}</td>
-                        {% elif object.equipment_install.branches_box %}
-                            <td>{{ object.equipment_install.branches_box.picket }}</td>
-                        {% else %}
-                            <td>{{ object.equipment_install.picket }}</td>
-                        {% endif %}
-
+                        <td>{{ object.equipment_install.tunnel.title }}</td>
+                        <td>{{ object.equipment_install.inclined_blocks.title }}</td>
+                        <td>{{ object.equipment_install.picket }}</td>
                         {% if object.equipment_install.point_phone %}
                             <td>{{ object.equipment_install.title }}(АН {{ object.equipment_install.point_phone.subscriber_number }})
                             </td>
                         {% else %}
                             <td>{{ object.equipment_install.title }}</td>
                         {% endif %}
-                        <td>{{ object.equipment_install.name }}</td>
+                        <td class="text-center">{{ object.equipment_install.name }}</td>
                     </tr>
                 {% endif %}
             {% endfor %}

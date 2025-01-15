@@ -1,0 +1,20 @@
+{% extends 'users/base.html' %}
+{% block content %}
+    <div class="container margin-auth-block">
+        <div class="row text-center mx-auto mt-4 mb-sm-5">
+            <div class="col-sm-3">
+            </div>
+            <div class="col-sm-6 card mb-5 box-shadow card-imad-auth border-none">
+                <div class="card-body mb-3 mt-3 text-center">
+                    <h9>Пользователь с таким E-mail успешно активирован</h9>
+                    <div class="container mt-5 text-center">
+                        <p><a class="color-text-violet underline-none text-center"
+                              href=" {% url 'users:login' %}">Войти в систему</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+            </div>
+        </div>
+    </div>
+{% endblock %}

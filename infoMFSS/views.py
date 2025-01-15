@@ -33,7 +33,7 @@ def sass_page_handler(request):
     return render(request, 'mfss/base.html')
 
 
-class MFSSTemplateView(TemplateView):
+class MFSSPercentTemplateView(TemplateView):
     template_name = 'mfss/home.html'
     extra_context = {
             'title': "МФСС",
@@ -349,7 +349,7 @@ class FormListViewMixin(FormMixin, ListView):
 
         if mine == 'Все шахты' and subsystem == 'Все подсистемы':
             self.result = 1
-            object_list = queryset.all()
+            object_list = queryset.all().order_by('number_mine__title')
             return object_list
 
         elif mine == 'Все шахты' and subsystem:
@@ -379,6 +379,7 @@ class EquipmentListView(FormListViewMixin):
     form_class = EquipmentForm
     model = Execution
     template_name = 'mfss/equipment_list.html'
+    context_object_name = 'equipment_list'
     extra_context = {
             'title': "Просмотр установленного оборудования",
     }
@@ -392,7 +393,7 @@ class EquipmentListView(FormListViewMixin):
         if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
                 equipment == 'Все оборудование':
             self.result = 1
-            object_list = Execution.objects.filter(execution_bool=True)
+            object_list = Execution.objects.filter(execution_bool=True).order_by('equipment_install__number_mine__title')
             return object_list
 
         elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки' and \
@@ -468,6 +469,7 @@ class CableListView(FormListViewMixin):
     form_class = CableForm
     model = Execution
     template_name = 'mfss/cable_list.html'
+    context_object_name = 'cable_list'
     extra_context = {
             'title': "Просмотр проложенных трасс кабелей",
     }
@@ -705,18 +707,29 @@ class ProjectEquipmentListView(FormListViewMixin):
     model = EquipmentInstallation
     form_class = ProjectEquipmentForm
     template_name = 'mfss/project_equipment_list.html'
-    context_object_name = 'project_equipment'
+    context_object_name = 'project_equipment_list'
     extra_context = {
             'title': "Проект МФСБ (оборудование)",
     }
+
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #     mine = self.request.GET.get('number_mines')
+    #     subsystem = self.request.GET.get('subsystems')
+    #
+    #     if mine == 'Все шахты' and subsystem == 'Все подсистемы':
+    #         self.result = 1
+    #         object_list = Execution.objects.all().order_by('equipment_install__number_mine__title')
+    #         return object_list
 
 
 class ProjectCableListView(FormListViewMixin):
     model = CableMagazine
     form_class = ProjectCableForm
     template_name = 'mfss/project_cable_list.html'
-    context_object_name = 'project_cable'
+    context_object_name = 'project_cable_list'
     extra_context = {
             'title': "Проект МФСБ (кабельная продукция)",
     }
+
 

@@ -1,0 +1,42 @@
+{% extends 'mfss/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <form method="post" action="" class="">
+            <div class="row text-start mx-auto mt-1">
+                <div class="col-sm">
+                </div>
+                <div class="col-sm card mb-1 box-shadow card_imad">
+                    <div class="card-body">
+                        {% load crispy_forms_tags %}
+                        {% csrf_token %}
+                        {% crispy form %}
+                        <button type="submit" class="btn elem-button btn-md mx-2">
+                            Выполнить
+                        </button>
+                        <a class="ms-5" href="{% url 'users:profile_edit' %}">Сменить пароль</a>
+                    </div>
+                </div>
+                <div class="col-sm">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container text-center mt-2 mb-1">
+        <div class="mt-sm-3 mb-sm-1">
+            <div class="container mt-5 mb-5">
+                <br>
+            </div>
+        </div>
+    </div>
+{% endblock %}

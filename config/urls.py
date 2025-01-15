@@ -25,8 +25,7 @@ urlpatterns = [
     path('sass_page', views.sass_page_handler),
     path(r'^chaining/', include('smart_selects.urls')),
     path('', include('infoMFSS.urls', namespace='mfss')),
-    # path('users/', include('users.urls', namespace='users')),
-
+    path('users/', include('users.urls', namespace='users')),
 ]
 
 if settings.DEBUG:
