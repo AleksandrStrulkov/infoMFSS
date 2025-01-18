@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.views import LoginView as BaseLoginView, PasswordChangeView
+from django.contrib.auth.views import LoginView as BaseLoginView, PasswordChangeView, PasswordChangeDoneView
 from django.contrib.auth.views import LogoutView as BaseLogoutView
 from django.views.generic import CreateView, UpdateView
 from django.views.generic.base import TemplateView
@@ -74,7 +74,7 @@ def user_activate(request, sign):
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     models = User
-    success_url = reverse_lazy('users:profile')
+    success_url = reverse_lazy('mfss:home')
     form_class = UserProfileForm
     extra_context = {
             'title': "Профиль",
@@ -94,10 +94,11 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
 
 class PasswordEditView(SuccessMessageMixin, LoginRequiredMixin, PasswordChangeView):
     template_name = 'users/password_edit.html'
-    success_url = reverse_lazy('users:profile')
+    success_url = reverse_lazy('users:profile_edit_done')
     success_message = 'Пароль успешно изменен'
 
 
-# class PasswordResetView(auth_views.PasswordResetView):
-#     template_name = 'users/password_reset_done.html'
+class PasswordEditDoneView(SuccessMessageMixin, LoginRequiredMixin, PasswordChangeDoneView):
+    template_name = 'users/password_update_complete.html'
+
 

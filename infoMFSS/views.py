@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.cache import cache
@@ -16,7 +17,7 @@ from infoMFSS.filters import MineSabInclFilter
 from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone, BranchesBox, \
     Equipment, Cable, Violations, Visual, EquipmentInstallation, CableMagazine
 from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, VisualCreateForm, ProjectEquipmentForm, \
-    ProjectCableForm
+    ProjectCableForm, ContactForm
 from django.shortcuts import render
 from users.models import User
 import random
@@ -733,3 +734,42 @@ class ProjectCableListView(FormListViewMixin):
     }
 
 
+class ContactFormView(LoginRequiredMixin, FormView):
+    template_name = 'mfss/contact.html'  # Шаблон для отображения формы
+    form_class = ContactForm  # Форма, которую мы будем использовать
+    success_url = reverse_lazy('mfss:contact_success')  # URL для перенаправления после успешной отправки
+
+    def form_valid(self, form):
+        """
+        Этот метод вызывается, если форма прошла валидацию.
+        Здесь мы отправляем письма администратору и пользователю.
+        """
+        # Получаем данные из формы
+        name = form.cleaned_data['name']
+        email = form.cleaned_data['email']
+        message = form.cleaned_data['message']
+
+        # Отправка письма администратору
+        admin_subject = f"Новое сообщение от {name}"
+        admin_message = f"Имя: {name}\nEmail: {email}\n\nСообщение:\n{message}"
+        send_mail(
+            admin_subject,
+            admin_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.EMAIL_HOST_USER],  # Email администратора
+            fail_silently=False,
+        )
+
+        # Отправка письма пользователю
+        user_subject = "Ваше сообщение получено"
+        user_message = f"Здравствуйте, {name}!\n\nСпасибо за ваше сообщение.\n\nВаше сообщение:\n{message}"
+        send_mail(
+            user_subject,
+            user_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [email],  # Email пользователя
+            fail_silently=False,
+        )
+
+        # Возвращаем стандартный метод после успешной обработки
+        return super().form_valid(form)

@@ -139,6 +139,14 @@ h11 {
   cursor: default;
   font-weight: 300; }
 
+h10 {
+  font-size: 22px;
+  line-height: 42px;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 370; }
+
 h14 {
   font-size: 18px;
   font-weight: 300; }
@@ -150,6 +158,27 @@ hfy {
   margin: 0 0 36px;
   cursor: default;
   font-weight: 200; }
+
+.arrow {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 5px;
+  /* Отступ от текста */
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #6d37ff;
+  /* Цвет стрелки */
+  transition: transform 0.3s ease;
+  /* Плавное вращение */ }
+
+.dropdown-custom[aria-expanded="true"] .arrow {
+  transform: rotate(180deg);
+  /* Поворачиваем стрелку вниз */ }
+
+.navbar .nav-link:hover {
+  color: #9874ff;
+  /* Цвет текста при наведении */ }
 
 .box-table-th {
   font-size: 13px; }
@@ -269,8 +298,7 @@ hfy {
   background-size: 60vh;
   margin: 0;
   background: #ffffff;
-  border-radius: 20px 20px 20px 20px;
-  text-shadow: 0 2px 10px #8e8ef3, 0 -1px 1px #f3f3fa; }
+  border-radius: 20px 20px 20px 20px; }
 
 .card_table {
   background-size: 50vh;
@@ -617,5 +645,8 @@ navbar-auth {
 
 .nav-auth-block {
   margin-right: 20px; }
+
+.nav-auth-user {
+  margin-bottom: -11px; }
 
 /*# sourceMappingURL=main.css.map */

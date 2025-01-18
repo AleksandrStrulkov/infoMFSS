@@ -66,50 +66,77 @@
                                 <li><a class="dropdown-item" href="#">Мои рассылки</a></li>
                             </ul>
                         </li>
+                        {#                        <li class="nav-item dropdown justify-content-end">#}
+                        {#                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"#}
+                        {#                               aria-expanded="false">#}
+                        {#                                {{ user.first_name }}#}
+                        {#                            </a>#}
+                        {#                            <ul class="dropdown-menu dropdown-menu">#}
+                        {#                                <li><a class="dropdown-item" href="{% url 'mfss:percents' %}">Профиль</a></li>#}
+                        {#                                <li>#}
+                        {#                                    <hr class="dropdown-divider">#}
+                        {#                                </li>#}
+                        {#                                <li><a class="dropdown-item" href="{% url 'mfss:equipment' %}">Выход</a></li>#}
+                        {#                            </ul>#}
+                        {#                        </li>#}
+                        {#                        <li class="nav-item dropdown text-end">#}
+                        {#                            {% if user.is_authenticated %}#}
+                        {#                                <a class="nav-link dropdown-toggle" href="#" role="button"#}
+                        {#                                   data-bs-toggle="dropdown">#}
+                        {#                                    {{ user.first_name }}#}
+                        {#                                </a>#}
+                        {#                                <ul class="dropdown-menu">#}
+                        {#                                    <li><a class="dropdown-item" href="{% url "users:profile" %}">Профиль</a></li>#}
+                        {##}
+                        {#                                    <li>#}
+                        {#                                        <form method="post" action="{% url "users:logout" %}">#}
+                        {#                                            {% csrf_token %}#}
+                        {#                                        <button class="btn dropdown-item" href="#">Выйти</button>#}
+                        {#                                            </form>#}
+                        {#                                    </li>#}
+                        {#                                    </form>#}
+                        {#                                </ul>#}
+                        {#                                {% else %}#}
+                        {#                                 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3 text-end">#}
+                        {#                                <a href="{% url "users:login" %}" class="btn elem-button mb-3">Вход</a>#}
+                        {#                                </div>#}
+                        {##}
+                        {#                            {% endif %}#}
+                        {#                        </li>#}
                     </ul>
-{#                    <div class="row d-grid gap-2 d-md-block justify-content-md-end">#}
-{#                    <div class="row gap-2 d-grid ">#}
-                    {#                        {% if user.is_authenticated %}#}
-                    {#                            <div class="col mx-1 text-center">#}
-                    {#                                <a href="{% url "users:profile" %}" class="text-center g-3md text-decoration-none"#}
-                    {#                                   Style="color:#6d37ff; font-size: 15px;">#}
-                    {#                                    {{ user.email }}#}
-                    {#                                </a>#}
-                    {#                            </div>#}
-                    {#                            <div class="col mx-1">#}
-                    {#                            <form method="post" action="{% url "users:logout" %}">#}
-                    {#                                {% csrf_token %}#}
-                    {#                                <a href="#" class="btn elem-button me-md-2" type="button">Выход#}
-                    {#                                </a>#}
-                    {#                                <button class="btn elem-button me-md-2" type="submit">Выход#}
-                    {##}
-                    {#                                </button>#}
-                    {#                            </form>#}
-                    {#                        {% else %}#}
-                    {#                            <a href="{% url "users:login" %}" class="btn elem-button me-md-2" type="button">Войти#}
-                    {#                            </a>#}
-                    {#                        {% endif %}#}
-                    {#                        </div>#}
-                    {#                    </div>#}
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
-                    {% if user.is_authenticated %}
-                        <a href="{% url "users:profile" %}" class="text-center g-3md text-decoration-none mt-2">
-
-                            {{ user.email }}
-                        </a>
-                        <form method="post" action="{% url "users:logout" %}">
+                    <ul class="navbar-nav ms-auto">
+                        <form id="logout-form" method="post" action="{% url 'users:logout' %}" style="display: none;">
                             {% csrf_token %}
-                            <button class="btn elem-button me-md-2" type="submit">Выход
-
-                            </button>
                         </form>
-                    {% else %}
-                        <a href="{% url "users:login" %}" class="btn elem-button mb-3"
-                        >Вход</a>
-{#                        <a href="{% url "users:register" %}" class="btn elem-button  mb-3"#}
-{#                        >Регистрация</a>#}
-                    {% endif %}
-                </div>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item dropdown">
+                                <a
+                                        class="nav-link dropdown-custom color-text-violet"
+                                        href="#"
+                                        id="userMenu"
+                                        role="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    {{ user.first_name }}
+                                    <span class="arrow"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                                    <li><a class="dropdown-item" href="{% url 'users:profile' %}">Мой профиль</a></li>
+{#                                    <li><a class="dropdown-item" href="#">Настройки</a></li>#}
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a onclick="document.getElementById('logout-form').submit();"
+                                           class="dropdown-item" href="#">Выйти</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <button type="submit" class="btn elem-button btn-md mx-2"
+                                    onclick="location.href = '{% url "users:login" %}'">
+                                Вход
+                            </button>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
         </nav>

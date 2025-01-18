@@ -3,7 +3,7 @@ from django import forms
 # from catalog.forms import StyleFormMixin
 from users.models import User
 from users.signals import post_register
-
+import re
 
 class StyleFormMixin:
     def __init__(self, *args, **kwargs):
@@ -28,6 +28,35 @@ class UserProfileForm(StyleFormMixin, UserChangeForm):
 
 class RegisterForm(StyleFormMixin, UserCreationForm):
     """Добавление формы регистрации пользователя с верификацией"""
+    phone = forms.CharField(
+            max_length=12,
+            widget=forms.TextInput(
+                    attrs={
+                            'placeholder': '+7XXXXXXXXXX',  # Подсказка в поле
+                            'value': '+7',  # Автоматическое значение
+                    }
+            ),
+            label="Номер телефона",
+            required=True
+    )
+
+    class Meta:
+        model = User
+        fields = ('email', 'first_name', 'phone')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        phone = cleaned_data.get('phone')
+
+        if phone:
+            if not phone.startswith('+7'):
+                self.add_error('phone', "Номер телефона должен начинаться с '+7'.")
+
+        digits = phone[2:]
+        if not re.match(r'^\d{10}$', digits):  # Проверяем, что оставшиеся 10 символов — цифры
+            self.add_error('phone', "Введите 10 цифр после '+7'.")
+
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -38,7 +67,3 @@ class RegisterForm(StyleFormMixin, UserCreationForm):
             user.save()
         post_register.send(RegisterForm, instance=user)
         return user
-
-    class Meta:
-        model = User
-        fields = ('email', 'first_name', 'phone')

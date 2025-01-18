@@ -106,3 +106,9 @@ class VisualCreateForm(forms.ModelForm):
         model = Visual
         fields = ('number_mines', 'equipment')
 
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, label="Ваше имя")
+    email = forms.EmailField(label="Ваш email")
+    message = forms.CharField(widget=forms.Textarea, label="Сообщение")
+
