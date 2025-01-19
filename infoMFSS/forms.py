@@ -18,13 +18,6 @@ class InfoFormMixin(forms.ModelForm):
         model = Execution
         fields = ('number_mines', 'subsystems',)
 
-
-class PercentForm(InfoFormMixin):
-    incl_blocks = forms.ModelChoiceField(
-            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
-            initial='Все уклонные блоки'
-    )
-
     def clean(self):
         cleaned_data = super().clean()
         number_mines = cleaned_data.get('number_mines').title
@@ -51,13 +44,21 @@ class PercentForm(InfoFormMixin):
 
         if incl_in_mines:
             if incl_blocks not in incl_list:
-                raise forms.ValidationError('Не верно указан уклонный блок')
+                self.add_error('incl_blocks', 'Не верно указан уклонный блок')
 
-        if number_mines == 'Все шахты' and subsystems == 'Все подсистемы' and incl_blocks in incl_all_list:
-            raise forms.ValidationError('Нефтешахта не выбрана')
+        # if number_mines == 'Все шахты' and subsystems == 'Все подсистемы' and incl_blocks in incl_all_list:
+            # raise forms.ValidationError('Нефтешахта не выбрана')
+            # self.add_error('number_mines', 'Нефтешахта не выбрана')
 
         if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
-            raise forms.ValidationError('Нефтешахта не выбрана')
+            self.add_error('number_mines', 'Нефтешахта не выбрана')
+
+
+class PercentForm(InfoFormMixin):
+    incl_blocks = forms.ModelChoiceField(
+            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
+            initial='Все уклонные блоки'
+    )
 
 
 class EquipmentForm(InfoFormMixin):
@@ -69,10 +70,6 @@ class EquipmentForm(InfoFormMixin):
             queryset=Equipment.objects.all(), to_field_name="title", label='Оборудование',
             initial='Все оборудование'
     )
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self.fields['equipment'].queryset = Equipment.objects.filter(subsystem=self.initial.subsystems)
 
 
 class CableForm(InfoFormMixin):
@@ -105,4 +102,10 @@ class VisualCreateForm(forms.ModelForm):
     class Meta:
         model = Visual
         fields = ('number_mines', 'equipment')
+
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, label="Ваше имя")
+    email = forms.EmailField(label="Ваш email")
+    message = forms.CharField(widget=forms.Textarea, label="Сообщение")
 

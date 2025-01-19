@@ -1,5 +1,7 @@
 {% extends 'mfss/base.html' %}
 {#{% load my_tags %}#}
+
+
 {% block content %}
     <br>
     <br>
@@ -338,7 +340,7 @@
                             <h5 class="card-title h3-block-card-head">Обратная связь</h5>
                             <p class="card-text h3-block-card-footer">В случае обнаружения ошибки в данных
                             напишите письмо администратору ресурса</p>
-                            <a href="#" class="stretched-link"></a>
+                            <a href="{% url 'mfss:contact' %}" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>
@@ -395,8 +397,8 @@
     </div>
     <br>
     <br>
-    {% include 'mfss/includes/nsh1_modal.html' %}
-    {% include 'mfss/includes/nsh2_modal.html' %}
-    {% include 'mfss/includes/nsh3_modal.html' %}
-    {% include 'mfss/includes/nsh123_modal.html' %}
+{#    {% include 'mfss/includes/nsh1_modal.html' %}#}
+{#    {% include 'mfss/includes/nsh2_modal.html' %}#}
+{#    {% include 'mfss/includes/nsh3_modal.html' %}#}
+{#    {% include 'mfss/includes/nsh123_modal.html' %}#}
 {% endblock %}

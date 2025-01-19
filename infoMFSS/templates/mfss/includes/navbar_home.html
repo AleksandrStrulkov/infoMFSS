@@ -1,0 +1,131 @@
+{% load static %}
+<div class="container navbar-st">
+    <div class="container-xxl mt-3">
+        <nav class="navbar navbar-expand-lg navbar-light navbar-my">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <h4>
+                        ĩnfoMFS&#350;
+                    </h4>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarScroll"
+                        aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarScroll">
+                    <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll"
+                        style="--bs-scroll-height: 100px;">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'mfss:home' %}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                     class="bi bi-house-door" viewBox="0 0 16 16">
+                                    <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5
+                                    .5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4z"/>
+                                </svg>
+                                Главная
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                     fill="currentColor"
+                                     class="bi bi-hand-index" viewBox="0 0 16 16">
+                                    <path d="M6.75 1a.75.75 0 0 1 .75.75V8a.5.5 0 0 0 1 0V5.467l.086-.004c.317-.012.637-.008.816.027.134.027.294.096.448.182.077.042.15.147.15.314V8a.5.5 0 1 0 1 0V6.435a4.9 4.9 0 0 1 .106-.01c.316-.024.584-.01.708.04.118.046.3.207.486.43.081.096.15.19.2.259V8.5a.5.5 0 0 0 1 0v-1h.342a1 1 0 0 1 .995 1.1l-.271 2.715a2.5 2.5 0 0 1-.317.991l-1.395 2.442a.5.5 0 0 1-.434.252H6.035a.5.5 0 0 1-.416-.223l-1.433-2.15a1.5 1.5 0 0 1-.243-.666l-.345-3.105a.5.5 0 0 1 .399-.546L5 8.11V9a.5.5 0 0 0 1 0V1.75A.75.75 0 0 1 6.75 1M8.5 4.466V1.75a1.75 1.75 0 1 0-3.5 0v5.34l-1.2.24a1.5 1.5 0 0 0-1.196 1.636l.345 3.106a2.5 2.5 0 0 0 .405 1.11l1.433 2.15A1.5 1.5 0 0 0 6.035 16h6.385a1.5 1.5 0 0 0 1.302-.756l1.395-2.441a3.5 3.5 0 0 0 .444-1.389l.271-2.715a2 2 0 0 0-1.99-2.199h-.581a5.114 5.114 0 0 0-.195-.248c-.191-.229-.51-.568-.88-.716-.364-.146-.846-.132-1.158-.108l-.132.012a1.26 1.26 0 0 0-.56-.642 2.632 2.632 0 0 0-.738-.288c-.31-.062-.739-.058-1.05-.046zm2.094 2.025"/>
+                                </svg>
+                                Функционал
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'mfss:percents' %}">Процент
+                                    выполнения</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><p class="p-3 mb-1" href="#">Установлено:</p></li>
+                                <li>
+                                    {#                                    <hr class="dropdown-divider">#}
+                                <li><a class="dropdown-item" href="{% url 'mfss:equipment' %}">Оборудование</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:cable' %}">Кабельная продукция</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"
+                                     xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8.8638 0.0460592C7.90812 -0.192861 7.02087 0.530102 6.95631 1.46585C6.88374 2.51744 6.72691 3.48161 6.52757 4.05676C6.4031 4.4159 6.04895 5.06871 5.48879 5.69469C4.93091 6.31812 4.20585 6.87339 3.35693 7.10496C2.68549 7.28812 2 7.86992 2 8.72015V12.7212C2 13.5656 2.68233 14.185 3.44792 14.2662C4.51741 14.3796 5.0118 14.6814 5.51594 14.9891L5.56354 15.0182C5.83632 15.1844 6.14176 15.3675 6.53434 15.5026C6.93094 15.6392 7.39536 15.7205 8 15.7205H11.5C12.4371 15.7205 13.099 15.2426 13.4341 14.6561C13.5982 14.369 13.6875 14.0499 13.6875 13.7439C13.6875 13.5916 13.6647 13.4318 13.6107 13.2795C13.8121 13.0172 13.9915 12.7021 14.0993 12.3786C14.2091 12.0494 14.2709 11.6171 14.1026 11.2304C14.1718 11.0997 14.2235 10.9614 14.262 10.8266C14.3392 10.5564 14.375 10.2594 14.375 9.9705C14.375 9.68161 14.3392 9.38454 14.262 9.11439C14.2275 8.99364 14.1824 8.87012 14.1237 8.75177C14.5183 8.18035 14.5421 7.55086 14.3576 7.01847C14.1524 6.42641 13.6764 5.91891 13.1581 5.74615C12.311 5.46378 11.3547 5.47028 10.6422 5.53505C10.484 5.54943 10.3353 5.56695 10.1994 5.58555C10.6699 3.58771 10.357 1.89202 10.1366 1.07601C9.99923 0.567518 9.58765 0.227022 9.12522 0.111414L8.8638 0.0460592ZM11.5 14.7205H8C7.48931 14.7205 7.13694 14.6525 6.85992 14.5571C6.57887 14.4603 6.35385 14.3287 6.08393 14.1642L6.04402 14.1399C5.48916 13.8014 4.8456 13.4088 3.55337 13.2717C3.22055 13.2365 3 12.9813 3 12.7211V8.72014C3 8.4658 3.2259 8.17723 3.6201 8.0697C4.71546 7.7709 5.59685 7.07352 6.23399 6.36152C6.86886 5.65205 7.29831 4.88662 7.47243 4.38422C7.71504 3.68422 7.8793 2.61627 7.95393 1.53467C7.97893 1.17237 8.31466 0.939535 8.62127 1.01619L8.88269 1.08154C9.04329 1.12169 9.14107 1.22529 9.17119 1.33678C9.39155 2.15255 9.71926 3.98157 9.02566 6.06237C8.96795 6.23549 9.00915 6.42631 9.13314 6.56021C9.25709 6.69406 9.44428 6.74973 9.62127 6.70555L9.62386 6.70492L9.63757 6.70165C9.65031 6.69864 9.67014 6.69406 9.69646 6.68826C9.74911 6.67666 9.82756 6.66022 9.92698 6.64181C10.1262 6.60491 10.4075 6.5605 10.7328 6.53093C11.3953 6.4707 12.189 6.4772 12.8419 6.69482C13.0174 6.75332 13.2914 6.99582 13.4127 7.34594C13.5193 7.65331 13.4986 8.0148 13.1464 8.36693L12.7929 8.72048L13.1464 9.07404C13.189 9.11658 13.2507 9.215 13.3005 9.38909C13.3483 9.55643 13.375 9.75937 13.375 9.97048C13.375 10.1816 13.3483 10.3845 13.3005 10.5519C13.2507 10.726 13.189 10.8244 13.1464 10.8669L12.7929 11.2205L13.1464 11.574C13.1935 11.6211 13.2546 11.7505 13.1507 12.0624C13.053 12.3554 12.8481 12.6653 12.6464 12.8669L12.2929 13.2205L12.6464 13.574C12.6517 13.5793 12.6875 13.6237 12.6875 13.7439C12.6875 13.8599 12.6518 14.0095 12.5659 14.1599C12.401 14.4484 12.0629 14.7205 11.5 14.7205Z"/>
+                                </svg>
+                                Дополнительно
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'mfss:box' %}">Распределительное
+                                    оборудование
+                                </a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:equipment_file' %}">Документация</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:violations' %}">Отчет по замечаниям</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:visual' %}">Визуализация</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:project_equipment' %}">Проектные решения</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:contact' %}">Обратная связь</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Сформировать отчет</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <form id="logout-form" method="post" action="{% url 'users:logout' %}" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                        {% if user.is_authenticated %}
+                            <li class="nav-item dropdown">
+                                <a
+                                        class="nav-link dropdown-custom color-text-violet"
+                                        href="#"
+                                        id="userMenu"
+                                        role="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                    {{ user.first_name }}
+                                    <span class="arrow"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                                    <li><a class="dropdown-item" href="{% url 'users:profile' %}">Мой профиль</a></li>
+                                    {#                                    <li><a class="dropdown-item" href="#">Настройки</a></li>#}
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a onclick="document.getElementById('logout-form').submit();"
+                                           class="dropdown-item" href="#">Выйти</a></li>
+                                </ul>
+                            </li>
+                        {% else %}
+                            <button type="submit" class="btn elem-button btn-md mx-2"
+                                    onclick="location.href = '{% url "users:login" %}'">
+                                Вход
+                            </button>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>

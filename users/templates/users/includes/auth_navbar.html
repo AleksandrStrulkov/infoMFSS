@@ -4,14 +4,43 @@
         <nav class="navbar navbar-expand-lg navbar-light navbar-my">
             <div class="container-fluid nav-auth-block">
                 <a class="navbar-brand" href="{% url "mfss:home" %}">
-                    <h4 >
+                    <h4>
                         ĩnfoMFS&#350;
                     </h4>
                 </a>
-                <div class="color-text-violet text-right ms-0 parent-auth-nav">
-                    <a class="color-text-violet underline-none block-auth-nav" href="{% url "users:register" %}"
-                    >Регистрация</a>
-                </div>
+                <ul class="navbar-nav ms-auto">
+                    <form id="logout-form" method="post" action="{% url 'users:logout' %}" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a
+                                    class="nav-link dropdown-custom color-text-violet"
+                                    href="#"
+                                    id="userMenu"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                {{ user.first_name }}
+                                <span class="arrow"></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                                <li><a class="dropdown-item" href="{% url 'users:profile' %}">Мой профиль</a></li>
+                                {#                                    <li><a class="dropdown-item" href="#">Настройки</a></li>#}
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a onclick="document.getElementById('logout-form').submit();"
+                                       class="dropdown-item" href="#">Выйти</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <button type="submit" class="btn elem-button btn-md mx-2"
+                                    onclick="location.href = '{% url "users:login" %}'">
+                                Вход
+                            </button>
+                    {% endif %}
+                </ul>
             </div>
         </nav>
     </div>

@@ -1,5 +1,10 @@
 {% extends 'mfss/base.html' %}
 {% load crispy_forms_tags %}
+
+{% block navbar %}
+    {% include 'mfss/includes/navbar_home.html' %}
+{% endblock %}
+
 {% block content %}
 
     <div class="container text-center mt-5 mb-5">
@@ -18,60 +23,74 @@
         <div class="col">
         </div>
         <div class="col">
-            <a href="{% url 'mfss:equipment_file' %}" class="btn nsh-button me-md-2" type="button">Оборудование
+        </div>
+        <div class="col">
+            <a href="{% url 'mfss:equipment_file' %}" class="btn nsh-button" type="button">Оборудование
             </a>
         </div>
         <div class="col">
-            <a href="{% url 'mfss:cable_file' %}" class="btn nsh-button me-md-2" type="button">Кабель
+            <a href="{% url 'mfss:cable_file' %}" class="btn nsh-button" type="button">Кабель
             </a>
+        </div>
+        <div class="col">
         </div>
         <div class="col">
         </div>
         <div class="col">
         </div>
     </div>
-    <div class="container text-center">
-        <table class="table table-hover">
-            <tr class="table-active">
-                <th>Кабель</th>
-                <th>Описание</th>
-                <th class="text-center">Руководство по эксплуатации</th>
-                <th class="text-center">Паспорт</th>
-                <th class="text-center">Сертификат</th>
-            </tr>
-            {% for object in object_list %}
-                {% if object.title != 'Все кабели' %}
-                    <tr>
-                    <td>{{ object.title }}</td>
-                    <td>{{ object.description }}</td>
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5 table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-primary">
+                    <tr class="table-active">
+                        <th>Кабель</th>
+                        <th>Подсистема</th>
+                        <th>Описание</th>
+                        <th class="text-center text-danger">Руководство по эксплуатации</th>
+                        <th class="text-center text-danger">Паспорт</th>
+                        <th class="text-center text-danger">Сертификат</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for object in object_list %}
+                        {% if object.title != 'Все кабели' %}
+                            <tr>
+                            <td>{{ object.title }}</td>
+                            <td>{{ object.subsystem }}</td>
+                            <td>{{ object.description }}</td>
 
-                    {% if object.file_pdf %}
-                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
-                               href="{{ object.file_pdf.url }}">Просмотр</a></td>
-                    {% else %}
-                        <td class="text-center"><a>-</a></td>
-                    {% endif %}
+                            {% if object.file_pdf %}
+                                <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                           href="{{ object.file_pdf.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center"><a>-</a></td>
+                            {% endif %}
 
-                    {% if object.file_passport %}
-                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
-                               href="{{ object.file_passport.url }}">Просмотр</a></td>
-                    {% else %}
-                        <td class="text-center"><a>-</a></td>
-                    {% endif %}
+                            {% if object.file_passport %}
+                                <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                           href="{{ object.file_passport.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center"><a>-</a></td>
+                            {% endif %}
 
-                    {% if object.file_certificate %}
-                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
-                               href="{{ object.file_certificate.url }}">Просмотр</a></td>
-                    {% else %}
-                        <td class="text-center"><a>-</a></td>
-                    {% endif %}
-                {% endif %}
+                            {% if object.file_certificate %}
+                                <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                           href="{{ object.file_certificate.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center"><a>-</a></td>
+                            {% endif %}
+                        {% endif %}
 
-            {% endfor %}
-        </table>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-{#    <div class="container">#}
-{#    </div>#}
-{#    <div class="container">#}
-{#    </div>#}
+
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
 {% endblock %}

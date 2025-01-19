@@ -1,10 +1,7 @@
 {% extends 'users/base.html' %}
-{% load crispy_forms_tags %}
-
 {% block navbar %}
-    {% include 'users/includes/auth_navbar.html' %}
+    {% include 'mfss/includes/navbar_home.html' %}
 {% endblock %}
-
 {% block content %}
     <div class="container margin-auth-block">
         <form method="post">
@@ -12,16 +9,16 @@
                 <div class="col-sm-3">
                 </div>
                 <div class="col-sm-6 card mb-5 box-shadow card-imad-auth border-none">
-                    <div class="card-body mb-3 mt-3">
-{#                        <form method="post">#}
-                            {% load crispy_forms_tags %}
-                            {% csrf_token %}
-                            {% crispy form %}
-                            <button type="submit" class="btn elem-button btn-md mx-2">
-                                Сохранить
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Свяжитесь с нами</h5>
+                        {% load crispy_forms_tags %}
+                        {% csrf_token %}
+                        {% crispy form %}
+                        <div class="text-start mb-4">
+                            <button type="submit" class="btn elem-button btn-md mx-2 pull-right">
+                                Отправить
                             </button>
-
-                            {#                        <a class="ms-5" href="{% url 'users:profile_edit' %}">Сбросить по E-mail</a>#}
+                        </div>
                     </div>
                 </div>
                 <div class="col-sm-3">
@@ -30,7 +27,6 @@
         </form>
     </div>
 {% endblock %}
-
 {% block footer %}
     {% include 'users/includes/auth_footer.html' %}
 {% endblock %}

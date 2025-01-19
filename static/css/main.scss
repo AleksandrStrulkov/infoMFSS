@@ -1,3 +1,7 @@
+html, body {
+  height: 100%; /* Задаем высоту всей страницы */
+}
+
 body {
   font-family: Manrope, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
   font-size: 16px;
@@ -11,7 +15,13 @@ body {
   //height: 100%;
   //width: 100%;
   min-width: 320px;
-  line-height: 1.3
+  line-height: 1.3;
+  display: flex;
+  flex-direction: column; /* Flexbox для вертикальной структуры */
+}
+
+main {
+  flex: 1; /* Динамическая часть страницы */
 }
 
 footer {
@@ -23,6 +33,29 @@ footer {
 
 }
 
+//select {
+//  -webkit-appearance: none; /* Убираем стандартный стиль Chrome */
+//  -moz-appearance: none; /* Убираем стандартный стиль Firefox */
+//  appearance: none; /* Убираем стандартный стиль */
+//  background-color: #f8f9fa; /* Цвет фона */
+//  color: #000; /* Цвет текста */
+//  border: 1px solid #ced4da; /* Цвет границы */
+//  border-radius: 0.25rem; /* Скругление углов */
+//  padding: 0.375rem 0.75rem; /* Внутренние отступы */
+//  font-size: 1rem; /* Размер шрифта */
+//}
+//
+///* Изменение цвета выделения текста */
+//select option {
+//  background-color: #ffffff !important; /* Цвет фона */
+//  color: #000000!important; /* Цвет текста */
+//}
+//
+///* Изменение цвета при фокусе */
+//select:focus option {
+//  background-color: #ffffff !important; /* Цвет фона при фокусе */
+//  color: #ffffff !important; /* Цвет текста при фокусе */
+//}
 
 //h3 {
 //  //margin: 01px;
@@ -204,6 +237,15 @@ h11 {
   font-weight: 300;
 }
 
+h10 {
+  font-size: 22px;
+  line-height: 42px;
+  text-align: center;
+  margin: 0 0 36px;
+  cursor: default;
+  font-weight: 370;
+}
+
 h14 {
   font-size: 18px;
   font-weight: 300;
@@ -217,7 +259,6 @@ hfy {
   cursor: default;
   font-weight: 200;
 }
-
 
 
 //.nav {
@@ -239,6 +280,29 @@ hfy {
 //  width: 100%;
 //  max-width: 1270px;
 //}
+
+.arrow {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 5px; /* Отступ от текста */
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #6d37ff; /* Цвет стрелки */
+  transition: transform 0.3s ease; /* Плавное вращение */
+}
+
+.dropdown-custom[aria-expanded="true"] .arrow {
+  transform: rotate(180deg); /* Поворачиваем стрелку вниз */
+  //color: #6d37ff;
+}
+
+.navbar .nav-link:hover {
+  color: #9579ff; /* Цвет текста при наведении */
+}
+
+//$table-bg-primary: #cfc3fd; // Новый цвет для primary
+//@import "bootstrap";
 
 .box-table-th {
   font-size: 13px;
@@ -355,7 +419,24 @@ hfy {
 
 .col-grey {
   background: #f6f6f6;
-  //text-align: center;
+}
+
+$primary-color: #9579ff;
+$hover-color: #dfd5fd;
+$text-color: #000;
+
+.table.table > {
+  thead > {
+    tr.table-start-row {
+      background-color: $primary-color !important;
+      color: $text-color !important;
+
+      &:hover {
+        background-color: $hover-color !important;
+        cursor: pointer;
+      }
+    }
+  }
 }
 
 .card-radius {
@@ -431,7 +512,7 @@ hfy {
   //background: radial-gradient(circle, #373737, #373737, #373737, #373737);
   //color: #f3f3f6;
   border-radius: 20px 20px 20px 20px;
-  text-shadow: 0 2px 10px #8e8ef3, 0 -1px 1px #f3f3fa;
+  //text-shadow: 0 2px 10px #8e8ef3, 0 -1px 1px #f3f3fa;
   //letter-spacing: -1px;
 }
 
@@ -944,24 +1025,24 @@ hfy {
 }
 
 footer-auth {
-   position:fixed;
-    background: #ffffff;
-   left: 0;
-   bottom: 0;
-   height: 25px;
-   width: 100%;
-    max-width: 100%;
+  //position: fixed;
+  background: #ffffff;
+  left: 0;
+  bottom: 0;
+  height: 25px;
+  width: 100%;
+  max-width: 100%;
   max-height: 100%;
 }
 
 navbar-auth {
-   position:fixed;
-    background: #ffffff;
-   left: 0;
-   bottom: 0;
-   height: 25px;
-   width: 100%;
-    max-width: 100%;
+  position: fixed;
+  background: #ffffff;
+  left: 0;
+  bottom: 0;
+  height: 25px;
+  width: 100%;
+  max-width: 100%;
   max-height: 100%;
 }
 
@@ -971,43 +1052,43 @@ navbar-auth {
 //    margin: 0 auto;
 //}
 
-.footer-auth{
-    height: 60px;
-    padding: 15px;
-    //display: flex;
+.footer-auth {
+  height: 70px;
+  padding: 15px;
+  //display: flex;
   //flex-direction: row;
   font-size: 17px;
-    align-items: center;
-    border-top: 1px solid #f7f6fa;
+  align-items: center;
+  border-top: 1px solid #f7f6fa;
 }
 
-.navbar-auth{
-    height: 60px;
-    padding: 15px;
-    //display: flex;
+.navbar-auth {
+  height: 60px;
+  padding: 15px;
+  //display: flex;
   //flex-direction: row;
   font-size: 17px;
-    align-items: center;
-    border-top: 1px solid #f7f6fa;
+  align-items: center;
+  border-top: 1px solid #f7f6fa;
 }
 
 .margin-auth-block {
-    margin-top: 65px;
-    //height: 100%;
-    //position: absolute;
-    //top: 0;
-    //left: 0;
-    //overflow: auto;
+  margin-top: 65px;
+  //height: 100%;
+  //position: absolute;
+  //top: 0;
+  //left: 0;
+  //overflow: auto;
 }
 
 .nav-auth-block {
-    margin-right: 20px;
-    //height: 100%;
-    //position: absolute;
-    //top: 0;
-    //left: 0;
-    //overflow: auto;
+  margin-right: 20px;
 }
+
+.nav-auth-user {
+  margin-bottom: -11px;
+}
+
 //
 //.block-auth {
 //    width: 1150px;

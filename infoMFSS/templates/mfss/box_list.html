@@ -1,8 +1,11 @@
 {% extends 'mfss/base.html' %}
 {% load crispy_forms_tags %}
-{#{% load sass_tags %}#}
-{% block content %}
 
+{% block navbar %}
+    {% include 'mfss/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -13,33 +16,27 @@
             </div>
         </div>
     </div>
-    <div class="container">
-        <form method="get" action="" class="">
-            <div class="row text-start mx-auto mt-4">
-                <div class="col-sm">
+    <div class="container margin-auth-block">
+        <form method="post" action="{% url 'mfss:box' %}">
+            <div class="row text-center mx-auto mt-4 mb-sm-5">
+                <div class="col-sm-4">
                 </div>
-                <div class="col-sm card mb-4 box-shadow card_imad">
-                    <div class="text-center">
+                <div class="col-sm-4 card mb-3 box-shadow card-imad-auth border-none">
+                    <div class="card-body mt-2 text-center">
                         <h4 class="my-0 font-weight-normal">
                             Выбор критерия
                         </h4>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body text-start">
                         {% load crispy_forms_tags %}
                         {% csrf_token %}
                         {% crispy form %}
-                        {#                    {{ my_filter.form.as_p }}#}
-
                         <button type="submit" class="btn elem-button btn-md mx-2">
-                            {#                            {% if object %}#}
-                            {#                                Сохранить#}
-                            {#                            {% else %}#}
                             Выполнить
-                            {#                            {% endif %}#}
                         </button>
                     </div>
                 </div>
-                <div class="col-sm">
+                <div class="col-sm-4">
                 </div>
             </div>
         </form>
@@ -48,19 +45,33 @@
 
     <div class="container text-center">
         {% if mine is not None %}
-            {% if object_list %}
-                <h9>По критериям: {{ mine }} ➡️ {{ subsystem }} ➡️ {{ incl_blocks }} &#9989;</h9>
+            {% if box_list %}
+                <h9>По критериям: {{ mine }}
+                     &#8594;
+                    {{ subsystem }}
+                     &#8594;
+                    {{ incl_blocks }} &#9989;</h9>
             {% else %}
-                <h9a>По критериям: {{ mine }} ➡️ {{ subsystem }} &#10060; {{ incl_blocks }}</h9a><br><br>
-                <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
+                <h9a>По критериям: {{ mine }}
+                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M1 8C1 7.72386 1.22386 7.5 1.5 7.5L13.2929 7.5L10.1464 4.35355C9.95118 4.15829 9.95118 3.84171 10.1464 3.64645C10.3417 3.45118 10.6583 3.45118 10.8536 3.64645L14.8536 7.64645C15.0488 7.84171 15.0488 8.15829 14.8536 8.35355L10.8536 12.3536C10.6583 12.5488 10.3417 12.5488 10.1464 12.3536C9.95118 12.1583 9.95118 11.8417 10.1464 11.6464L13.2929 8.5H1.5C1.22386 8.5 1 8.27614 1 8Z"
+                              fill="red"/>
+                    </svg>
+                    {{ subsystem }}
+                    &#10060;
+                    {{ incl_blocks }}</h9a><br><br>
+                <h9a>Данные отсутствуют</h9a><br><br><br>
             {% endif %}
         {% endif %}
+    </div>
         {#                {{ result }}#}
         <div class="container text-center mt-5 mb-5">
             <div class="mt-sm-5 mb-sm-5">
                 <div class="container mt-5 mb-5 table-responsive">
-                    {% if object_list %}
+                    {% if box_list %}
                         <table class="table table-hover">
+                        <thead class="table-primary">
                         <tr class="table-active box-table-th">
                             <th>Подсистема</th>
                             <th>Нефтешахта</th>
@@ -73,35 +84,37 @@
                             <th>Установлено</th>
                         </tr>
                     {% endif %}
-                    {% for object in object_list %}
-                        {% if object.title %}
+                    </thead>
+                    <tbody>
+                    {% for box in box_list %}
+                        {% if box.title %}
                             <tr class="box-table-td">
-                                <td>{{ object.subsystem.title }}</td>
-                                <td>{{ object.number_mine.title }}</td>
-                                <td class="text-center">{{ object.title }}</td>
-                                <td>{{ object.description }}</td>
-                                <td>{{ object.tunnel }} (ПК{{ object.picket }})</td>
-                                {% if object.equipment.point_phone.subscriber_number %}
-                                    <td>{{ object.equipment.title }}(АН{{ object.equipment.point_phone.subscriber_number }})</td>
+                                <td>{{ box.subsystem.title }}</td>
+                                <td>{{ box.number_mine.title }}</td>
+                                <td>{{ box.title }}</td>
+                                <td>{{ box.description }}</td>
+                                <td>{{ box.tunnel }} (ПК{{ box.picket }})</td>
+                                {% if box.equipment.point_phone.subscriber_number %}
+                                    <td>{{ box.equipment.title }}(АН{{ box.equipment.point_phone.subscriber_number }})</td>
                                 {% else %}
-                                    <td>{{ object.equipment.title }}
+                                    <td>{{ box.equipment.title }}
                                 {% endif %}
-                                <td class="text-center">{{ object.equipment.name }}</td>
-                                {% if object.equipment.point_phone and object.equipment.inclined_blocks %}
-                                    <td>{{ object.equipment.tunnel.title }}
-                                        {{ object.equipment.inclined_blocks }} (ПК{{ object.equipment.picket }})
+                                <td>{{ box.equipment.name }}</td>
+                                {% if box.equipment.point_phone and box.equipment.inclined_blocks %}
+                                    <td>{{ box.equipment.tunnel.title }}
+                                        {{ box.equipment.inclined_blocks }} (ПК{{ box.equipment.picket }})
                                     </td>
-                                {% elif object.equipment.point_phone and not object.equipment.inclined_blocks %}
-                                    <td>{{ object.equipment.tunnel.title }}
-                                        (ПК{{ object.equipment.picket }})
+                                {% elif box.equipment.point_phone and not box.equipment.inclined_blocks %}
+                                    <td>{{ box.equipment.tunnel.title }}
+                                        (ПК{{ box.equipment.picket }})
                                     </td>
                                 {% else %}
-                                    <td>{{ object.equipment.tunnel.title }}
-                                        {{ object.equipment.inclined_blocks }} (ПК{{ object.equipment.picket }})
+                                    <td>{{ box.equipment.tunnel.title }}
+                                        {{ box.equipment.inclined_blocks }} (ПК{{ box.equipment.picket }})
                                     </td>
                                 {% endif %}
                                 {#                                        <td>{{ object.equipment.picket }}</td>#}
-                                {% if object.equipment.equipment_bool.execution_bool == True %}
+                                {% if box.equipment.equipment_bool.execution_bool == True %}
                                     <td class="text-center">&#9989;</td>
                                 {% else %}
                                     <td class="text-center">&#128500;</td>
@@ -111,20 +124,14 @@
                             </tr>
                         {% endif %}
                     {% endfor %}
+                    </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-    </div>
-
-
-{#    </div>#}
-    {#    </div>#}
-    <div class="container">
-    </div>
-    <div class="container">
-    </div>
-    {#    </div>#}
-
 {% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}
+

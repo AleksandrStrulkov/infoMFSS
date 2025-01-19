@@ -1,6 +1,9 @@
 {% extends 'mfss/base.html' %}
 {% load crispy_forms_tags %}
-{#{% load sass_tags %}#}
+
+{% block navbar %}
+    {% include 'mfss/includes/navbar_home.html' %}
+{% endblock %}
 {% block content %}
 
     <div class="container text-center mt-5 mb-5">
@@ -19,30 +22,34 @@
         <div class="col">
         </div>
         <div class="col">
-            <a href="{% url 'mfss:project_equipment' %}" class="btn nsh-button me-md-2" type="button">Оборудование
+        </div>
+        <div class="col text-start">
+            <a href="{% url 'mfss:project_equipment' %}" class="btn nsh-button" type="button">Оборудование
+            </a>
+        </div>
+        <div class="col pe-auto">
+            <a href="{% url 'mfss:project_cable' %}" class="btn nsh-button" type="button">Кабель
             </a>
         </div>
         <div class="col">
-            <a href="{% url 'mfss:project_cable' %}" class="btn nsh-button me-md-2" type="button">Кабельная продукция
-            </a>
         </div>
         <div class="col">
         </div>
         <div class="col">
         </div>
     </div>
-    <div class="container">
-        <form method="get" action="" class="">
-            <div class="row text-start mx-auto mt-4">
-                <div class="col-sm">
+    <div class="container margin-auth-block">
+        <form method="get">
+            <div class="row text-center mx-auto mt-4 mb-sm-5">
+                <div class="col-sm-4">
                 </div>
-                <div class="col-sm card mb-4 box-shadow card_imad">
-                    <div class="text-center">
+                <div class="col-sm-4 card mb-3 box-shadow card-imad-auth border-none">
+                    <div class="card-body mt-2 text-center">
                         <h4 class="my-0 font-weight-normal">
                             Выбор критерия
                         </h4>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body text-start">
                         {% load crispy_forms_tags %}
                         {% csrf_token %}
                         {% crispy form %}
@@ -51,7 +58,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-sm">
+                <div class="col-sm-4">
                 </div>
             </div>
             <div class="container text-center">
@@ -63,12 +70,13 @@
                         <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
                     {% endif %}
                 {% endif %}
-{#                {{ result }}#}
+                {#                {{ result }}#}
                 <div class="container text-center mt-5 mb-5">
                     <div class="mt-sm-5 mb-sm-5">
                         <div class="container mt-5 mb-5 table-responsive">
                             {% if object_list %}
                                 <table class="table table-hover">
+                                <thead class="table-primary">
                                 <tr class="table-active box-table-th">
                                     <th>Нефтешахта</th>
                                     <th>Подсистема</th>
@@ -78,6 +86,8 @@
                                     <th>Уклонный блок</th>
                                     <th>Установлено</th>
                                 </tr>
+                                </thead>
+                                <tbody>
                             {% endif %}
                             {% for object in project_equipment_list %}
                                 {% if object.title %}
@@ -91,13 +101,13 @@
                                             {% else %}
                                                 <td>{{ object.name }}
                                             {% endif %}
-                                    {% if object.point_phone %}
-                                        <td>{{ object.point_phone.tunnel.title }}(ПК{{ object.picket }})</td>
-                                        {% elif  object.branches_box %}
-                                        <td>{{ object.branches_box.tunnel.title }}(ПК{{ object.picket }})</td>
-                                        {% else %}
-                                        <td>{{ object.tunnel.title }}(ПК{{ object.picket }})</td>
-                                        {% endif %}
+                                            {% if object.point_phone %}
+                                                <td>{{ object.point_phone.tunnel.title }}(ПК{{ object.picket }})</td>
+                                            {% elif  object.branches_box %}
+                                                <td>{{ object.branches_box.tunnel.title }}(ПК{{ object.picket }})</td>
+                                            {% else %}
+                                                <td>{{ object.tunnel.title }}(ПК{{ object.picket }})</td>
+                                            {% endif %}
                                         <td>{{ object.inclined_blocks.title }}</td>
                                         {% if object.equipment_bool.execution_bool == True %}
                                             <td class="text-center">&#9989;</td>
@@ -107,6 +117,7 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                        </tbody>
                             </table>
                         </div>
                     </div>
@@ -121,6 +132,8 @@
     </div>
     <div class="container">
     </div>
-    {#    </div>#}
-
 {% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}
+
