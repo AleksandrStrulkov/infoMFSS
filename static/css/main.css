@@ -1,4 +1,8 @@
 @charset "UTF-8";
+html, body {
+  height: 100%;
+  /* Задаем высоту всей страницы */ }
+
 body {
   font-family: Manrope, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
   font-size: 16px;
@@ -7,7 +11,14 @@ body {
   margin: 0;
   -webkit-font-smoothing: subpixel-antialiased;
   min-width: 320px;
-  line-height: 1.3; }
+  line-height: 1.3;
+  display: flex;
+  flex-direction: column;
+  /* Flexbox для вертикальной структуры */ }
+
+main {
+  flex: 1;
+  /* Динамическая часть страницы */ }
 
 footer {
   width: 100%;
@@ -177,7 +188,7 @@ hfy {
   /* Поворачиваем стрелку вниз */ }
 
 .navbar .nav-link:hover {
-  color: #9874ff;
+  color: #9579ff;
   /* Цвет текста при наведении */ }
 
 .box-table-th {
@@ -245,6 +256,13 @@ hfy {
 
 .col-grey {
   background: #f6f6f6; }
+
+.table.table > thead > tr.table-start-row {
+  background-color: #9579ff !important;
+  color: #000 !important; }
+  .table.table > thead > tr.table-start-row:hover {
+    background-color: #dfd5fd !important;
+    cursor: pointer; }
 
 .card-radius {
   border-radius: 20px 20px 20px 20px;
@@ -607,7 +625,6 @@ hfy {
   stroke: url(#stripes); }
 
 footer-auth {
-  position: fixed;
   background: #ffffff;
   left: 0;
   bottom: 0;
@@ -627,7 +644,7 @@ navbar-auth {
   max-height: 100%; }
 
 .footer-auth {
-  height: 60px;
+  height: 70px;
   padding: 15px;
   font-size: 17px;
   align-items: center;

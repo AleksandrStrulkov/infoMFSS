@@ -1,4 +1,7 @@
 {% extends 'users/base.html' %}
+{% block navbar %}
+    {% include 'mfss/includes/navbar_home.html' %}
+{% endblock %}
 {% block content %}
     <div class="container margin-auth-block">
         <form method="post">
@@ -12,9 +15,9 @@
                         {% csrf_token %}
                         {% crispy form %}
                         <div class="text-start mb-4">
-                        <button type="submit" class="btn elem-button btn-md mx-2 pull-right">
-                            Отправить
-                        </button>
+                            <button type="submit" class="btn elem-button btn-md mx-2 pull-right">
+                                Отправить
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -23,4 +26,7 @@
             </div>
         </form>
     </div>
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
 {% endblock %}

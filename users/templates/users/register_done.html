@@ -1,4 +1,9 @@
 {% extends 'users/base.html' %}
+
+{% block navbar %}
+    {% include 'users/includes/auth_navbar.html' %}
+{% endblock %}
+
 {% block content %}
     <div class="container margin-auth-block">
         <div class="row text-center mx-auto mt-4 mb-sm-5">
@@ -15,4 +20,8 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
 {% endblock %}

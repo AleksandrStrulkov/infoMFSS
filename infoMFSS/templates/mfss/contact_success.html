@@ -1,4 +1,7 @@
 {% extends 'users/base.html' %}
+{% block navbar %}
+    {% include 'mfss/includes/navbar_home.html' %}
+{% endblock %}
 {% block content %}
     <div class="container margin-auth-block">
         <div class="row text-start mx-auto mt-4 mb-sm-5">
@@ -6,7 +9,8 @@
             </div>
             <div class="col-sm-6 card mb-5 box-shadow card-imad-auth border-none">
                 <div class="card-body mb-3 mt-3 text-center">
-                    <h9>Спасибо за ваше сообщение!</h9><br>
+                    <h9>Спасибо за ваше сообщение!</h9>
+                    <br>
                     <h10>В ближайшее время мы обработаем и исправим ошибки!</h10>
                     <div class="container mt-4 text-center">
                         <p><a class="color-text-violet underline-none text-center"
@@ -18,4 +22,7 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
 {% endblock %}

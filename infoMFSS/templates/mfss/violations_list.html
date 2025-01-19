@@ -1,5 +1,8 @@
 {% extends 'mfss/base.html' %}
 {% load crispy_forms_tags %}
+{% block navbar %}
+    {% include 'mfss/includes/navbar_home.html' %}
+{% endblock %}
 {% block content %}
 
     <div class="container text-center mt-5 mb-5">
@@ -13,90 +16,97 @@
         </div>
     </div>
 
-    {#    <div class="container text-center">#}
-    <div class="mt-sm-5 mb-sm-5">
-        <div class="container mt-5 mb-5 table-responsive">
-            <table class="table table-hover">
-                <tr class="table-active box-table-th">
-                    <th>Дата выдачи</th>
-                    <th>Номер акта</th>
-                    <th>Нефтешахта</th>
-                    <th>Кем выдано</th>
-                    <th>Описание нарушения</th>
-                    <th>Устранение</th>
-                    <th class="text-center">Акт</th>
-                    <th class="text-center">Уведомление</th>
-                </tr>
-                {% for object in object_list %}
-                    {#                {% if object.title != 'Все кабели' %}#}
-                    <tr class="box-table-td">
-                    <td>{{ object.date_act }}</td>
-                    <td>{{ object.number_act }}</td>
-                    <td>{{ object.number_mine }}</td>
-                    <td>{{ object.issued_by_act }}</td>
-                    <td>{{ object.title }}</td>
+{#    <div class="container text-center mt-5 mb-5">#}
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5 table-responsive">
+                <table class="table table-hover">
+                <thead class="table-primary">
+                    <tr class="table-active box-table-th">
+                        <th>Дата выдачи</th>
+                        <th>Номер акта</th>
+                        <th>Нефтешахта</th>
+                        <th>Кем выдано</th>
+                        <th>Описание нарушения</th>
+                        <th>Устранение</th>
+                        <th class="text-center text-danger">Акт</th>
+                        <th class="text-center text-danger">Уведомление</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                    {% for object in object_list %}
+                        {#                {% if object.title != 'Все кабели' %}#}
+                        <tr class="box-table-td">
+                        <td>{{ object.date_act }}</td>
+                        <td>{{ object.number_act }}</td>
+                        <td>{{ object.number_mine }}</td>
+                        <td>{{ object.issued_by_act }}</td>
+                        <td>{{ object.title }}</td>
 
-                    {% if object.execution_bool %}
-                        <td class="text-center">&#9989;</td>
-                    {% else %}
-                        <td class="text-center">&#128500;</td>
-                    {% endif %}
+                        {% if object.execution_bool %}
+                            <td class="text-center">&#9989;</td>
+                        {% else %}
+                            <td class="text-center">&#128500;</td>
+                        {% endif %}
 
-                    {% if object.file_act %}
-                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff; font-size: 13px;"
-                                                   href="{{ object.file_act.url }}">Просмотр</a></td>
-                    {% else %}
-                        <td class="text-center"><a>см. выше</a></td>
-                    {% endif %}
+                        {% if object.file_act %}
+                            <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff; font-size: 13px;"
+                                                       href="{{ object.file_act.url }}">Просмотр</a></td>
+                        {% else %}
+                            <td class="text-center"><a>см. выше</a></td>
+                        {% endif %}
 
-                    {% if object.file_notification %}
-                        <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff; font-size: 13px;"
-                                                   href="{{ object.file_notification.url }}">Просмотр</a></td>
-                    {% else %}
-                        <td class="text-center"><a>-</a></td>
-                    {% endif %}
-                    {#                {% endif %}#}
-
-                {% endfor %}
-            </table>
+                        {% if object.file_notification %}
+                            <td class="text-center"><a class="btn btn-link" Style="color:#6d37ff; font-size: 13px;"
+                                                       href="{{ object.file_notification.url }}">Просмотр</a></td>
+                        {% else %}
+                            <td class="text-center"><a>-</a></td>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div class="container-xxl">
         <div class="container-xxl">
-            <div class="block-white text-center mt-sm-4">
-                <div class="container text-center mt-3">
-                    <h11>
-                        Всего замечаний: {{ summ }}
-                    </h11>
+            <div class="container-xxl">
+                <div class="block-white text-center mt-sm-4">
+                    <div class="container text-center mt-3">
+                        <h11>
+                            Всего замечаний: {{ summ }}
+                        </h11>
+                    </div>
+                    <div class="container text-center mt-4">
+                        <h11>
+                            Из них
+                        </h11>
+                    </div>
+                    <div class="container text-center mt-4">
+                        <h11>
+                            Нефтешахта №1: {{ mine1_summ }}, выполнено: {{ mine1_true }}, что составляет:
+                            {{ mine1_percent }}%
+                        </h11>
+                    </div>
+                    <div class="container text-center mt-4">
+                        <h11>
+                            Нефтешахта №2: {{ mine2_summ }}, выполнено: {{ mine2_true }}, что составляет:
+                            {{ mine2_percent }}%
+                        </h11>
+                    </div>
+                    <div class="container text-center mt-4 mb-3">
+                        <h11>
+                            Нефтешахта №3: {{ mine3_summ }}, выполнено: {{ mine3_true }}, что составляет:
+                            {{ mine3_percent }}%
+                        </h11>
+                    </div>
                 </div>
-                <div class="container text-center mt-4">
-                    <h11>
-                        Из них
-                    </h11>
+                <div class="container text-center mt-1">
+                    <h14>
+                        Обновлено: {{ update }}
+                    </h14>
                 </div>
-                <div class="container text-center mt-4">
-                    <h11>
-                        Нефтешахта №1: {{ mine1_summ }}, выполнено: {{ mine1_true }}, что составляет:
-                        {{ mine1_percent }}%
-                    </h11>
-                </div>
-                <div class="container text-center mt-4">
-                    <h11>
-                        Нефтешахта №2: {{ mine2_summ }}, выполнено: {{ mine2_true }}, что составляет:
-                        {{ mine2_percent }}%
-                    </h11>
-                </div>
-                <div class="container text-center mt-4 mb-3">
-                    <h11>
-                        Нефтешахта №3: {{ mine3_summ }}, выполнено: {{ mine3_true }}, что составляет:
-                        {{ mine3_percent }}%
-                    </h11>
-                </div>
-            </div>
-            <div class="container text-center mt-1">
-                <h14>
-                    Обновлено: {{ update }}
-                </h14>
             </div>
         </div>
+{#    </div>#}
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
 {% endblock %}
