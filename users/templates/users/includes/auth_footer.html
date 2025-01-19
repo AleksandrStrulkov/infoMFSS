@@ -1,19 +1,29 @@
 {% load static %}
-{#<div class="footer-container-auth">#}
-    <footer-auth class="footer-auth">
+{#<div class="container">#}
+    <footer class="text-center py-2 w-100 border-top" >
+        <div class="container">
         <div class="row">
-            <div class="col text-end">
-                <small class="d-block mb-3 text-muted">&copy; 2024 ОП Ярега ООО "ДГС"</small>
+            <div class="col text-start">
+                <small class="d-block text-muted">&copy; 2024 ОП Ярега ООО "ДГС"</small>
+                <small class="d-block mb-3 text-muted" href="#">MultiFunctionalSafetySystem</small>
+            </div>
+            <div class="col mb-1">
+{#                <h5 class="text_footer">ĩnfoMFS&#350;</h5>#}
+{#                <small class="d-block text-muted" href="#">MultiFunctionalSafetySystem</small>#}
             </div>
             <div class="col"></div>
-            <div class="col"></div>
-            <div class="col color-text-violet">
+            <div class="col color-text-violet text-end mt-2">
 {#                <small class="d-block mb-3 text-muted">Обратная связь</small>#}
-                <a class="color-text-violet underline-none" href="https://t.me/Alexandr_habit_bot">Обратная связь</a>
+                <a class="color-text-violet underline-none" href="{% url 'mfss:contact' %}">Обратная связь</a>
+                <a href="https://t.me/Alexandr_habit_bot">
+                    <img src="../../../../static/images/svg/telegram-check.svg" class="icon"
+                             width="35" height="35" alt="#">
+                </a>
             </div>
         </div>
+        </div>
 
-    </footer-auth>
+    </footer>
 {#</div>#}
 
 {#<div class="container">#}

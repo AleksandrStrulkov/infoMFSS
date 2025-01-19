@@ -15,6 +15,7 @@ urlpatterns = [
         path('', MFSSPercentTemplateView.as_view(), name='home'),
         path('percents/', percent_view, name='percents'),
         path('equipment_list/', EquipmentListView.as_view(), name='equipment'),
+        # path('equipment_list/', EquipmentView.as_view(), name='equipment'),
         path('cable_list/', CableListView.as_view(), name='cable'),
         path('box_list/', BoxListView.as_view(), name='box'),
         path('equipment_file/', EquipmentFileListView.as_view(), name='equipment_file'),

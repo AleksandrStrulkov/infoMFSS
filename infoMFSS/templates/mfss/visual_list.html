@@ -1,8 +1,11 @@
 {% extends 'mfss/base.html' %}
 {% load crispy_forms_tags %}
-{#{% load sass_tags %}#}
-{% block content %}
 
+{% block navbar %}
+    {% include 'mfss/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -13,18 +16,18 @@
             </div>
         </div>
     </div>
-    <div class="container">
-        <form method="get" action="" class="">
-            <div class="row text-start mx-auto mt-4">
-                <div class="col-sm">
+    <div class="container margin-auth-block">
+        <form method="get">
+            <div class="row text-center mx-auto mt-4 mb-sm-5">
+                <div class="col-sm-4">
                 </div>
-                <div class="col-sm card mb-4 box-shadow card_imad">
-                    <div class="text-center">
+                <div class="col-sm-4 card mb-3 box-shadow card-imad-auth border-none">
+                    <div class="card-body mt-2 text-center">
                         <h4 class="my-0 font-weight-normal">
                             Выбор критерия
                         </h4>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body text-start">
                         {% load crispy_forms_tags %}
                         {% csrf_token %}
                         {% crispy form %}
@@ -33,7 +36,7 @@
                         </button>
                     </div>
                 </div>
-                <div class="col-sm">
+                <div class="col-sm-4">
                 </div>
             </div>
         </form>
@@ -45,11 +48,11 @@
                     <div class="col">
                         {% if pdf_visual %}
                             <a href="{{ pdf_visual.url }}" class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
-                                >&#128409;Ссылка для просмотра по фильтру: {{ mine }}, {{ equipment }}&#128408;
+                            >&#128409;Ссылка для просмотра по фильтру: {{ mine }}, {{ equipment }}&#128408;
                             </a>
                         {% else %}
                             <a class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
-                                >&#128409;Ссылка отсутствует&#128408;
+                            >&#128409;Ссылка отсутствует&#128408;
                             </a>
                         {% endif %}
                     </div>
@@ -57,4 +60,8 @@
             </div>
         </div>
     {% endif %}
+{% endblock %}
+
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
 {% endblock %}
