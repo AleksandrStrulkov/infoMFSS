@@ -13,7 +13,6 @@ from django.shortcuts import redirect
 from django.views.generic.edit import FormMixin
 from django.urls import reverse
 
-
 from infoMFSS.filters import MineSabInclFilter
 # from mailings.forms import MessageForm, ClientForm, MailingForm, MailingManagerForm, MailingOptionsForm, UserActiveForm
 from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone, BranchesBox, \
@@ -297,80 +296,75 @@ def percent_view(request):
     return render(request, 'mfss/percents.html', context)
 
 
-class FormListViewMixin(FormMixin, ListView):
-    """Подготавливаем миксин для сохранения в гет запросе значений полей из формы"""
-
-
-    result = 0
-
-
-    def get(self, request, *args, **kwargs):
-        # From ProcessFormMixin
-        form_class = self.get_form_class()
-        self.form = self.get_form(form_class)
-
-    # From BaseListView
-        self.object_list = self.get_queryset()
-        allow_empty = self.get_allow_empty()
-        if not allow_empty and len(self.object_list) == 0:
-            raise Http404(
-                u"Empty list and '%(class_name)s.allow_empty' is False."
-                % {'class_name': self.__class__.__name__}
-        )
-
-        context = self.get_context_data(object_list=self.object_list, form=self.form)
-        return self.render_to_response(context)
-
-
-    def post(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
-
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['mine'] = self.request.GET.get('number_mines')
-        context['subsystem'] = self.request.GET.get('subsystems')
-        context['incl_blocks'] = self.request.GET.get('incl_blocks')
-        context['equipment'] = self.request.GET.get('equipment')
-        context['cable'] = self.request.GET.get('cable')
-        context['new'] = self.object_list
-        context['result'] = self.result
-        context['bool'] = Execution.objects.all()
-    # context['phone_number'] = PointPhone.objects.all()
-        return context
-
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        mine = self.request.GET.get('number_mines')
-        subsystem = self.request.GET.get('subsystems')
-
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы':
-            self.result = 1
-            object_list = queryset.all().order_by('number_mine__title')
-            return object_list
-
-        elif mine == 'Все шахты' and subsystem:
-            self.result = 2
-            object_list = queryset.filter(
-                subsystem__title=subsystem,
-        )
-            return object_list
-
-        elif mine and subsystem == 'Все подсистемы':
-            self.result = 3
-            object_list = queryset.filter(
-                number_mine__title=mine,
-        )
-            return object_list
-
-        elif mine and subsystem:
-            self.result = 4
-            object_list = queryset.filter(
-                number_mine__title=mine,
-                subsystem__title=subsystem,
-        )
-            return object_list
+# class FormListViewMixin(FormMixin, ListView):
+#     """Подготавливаем миксин для сохранения в гет запросе значений полей из формы"""
+#
+#     result = 0
+#
+#     def get(self, request, *args, **kwargs):
+#         # From ProcessFormMixin
+#         form_class = self.get_form_class()
+#         self.form = self.get_form(form_class)
+#
+#         # From BaseListView
+#         self.object_list = self.get_queryset()
+#         allow_empty = self.get_allow_empty()
+#         if not allow_empty and len(self.object_list) == 0:
+#             raise Http404(
+#                     u"Empty list and '%(class_name)s.allow_empty' is False."
+#                     % {'class_name': self.__class__.__name__}
+#             )
+#
+#         context = self.get_context_data(object_list=self.object_list, form=self.form)
+#         return self.render_to_response(context)
+#
+#     def post(self, request, *args, **kwargs):
+#         return self.get(request, *args, **kwargs)
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['mine'] = self.request.GET.get('number_mines')
+#         context['subsystem'] = self.request.GET.get('subsystems')
+#         context['incl_blocks'] = self.request.GET.get('incl_blocks')
+#         context['equipment'] = self.request.GET.get('equipment')
+#         context['cable'] = self.request.GET.get('cable')
+#         context['new'] = self.object_list
+#         context['result'] = self.result
+#         context['bool'] = Execution.objects.all()
+#         # context['phone_number'] = PointPhone.objects.all()
+#         return context
+#
+#     def get_queryset(self):
+#         queryset = super().get_queryset()
+#         mine = self.request.GET.get('number_mines')
+#         subsystem = self.request.GET.get('subsystems')
+#
+#         if mine == 'Все шахты' and subsystem == 'Все подсистемы':
+#             self.result = 1
+#             object_list = queryset.all().order_by('number_mine__title')
+#             return object_list
+#
+#         elif mine == 'Все шахты' and subsystem:
+#             self.result = 2
+#             object_list = queryset.filter(
+#                     subsystem__title=subsystem,
+#             )
+#             return object_list
+#
+#         elif mine and subsystem == 'Все подсистемы':
+#             self.result = 3
+#             object_list = queryset.filter(
+#                     number_mine__title=mine,
+#             )
+#             return object_list
+#
+#         elif mine and subsystem:
+#             self.result = 4
+#             object_list = queryset.filter(
+#                     number_mine__title=mine,
+#                     subsystem__title=subsystem,
+#             )
+#             return object_list
 
 
 class EquipmentListView(FormView):
@@ -393,10 +387,10 @@ class EquipmentListView(FormView):
         Метод вызывается, если форма прошла валидацию.
         """
         # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines',)
-        subsystem = form.cleaned_data.get('subsystems',)
-        incl_blocks = form.cleaned_data.get('incl_blocks',)
-        equipment = form.cleaned_data.get('equipment',)
+        mine = form.cleaned_data.get('number_mines', )
+        subsystem = form.cleaned_data.get('subsystems', )
+        incl_blocks = form.cleaned_data.get('incl_blocks', )
+        equipment = form.cleaned_data.get('equipment', )
         print("Данные из формы получены:", mine, subsystem, incl_blocks, equipment)
 
         query_params = {
@@ -423,10 +417,10 @@ class EquipmentListView(FormView):
         context = super().get_context_data(**kwargs)
 
         # Получаем параметры из GET-запроса
-        mine = self.request.GET.get('mine',)
-        subsystem = self.request.GET.get('subsystem',)
-        incl_blocks = self.request.GET.get('incl_blocks',)
-        equipment = self.request.GET.get('equipment',)
+        mine = self.request.GET.get('mine', )
+        subsystem = self.request.GET.get('subsystem', )
+        incl_blocks = self.request.GET.get('incl_blocks', )
+        equipment = self.request.GET.get('equipment', )
 
         equipment_list = None
 
@@ -434,8 +428,8 @@ class EquipmentListView(FormView):
                 equipment == 'Все оборудование':
             self.result = 1
             equipment_list = Execution.objects.filter(execution_bool=True).order_by(
-                'equipment_install__number_mine__title'
-                )
+                    'equipment_install__number_mine__title'
+            )
 
         elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки' and \
                 equipment == 'Все оборудование':
@@ -481,7 +475,8 @@ class EquipmentListView(FormView):
             self.result = 7
             equipment_list = Execution.objects.filter(
                     equipment_install__number_mine__title=mine,
-                    equipment_install__title__title=equipment, execution_bool=True
+                    equipment_install__title__title=equipment,
+                    execution_bool=True
             )
 
         elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and equipment:
@@ -533,10 +528,10 @@ class CableListView(FormView):
         Метод вызывается, если форма прошла валидацию.
         """
         # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines',)
-        subsystem = form.cleaned_data.get('subsystems',)
-        incl_blocks = form.cleaned_data.get('incl_blocks',)
-        cable = form.cleaned_data.get('cable',)
+        mine = form.cleaned_data.get('number_mines', )
+        subsystem = form.cleaned_data.get('subsystems', )
+        incl_blocks = form.cleaned_data.get('incl_blocks', )
+        cable = form.cleaned_data.get('cable', )
         print("Данные из формы получены:", mine, subsystem, incl_blocks, cable)
 
         query_params = {
@@ -566,7 +561,7 @@ class CableListView(FormView):
         mine = self.request.GET.get('mine', )
         subsystem = self.request.GET.get('subsystem', )
         incl_blocks = self.request.GET.get('incl_blocks', )
-        cable = self.request.GET.get('cable',)
+        cable = self.request.GET.get('cable', )
 
         cable_list = None
 
@@ -651,61 +646,6 @@ class CableListView(FormView):
         return context
 
 
-# class BoxListView(FormView):
-#     form_class = BoxForm
-#     model = BranchesBox
-#     template_name = 'mfss/box_list.html'
-#     extra_context = {
-#             'title': "Просмотр подключенных устройств",
-#     }
-#
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         mine = self.request.GET.get('number_mines')
-#         subsystem = self.request.GET.get('subsystems')
-#         incl_blocks = self.request.GET.get('incl_blocks')
-#
-#         if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
-#             self.result = 1
-#             object_list = queryset.all()
-#             return object_list
-#
-#         elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки':
-#             self.result = 2
-#             object_list = queryset.filter(
-#                     subsystem__title=subsystem,
-#             )
-#             return object_list
-#         elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
-#             self.result = 3
-#             object_list = queryset.filter(
-#                     number_mine__title=mine,
-#             )
-#             return object_list
-#         elif mine and subsystem and incl_blocks == 'Все уклонные блоки':
-#             self.result = 4
-#             object_list = queryset.filter(
-#                     number_mine__title=mine,
-#                     subsystem__title=subsystem,
-#             )
-#             return object_list
-#         elif mine and subsystem == 'Все подсистемы' and incl_blocks:
-#             self.result = 5
-#             object_list = queryset.filter(
-#                     number_mine__title=mine,
-#                     inclined_blocks__title=incl_blocks,
-#             )
-#             return object_list
-#         elif mine and subsystem and incl_blocks:
-#             self.result = 9
-#             object_list = queryset.filter(
-#                     number_mine__title=mine,
-#                     subsystem__title=subsystem,
-#                     inclined_blocks__title=incl_blocks,
-#             )
-#             return object_list
-
-
 class BoxListView(FormView):
     form_class = BoxForm
     model = BranchesBox
@@ -726,9 +666,9 @@ class BoxListView(FormView):
         Метод вызывается, если форма прошла валидацию.
         """
         # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines',)
-        subsystem = form.cleaned_data.get('subsystems',)
-        incl_blocks = form.cleaned_data.get('incl_blocks',)
+        mine = form.cleaned_data.get('number_mines', )
+        subsystem = form.cleaned_data.get('subsystems', )
+        incl_blocks = form.cleaned_data.get('incl_blocks', )
         print("Данные из формы получены:", mine, subsystem, incl_blocks)
 
         query_params = {
@@ -758,7 +698,6 @@ class BoxListView(FormView):
         if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
             self.result = 1
             box_list = BranchesBox.objects.all()
-
 
         elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки':
             self.result = 2
@@ -806,6 +745,7 @@ class BoxListView(FormView):
 class EquipmentFileListView(ListView):
     model = Equipment
     template_name = 'mfss/equipment_file_list.html'
+    context_object_name = 'equipment_file_list'
     extra_context = {
             'title': "Документация (оборудование)",
     }
@@ -814,6 +754,7 @@ class EquipmentFileListView(ListView):
 class CableFileListView(ListView):
     model = Cable
     template_name = 'mfss/cable_file_list.html'
+    context_object_name = 'cable_file_list'
     extra_context = {
             'title': "Документация (кабели)",
     }
@@ -822,6 +763,7 @@ class CableFileListView(ListView):
 class ViolationsListView(ListView):
     model = Violations
     template_name = 'mfss/violations_list.html'
+    context_object_name = 'violations_list'
     extra_context = {
             'title': "Обзор выданных замечаний",
     }
@@ -871,58 +813,210 @@ class ViolationsListView(ListView):
         return context
 
 
-class VisualListView(FormListViewMixin):
+class VisualView(FormView):
     model = Visual
     form_class = VisualCreateForm
     template_name = 'mfss/visual_list.html'
+    context_object_name = 'visual_list'
+    success_url = reverse_lazy('mfss:visual')
     extra_context = {
             'title': "Визуализация установленного оборудования",
     }
 
+    def form_valid(self, form):
+        """
+        Метод вызывается, если форма прошла валидацию.
+        """
+        # Получаем данные из формы
+        mine = form.cleaned_data.get('number_mines', )
+        equipment = form.cleaned_data.get('equipment', )
+        print("Данные из формы получены:", mine, equipment, )
+
+        query_params = {
+                'mine': mine,
+                'equipment': equipment,
+        }
+
+        url = f"{reverse('mfss:visual')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+
+        return HttpResponseRedirect(url)
+
     def get_context_data(self, *args, **kwargs):
+        """
+        Метод для добавления дополнительного контекста в шаблон.
+        Здесь выполняется фильтрация данных из базы.
+        """
         context = super().get_context_data(**kwargs)
-        mine = self.request.GET.get('number_mines')
+
+        # Получаем параметры из GET-запроса
+        mine = self.request.GET.get('mine')
         equipment = self.request.GET.get('equipment')
 
-        objects = Visual.objects.filter(
+        visual_list = Visual.objects.filter(
                 number_mines=mine,
                 equipment=equipment,
         )
 
-        for object_ in objects:
-            context['pdf_visual'] = object_.file_pdf
+        context['mine'] = mine
+        context['equipment'] = equipment
 
+        for visual in visual_list:
+            context['pdf_visual'] = visual.file_pdf
+        print(context)
         return context
 
 
-class ProjectEquipmentListView(FormListViewMixin):
+class ProjectEquipmentListView(FormView):
     model = EquipmentInstallation
     form_class = ProjectEquipmentForm
     template_name = 'mfss/project_equipment_list.html'
     context_object_name = 'project_equipment_list'
+    success_url = reverse_lazy('mfss:project_equipment')
     extra_context = {
             'title': "Проект МФСБ (оборудование)",
     }
 
-    # def get_queryset(self):
-    #     queryset = super().get_queryset()
-    #     mine = self.request.GET.get('number_mines')
-    #     subsystem = self.request.GET.get('subsystems')
-    #
-    #     if mine == 'Все шахты' and subsystem == 'Все подсистемы':
-    #         self.result = 1
-    #         object_list = Execution.objects.all().order_by('equipment_install__number_mine__title')
-    #         return object_list
+    def post(self, request, *args, **kwargs):
+        print("POST-запрос получен")
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """
+        Метод вызывается, если форма прошла валидацию.
+        """
+        # Получаем данные из формы
+        mine = form.cleaned_data.get('number_mines', )
+        subsystem = form.cleaned_data.get('subsystems', )
+        print("Данные из формы получены:", mine, subsystem)
+
+        query_params = {
+                'mine': mine,
+                'subsystem': subsystem,
+        }
+
+        url = f"{reverse('mfss:project_equipment')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+
+        return HttpResponseRedirect(url)
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        Метод для добавления дополнительного контекста в шаблон.
+        Здесь выполняется фильтрация данных из базы.
+        """
+        context = super().get_context_data(**kwargs)
+
+        mine = self.request.GET.get('mine', )
+        subsystem = self.request.GET.get('subsystem', )
+
+        project_equipment_list = None
+
+        if mine == 'Все шахты' and subsystem == 'Все подсистемы':
+            project_equipment_list = EquipmentInstallation.objects.all().order_by('number_mine__title')
+
+        elif mine == 'Все шахты' and subsystem:
+            # self.result = 2
+            project_equipment_list = EquipmentInstallation.objects.filter(
+                    subsystem__title=subsystem,
+            ).order_by('number_mine__title')
+
+        elif mine and subsystem == 'Все подсистемы':
+            # self.result = 3
+            project_equipment_list = EquipmentInstallation.objects.filter(
+                    number_mine__title=mine,
+            )
+
+        elif mine and subsystem:
+            # self.result = 4
+            project_equipment_list = EquipmentInstallation.objects.filter(
+                    number_mine__title=mine,
+                    subsystem__title=subsystem,
+            )
+
+        context['mine'] = mine
+        context['subsystem'] = subsystem
+        context['project_equipment_list'] = project_equipment_list
+
+        return context
 
 
-class ProjectCableListView(FormListViewMixin):
+class ProjectCableListView(LoginRequiredMixin, FormView):
     model = CableMagazine
     form_class = ProjectCableForm
     template_name = 'mfss/project_cable_list.html'
     context_object_name = 'project_cable_list'
+    success_url = reverse_lazy('mfss:project_cable')
     extra_context = {
             'title': "Проект МФСБ (кабельная продукция)",
     }
+
+    def post(self, request, *args, **kwargs):
+        print("POST-запрос получен")
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        """
+        Метод вызывается, если форма прошла валидацию.
+        """
+        # Получаем данные из формы
+        mine = form.cleaned_data.get('number_mines', )
+        subsystem = form.cleaned_data.get('subsystems', )
+        print("Данные из формы получены:", mine, subsystem)
+
+        query_params = {
+                'mine': mine,
+                'subsystem': subsystem,
+        }
+
+        url = f"{reverse('mfss:project_cable')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+
+        return HttpResponseRedirect(url)
+
+    def form_invalid(self, form):
+        print("Форма не прошла валидацию")
+        print(form.errors)  # Вывод ошибок формы
+        return super().form_invalid(form)
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        Метод для добавления дополнительного контекста в шаблон.
+        Здесь выполняется фильтрация данных из базы.
+        """
+        context = super().get_context_data(**kwargs)
+
+        mine = self.request.GET.get('mine', )
+        subsystem = self.request.GET.get('subsystem', )
+
+        project_cable_list = None
+
+        if mine == 'Все шахты' and subsystem == 'Все подсистемы':
+            project_cable_list = CableMagazine.objects.all().order_by('number_mine__title')
+
+        elif mine == 'Все шахты' and subsystem:
+            # self.result = 2
+            project_cable_list = CableMagazine.objects.filter(
+                    subsystem__title=subsystem,
+            ).order_by('number_mine__title')
+
+        elif mine and subsystem == 'Все подсистемы':
+            # self.result = 3
+            project_cable_list = CableMagazine.objects.filter(
+                    number_mine__title=mine,
+            )
+
+        elif mine and subsystem:
+            # self.result = 4
+            project_cable_list = CableMagazine.objects.filter(
+                    number_mine__title=mine,
+                    subsystem__title=subsystem,
+            )
+
+        context['mine'] = mine
+        context['subsystem'] = subsystem
+        context['project_cable_list'] = project_cable_list
+
+        return context
+
+
 
 
 class ContactFormView(LoginRequiredMixin, FormView):
