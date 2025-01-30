@@ -472,6 +472,10 @@ hfy {
   color: #6d37ff;
   font-size: 17px; }
 
+.color-text-violet-contents {
+  color: #6d37ff;
+  font-size: 23px; }
+
 .underline-none {
   text-decoration: none; }
 
@@ -658,7 +662,7 @@ navbar-auth {
   border-top: 1px solid #f7f6fa; }
 
 .margin-auth-block {
-  margin-top: 65px; }
+  margin-top: 25px; }
 
 .nav-auth-block {
   margin-right: 20px; }
