@@ -1,4 +1,5 @@
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.core.cache import cache
@@ -26,6 +27,8 @@ from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin, \
     PermissionRequiredMixin
+from .services import EquipmentFilterService
+from .params import FilterParams
 
 
 # from .forms import UserForm
@@ -378,132 +381,40 @@ class EquipmentListView(FormView):
     }
     result = 0
 
-    def post(self, request, *args, **kwargs):
-        print("POST-запрос получен")
-        return super().post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #     print("POST-запрос получен")
+    #     return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         """
         Метод вызывается, если форма прошла валидацию.
         """
-        # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines', )
-        subsystem = form.cleaned_data.get('subsystems', )
-        incl_blocks = form.cleaned_data.get('incl_blocks', )
-        equipment = form.cleaned_data.get('equipment', )
-        print("Данные из формы получены:", mine, subsystem, incl_blocks, equipment)
-
-        query_params = {
-                'mine': mine,
-                'subsystem': subsystem,
-                'incl_blocks': incl_blocks,
-                'equipment': equipment,
+        params = {
+                "mine": form.cleaned_data.get("number_mines",),
+                "subsystem": form.cleaned_data.get("subsystems",),
+                "incl_blocks": form.cleaned_data.get("incl_blocks",),
+                "equipment": form.cleaned_data.get("equipment",),
         }
 
-        url = f"{reverse('mfss:equipment')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+        url = f"{reverse('mfss:equipment')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
         return HttpResponseRedirect(url)
 
-    def form_invalid(self, form):
-        print("Форма не прошла валидацию")
-        print(form.errors)  # Вывод ошибок формы
-        return super().form_invalid(form)
-
     def get_context_data(self, **kwargs):
-        """
-        Метод для добавления дополнительного контекста в шаблон.
-        Здесь выполняется фильтрация данных из базы.
-        """
         context = super().get_context_data(**kwargs)
+        filter_params = FilterParams(self.request)
 
-        # Получаем параметры из GET-запроса
-        mine = self.request.GET.get('mine', )
-        subsystem = self.request.GET.get('subsystem', )
-        incl_blocks = self.request.GET.get('incl_blocks', )
-        equipment = self.request.GET.get('equipment', )
+        context["equipment_list"] = EquipmentFilterService.get_filtered_queryset(filter_params)
 
-        equipment_list = None
-
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                equipment == 'Все оборудование':
-            self.result = 1
-            equipment_list = Execution.objects.filter(execution_bool=True).order_by(
-                    'equipment_install__number_mine__title'
-            )
-
-        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки' and \
-                equipment == 'Все оборудование':
-            self.result = 2
-            equipment_list = Execution.objects.filter(
-                    equipment_install__subsystem__title=subsystem,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                equipment == 'Все оборудование':
-            self.result = 3
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and \
-                equipment == 'Все оборудование':
-            self.result = 4
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__subsystem__title=subsystem,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks and \
-                equipment == 'Все оборудование':
-            self.result = 5
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__inclined_blocks__title=incl_blocks,
-                    execution_bool=True
-            )
-
-        elif mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                equipment:
-            self.result = 6
-            equipment_list = Execution.objects.filter(equipment_install__title__title=equipment, execution_bool=True)
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                equipment:
-            self.result = 7
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__title__title=equipment,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and equipment:
-            self.result = 8
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__subsystem__title=subsystem,
-                    equipment_install__title__title=equipment,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks and equipment:
-            self.result = 9
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__subsystem__title=subsystem,
-                    equipment_install__inclined_blocks__title=incl_blocks,
-                    equipment_install__title__title=equipment,
-                    execution_bool=True
-            )
-
-        context['equipment_list'] = equipment_list
-        context['mine'] = mine
-        context['subsystem'] = subsystem
-        context['incl_blocks'] = incl_blocks
-        context['equipment'] = equipment
-        context['result'] = self.result
+        # Добавляем параметры в контекст для отображения в шаблоне
+        context.update(
+                {
+                        "mine": filter_params.get("mine",),
+                        "subsystem": filter_params.get("subsystem",),
+                        "incl_blocks": filter_params.get("incl_blocks",),
+                        "equipment": filter_params.get("equipment",),
+                }
+        )
 
         return context
 
