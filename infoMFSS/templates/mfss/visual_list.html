@@ -17,7 +17,8 @@
         </div>
     </div>
     <div class="container margin-auth-block">
-        <form method="get">
+        <form method="post" action="{% url 'mfss:visual' %}">
+            {% csrf_token %}
             <div class="row text-center mx-auto mt-4 mb-sm-5">
                 <div class="col-sm-4">
                 </div>
@@ -28,10 +29,8 @@
                         </h4>
                     </div>
                     <div class="card-body text-start">
-                        {% load crispy_forms_tags %}
-                        {% csrf_token %}
                         {% crispy form %}
-                        <button type="submit" class="btn elem-button btn-md mx-2">
+                        <button type="submit" class="btn elem-button btn-md mt-2">
                             Сгенерировать ссылку
                         </button>
                     </div>
