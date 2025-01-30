@@ -46,12 +46,23 @@ class InfoFormMixin(forms.ModelForm):
             if incl_blocks not in incl_list:
                 self.add_error('incl_blocks', 'Не верно указан уклонный блок')
 
-        # if number_mines == 'Все шахты' and subsystems == 'Все подсистемы' and incl_blocks in incl_all_list:
-            # raise forms.ValidationError('Нефтешахта не выбрана')
-            # self.add_error('number_mines', 'Нефтешахта не выбрана')
-
         if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
             self.add_error('number_mines', 'Нефтешахта не выбрана')
+
+
+# class ProjectFormMixin(forms.ModelForm):
+#     number_mines = forms.ModelChoiceField(
+#             queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
+#             initial='Все шахты'
+#     )
+#     subsystems = forms.ModelChoiceField(
+#             queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
+#             initial='Все подсистемы'
+#     )
+#
+#     class Meta:
+#         model = Execution
+#         fields = ('number_mines', 'subsystems',)
 
 
 class PercentForm(InfoFormMixin):
@@ -90,12 +101,34 @@ class BoxForm(InfoFormMixin):
     )
 
 
-class ProjectEquipmentForm(InfoFormMixin):
-    pass
+class ProjectEquipmentForm(forms.ModelForm):
+    number_mines = forms.ModelChoiceField(
+            queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
+            initial='Все шахты'
+    )
+    subsystems = forms.ModelChoiceField(
+            queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
+            initial='Все подсистемы'
+    )
+
+    class Meta:
+        model = Execution
+        fields = ('number_mines', 'subsystems',)
 
 
-class ProjectCableForm(InfoFormMixin):
-    pass
+class ProjectCableForm(forms.ModelForm):
+    number_mines = forms.ModelChoiceField(
+            queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
+            initial='Все шахты'
+    )
+    subsystems = forms.ModelChoiceField(
+            queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
+            initial='Все подсистемы'
+    )
+
+    class Meta:
+        model = Execution
+        fields = ('number_mines', 'subsystems',)
 
 
 class VisualCreateForm(forms.ModelForm):
