@@ -15,6 +15,20 @@ files = [
 tests = ["mypy (>=0.800)", "pytest", "pytest-asyncio"]
 
 [[package]]
+name = "captcha"
+version = "0.6.0"
+description = "A captcha library that generates audio and image CAPTCHAs."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "captcha-0.6.0-py3-none-any.whl", hash = "sha256:148b2475be00a067b6173b7796cdc2332dbcb6fd4bfced1055bc8f69846bc924"},
+    {file = "captcha-0.6.0.tar.gz", hash = "sha256:a5ead7679cd8477bc636524d54f50e092a4b6f3db4e52bb98a689593638d1772"},
+]
+
+[package.dependencies]
+Pillow = "*"
+
+[[package]]
 name = "certifi"
 version = "2024.8.30"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -486,6 +500,19 @@ files = [
 Django = ">=4.2"
 
 [[package]]
+name = "django-ranged-response"
+version = "0.2.0"
+description = "Modified Django FileResponse that adds Content-Range headers."
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-ranged-response-0.2.0.tar.gz", hash = "sha256:f71fff352a37316b9bead717fc76e4ddd6c9b99c4680cdf4783b9755af1cf985"},
+]
+
+[package.dependencies]
+django = "*"
+
+[[package]]
 name = "django-sass-processor"
 version = "1.4.1"
 description = "SASS processor to compile SCSS files into *.css, while rendering, or offline."
@@ -498,6 +525,26 @@ files = [
 
 [package.extras]
 management-command = ["django-compressor (>=2.4)"]
+
+[[package]]
+name = "django-simple-captcha"
+version = "0.6.1"
+description = "A very simple, yet powerful, Django captcha application"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django_simple_captcha-0.6.1-py2.py3-none-any.whl", hash = "sha256:75c4a89cf54011be54dd96fc4bfc2286f92bed88c46d247b9e504b7fc4c7cfe5"},
+    {file = "django_simple_captcha-0.6.1.tar.gz", hash = "sha256:9df5cf24e38b91af62d601f8e5189b0f6d28dbaa55a363a8b9d727703f9c35de"},
+]
+
+[package.dependencies]
+Django = ">=4.2"
+django-ranged-response = "0.2.0"
+djangorestframework = ">=3.15.0"
+Pillow = ">=6.2.0"
+
+[package.extras]
+test = ["testfixtures"]
 
 [[package]]
 name = "django-smart-selects"
@@ -1190,4 +1237,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "85df733b962d5f14639c1a09c591048324799d9ba0a63fa4b65340da14138c45"
+content-hash = "71019fbf2c43c3b932fa37b65f2edabf6554870b4a0d353fdac76fd5827d0c54"

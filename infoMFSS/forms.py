@@ -1,10 +1,11 @@
 from django import forms
 from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, Visual, \
     EquipmentInstallation, CableMagazine
-from django.core.exceptions import ValidationError
+import captcha as captcha
+from captcha.fields import CaptchaField
 
 
-class InfoFormMixin(forms.ModelForm):
+class InfoFormMixin(forms.Form):
     number_mines = forms.ModelChoiceField(
             queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
             initial='Все шахты'
@@ -13,10 +14,6 @@ class InfoFormMixin(forms.ModelForm):
             queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
             initial='Все подсистемы'
     )
-
-    class Meta:
-        model = Execution
-        fields = ('number_mines', 'subsystems',)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -48,21 +45,6 @@ class InfoFormMixin(forms.ModelForm):
 
         if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
             self.add_error('number_mines', 'Нефтешахта не выбрана')
-
-
-# class ProjectFormMixin(forms.ModelForm):
-#     number_mines = forms.ModelChoiceField(
-#             queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
-#             initial='Все шахты'
-#     )
-#     subsystems = forms.ModelChoiceField(
-#             queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
-#             initial='Все подсистемы'
-#     )
-#
-#     class Meta:
-#         model = Execution
-#         fields = ('number_mines', 'subsystems',)
 
 
 class PercentForm(InfoFormMixin):
@@ -101,7 +83,7 @@ class BoxForm(InfoFormMixin):
     )
 
 
-class ProjectEquipmentForm(forms.ModelForm):
+class ProjectEquipmentForm(forms.Form):
     number_mines = forms.ModelChoiceField(
             queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
             initial='Все шахты'
@@ -111,12 +93,8 @@ class ProjectEquipmentForm(forms.ModelForm):
             initial='Все подсистемы'
     )
 
-    class Meta:
-        model = Execution
-        fields = ('number_mines', 'subsystems',)
 
-
-class ProjectCableForm(forms.ModelForm):
+class ProjectCableForm(forms.Form):
     number_mines = forms.ModelChoiceField(
             queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
             initial='Все шахты'
@@ -125,10 +103,6 @@ class ProjectCableForm(forms.ModelForm):
             queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
             initial='Все подсистемы'
     )
-
-    class Meta:
-        model = Execution
-        fields = ('number_mines', 'subsystems',)
 
 
 class VisualCreateForm(forms.ModelForm):
@@ -138,7 +112,41 @@ class VisualCreateForm(forms.ModelForm):
 
 
 class ContactForm(forms.Form):
+
+                           # widget=forms.TextInput(attrs={'class': 'captcha-input'}))
     name = forms.CharField(max_length=100, label="Ваше имя")
     email = forms.EmailField(label="Ваш email")
     message = forms.CharField(widget=forms.Textarea, label="Сообщение")
+    captcha = CaptchaField(label='Введите ответ', generator='captcha.helpers.math_challenge',
+                               error_messages={'invalid': 'Неправильный текст'}, )
 
+
+class QuantityEquipmentCableForm(forms.Form):
+    number_mines = forms.ChoiceField(
+            choices=[
+                    ('Нефтешахта №1', 'Нефтешахта №1'),
+                    ('Нефтешахта №2', 'Нефтешахта №2'),
+                    ('Нефтешахта №3', 'Нефтешахта №3'),
+            ],
+            label="Выберите шахту", required=True
+    )
+    equipment = forms.ModelChoiceField(
+            queryset=Equipment.objects.exclude(title='Все оборудование'), to_field_name="title", label='Оборудование',
+            required=False, empty_label="Не выбрано"
+    )
+    cable = forms.ModelChoiceField(
+            queryset=Cable.objects.exclude(title='Все кабели'), to_field_name="title", label='Кабель',
+            required=False, empty_label="Не выбрано"
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        equipment = cleaned_data.get('equipment')
+        cable = cleaned_data.get('cable')
+
+        if equipment is None and cable is None:
+            self.add_error('equipment', 'Не выбрано оборудование')
+            self.add_error('cable', 'Не выбран кабель')
+
+        if equipment and cable:
+            self.add_error('equipment', 'Выберите только один из вариантов')

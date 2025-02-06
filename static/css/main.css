@@ -158,6 +158,16 @@ h10 {
   cursor: default;
   font-weight: 370; }
 
+h11 {
+  font-size: 26px;
+  line-height: 12px;
+  text-align: center;
+  cursor: default;
+  font-weight: 470;
+  display: block;
+  margin-top: 7px;
+  margin-bottom: 1.67em; }
+
 h14 {
   font-size: 18px;
   font-weight: 300; }
@@ -662,7 +672,7 @@ navbar-auth {
   border-top: 1px solid #f7f6fa; }
 
 .margin-auth-block {
-  margin-top: 25px; }
+  margin-top: 65px; }
 
 .nav-auth-block {
   margin-right: 20px; }

@@ -106,9 +106,17 @@
                                     <td class="align-middle">{{ box.equipment.tunnel.title }}
                                         (ПК{{ box.equipment.picket }})
                                     </td>
-                                {% else %}
+                                {% elif box.equipment.branches_box and box.equipment.inclined_blocks%}
                                     <td class="align-middle">{{ box.equipment.tunnel.title }}
                                         {{ box.equipment.inclined_blocks }} (ПК{{ box.equipment.picket }})
+                                    </td>
+                                {% elif box.equipment.branches_box and not box.equipment.inclined_blocks%}
+                                    <td class="align-middle">{{ box.equipment.tunnel.title }}
+                                        (ПК{{ box.equipment.picket }})
+                                    </td>
+                                {% else %}
+                                    <td class="align-middle">{{ box.equipment.tunnel.title }}
+                                       (ПК{{ box.equipment.picket }})
                                     </td>
                                 {% endif %}
                                 {% if box.equipment.equipment_bool.execution_bool == True %}

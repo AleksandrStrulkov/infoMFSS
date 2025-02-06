@@ -10,9 +10,15 @@
                 </div>
                 <div class="col-sm-6 card mb-5 box-shadow card-imad-auth border-none">
                     <div class="card-body">
-                        <h5 class="card-title mb-4">Свяжитесь с нами</h5>
+                        <h11 class="card-title mb-4 text-center">Свяжитесь с нами</h11>
                         {% load crispy_forms_tags %}
                         {% csrf_token %}
+{#                        <style>#}
+{#                            label[for="id_captcha"] {#}
+{#                                font-size: 20px;#}
+{#                                color: darkblue;#}
+{#                            }#}
+{#                        </style>#}
                         {% crispy form %}
                         <div class="text-start mb-4">
                             <button type="submit" class="btn elem-button btn-md mx-2 pull-right">

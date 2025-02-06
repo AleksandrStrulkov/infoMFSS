@@ -98,60 +98,6 @@
                         Общее: {{ percent_mine123 }} %
                     </h11>
                 </div>
-
-
-                {#                <div class="container text-center mt-5">#}
-                {#                    <div class="row">#}
-                {#                        <div class="col-xxl-3 ">#}
-                {#                        </div>#}
-                {#                        <div class="col-xxl-2 mb-3 ">#}
-                {#                            <a>#}
-                {#                                <button type="button" class="btn nsh-button me-md-2" data-bs-toggle="modal"#}
-                {#                                        data-bs-target="#nsh1Modal">Нефтешахта №1#}
-                {#                                </button>#}
-                {#                                {% include 'mfss/includes/nsh1_modal.html' %}#}
-                {#                            </a>#}
-                {#                        </div>#}
-                {#                        <div class="col-xxl-2 mb-3">#}
-                {#                            <a>#}
-                {#                                <button type="button" class="btn nsh-button me-md-2" data-bs-toggle="modal"#}
-                {#                                        data-bs-target="#nsh2Modal">Нефтешахта №2#}
-                {#                                </button>#}
-                {#                            </a>#}
-                {#                        </div>#}
-                {#                        <div class="col-xxl-2">#}
-                {#                            <a>#}
-                {#                                <form action="{% url 'mfss:home' %}" target="_blank">#}
-                {#                                <button type="button" class="btn nsh-button me-md-2" data-bs-toggle="modal"#}
-                {#                                        data-bs-target="#nsh3Modal">Нефтешахта №3#}
-                {#                                </button>#}
-                {#                                </form>#}
-                {#                            </a>#}
-                {#                        </div>#}
-                {#                        <div class="col-xxl-3">#}
-                {#                        </div>#}
-                {#                    </div>#}
-                {#                    <div class="row">#}
-                {#                        <div class="col-xxl-3 ">#}
-                {#                        </div>#}
-                {#                        <div class="col-xxl-2 mb-3 ">#}
-                {#                        </div>#}
-                {#                        <div class="col-xxl-2 text-center ">#}
-                {#                            <a>#}
-                {#                                <form action="{% url 'mfss:home' %}" target="_blank">#}
-                {#                                <button type="button" class="btn nsh-button me-md-2" data-bs-toggle="modal"#}
-                {#                                        data-bs-target="#nsh123Modal">По всем шахтам#}
-                {#                                </button>#}
-                {#                                </form>#}
-                {#                            </a>#}
-                {#                        </div>#}
-                {#                        <div class="col-xxl-2">#}
-                {#                        </div>#}
-                {#                        <div class="col-xxl-3">#}
-                {#                        </div>#}
-                {#                    </div>#}
-                {##}
-                {#                </div>#}
             </div>
         </div>
         <div class="container text-center mt-1">
@@ -381,12 +327,12 @@
                             {##}
                             {#                            </p>#}
                             {#                            <a href="#" class="stretched-link"></a>#}
-                            <h5 class="card-title h3-block-card-head">Сформировать отчет</h5>
+                            <h5 class="card-title h3-block-card-head">Количество установленного оборудования</h5>
                             <p class="card-text h3-block-card-footer">Выберите по фильтру требуемые для вывода данные,
                                 сформируйте отчет и отправьте себе на электронную почту.
 
                             </p>
-                            <a href="#" class="stretched-link"></a>
+                            <a href="{% url 'mfss:quantity_equipment_cable' %}" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>

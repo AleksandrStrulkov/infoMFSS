@@ -1,34 +1,23 @@
+import logging
+
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
 from django.core.cache import cache
 from django.urls import reverse_lazy
-from django.utils import dateformat
-from django.conf import settings
-from datetime import datetime
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
-from django.http import Http404
-# from django.utils.translation import ugettext as _
-from django.shortcuts import redirect
-from django.views.generic.edit import FormMixin
 from django.urls import reverse
-
-from infoMFSS.filters import MineSabInclFilter
-# from mailings.forms import MessageForm, ClientForm, MailingForm, MailingManagerForm, MailingOptionsForm, UserActiveForm
 from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone, BranchesBox, \
     Equipment, Cable, Violations, Visual, EquipmentInstallation, CableMagazine
 from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, VisualCreateForm, ProjectEquipmentForm, \
-    ProjectCableForm, ContactForm
+    ProjectCableForm, ContactForm, QuantityEquipmentCableForm
 from django.shortcuts import render
-from users.models import User
-import random
 from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin, \
     PermissionRequiredMixin
-
-
-# from .forms import UserForm
+from .services import EquipmentFilterService, CableFilterService, BoxFilterService, VisualFilterService, \
+    ProjectEquipmentFilterService, ProjectCableFilterService, PercentService, QuantityEqCabFilterService
+from .params import FilterParams
 
 
 def sass_page_handler(request):
@@ -36,338 +25,84 @@ def sass_page_handler(request):
 
 
 class MFSSPercentTemplateView(TemplateView):
+    """"
+    Вывод процентов выполнения по шахтам
+    """
     template_name = 'mfss/home.html'
     extra_context = {
-            'title': "МФСС",
+        'title': "МФСС",
     }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        """Контекст для нефтешахты №1"""
-        mine1_count_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №1").count()
-        mine1_count_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №1").count()
-        update = DateUpdate.objects.latest('update')
-        mine1_count = mine1_count_eq + mine1_count_cab
-        mine1_count_true_eg = Execution.objects.filter(
-                equipment_install__number_mine__title="Нефтешахта №1",
-                execution_bool=True
-        ).count()
-        mine1_count_true_cab = Execution.objects.filter(
-                cable_magazine__number_mine__title="Нефтешахта №1",
-                execution_bool=True
-        ).count()
-        mine1_count_true = mine1_count_true_eg + mine1_count_true_cab
-        try:
-            mine1_count_percent = int(mine1_count_true * 100 / mine1_count)
-        except ZeroDivisionError:
-            mine1_count_percent = 0
-        context['percent_mine1'] = mine1_count_percent
-        context['update'] = update
+        # Список всех шахт
+        mines = ["Нефтешахта №1", "Нефтешахта №2", "Нефтешахта №3"]
 
-        """Контекст для нефтешахты №2"""
-        mine2_count_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №2").count()
-        mine2_count_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №2").count()
-        mine2_count = mine2_count_eq + mine2_count_cab
-        mine2_count_true_eq = Execution.objects.filter(
-                equipment_install__number_mine__title="Нефтешахта №2",
-                execution_bool=True
-        ).count()
-        mine2_count_true_cab = Execution.objects.filter(
-                cable_magazine__number_mine__title="Нефтешахта №2",
-                execution_bool=True
-        ).count()
-        mine2_count_true = mine2_count_true_eq + mine2_count_true_cab
-        try:
-            mine2_count_percent = int(mine2_count_true * 100 / mine2_count)
-        except ZeroDivisionError:
-            mine2_count_percent = 0
-        context['percent_mine2'] = mine2_count_percent
+        # Вычисляем проценты для каждой шахты
+        for mine in mines:
+            result = PercentService.calculate_percent(mine=mine)
+            context[f'percent_{mine.lower().replace(" ", "_").replace("нефтешахта_№", "mine")}'] = result['percent']
 
-        """Контекст для нефтешахты №3"""
-        mine3_count_eq = Execution.objects.filter(equipment_install__number_mine__title="Нефтешахта №3").count()
-        mine3_count_cab = Execution.objects.filter(cable_magazine__number_mine__title="Нефтешахта №3").count()
-        mine3_count = mine3_count_eq + mine3_count_cab
-        mine3_count_true_eq = Execution.objects.filter(
-                equipment_install__number_mine__title="Нефтешахта №3",
-                execution_bool=True
-        ).count()
-        mine3_count_true_cab = Execution.objects.filter(
-                cable_magazine__number_mine__title="Нефтешахта №3",
-                execution_bool=True
-        ).count()
-        mine3_count_true = mine3_count_true_eq + mine3_count_true_cab
-        try:
-            mine3_count_percent = int(mine3_count_true * 100 / mine3_count)
-        except ZeroDivisionError:
-            mine3_count_percent = 0
-        context['percent_mine3'] = mine3_count_percent
+        # Общий процент для всех шахт
+        result_all = PercentService.calculate_percent()
+        context['percent_mine123'] = result_all['percent']
 
-        """Контекст для всех шахт"""
-
-        mine123_count_false = Execution.objects.filter(execution_bool=False).count()
-        mine123_count_true = Execution.objects.filter(execution_bool=True).count()
-        mine123_count = Execution.objects.all().count()
-
-        try:
-            mine123_count_percent = int(mine123_count_true * 100 / mine123_count)
-        except ZeroDivisionError:
-            mine123_count_percent = 0
-        context['percent_mine123'] = mine123_count_percent
+        # Последнее обновление
+        context['update'] = PercentService.get_latest_update()
 
         return context
 
 
-def percent_view(request):
-    mine = ''
-    subsystem = ''
-    incl_blocks = ''
-    percent = ''
-    update = ''
-    mine_count = 0
-    mine_count_true = 0
-    # number_mines_object = NumberMine.objects.all()
-    # subsystems_object = Subsystem.objects.all()
-    # incl_blocks_object = InclinedBlocks.objects.all()
-    number_mines_list = [obj.title for obj in NumberMine.objects.exclude(title='Все шахты')]
-    subsystems_list = [obj.title for obj in Subsystem.objects.exclude(title='Все подсистемы')]
-    incl_blocks_list = [obj.title for obj in InclinedBlocks.objects.exclude(title='Все уклонные блоки')]
-    mine_count_eq = 50000
-    mine_all = []
+class PercentView(FormView):
+    """
+    Вывод процентов выполнения c формой и фильтром
+    """
+    template_name = 'mfss/percents.html'
+    form_class = PercentForm
 
-    if request.method == 'POST':
-        form = PercentForm(request.POST or None)
-        if form.is_valid():
-            mine = form.cleaned_data.get("number_mines").title
-            subsystem = form.cleaned_data.get("subsystems").title
-            incl_blocks = form.cleaned_data.get("incl_blocks").title
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Добавляем дополнительные данные в контекст
+        context['update'] = PercentService.get_latest_update()
+        options = PercentService.get_mines_subsystems_incl_blocks()
+        context.update({
+            'mines': options['mines'],
+            'subsystems': options['subsystems'],
+            'incl_blocks': options['incl_blocks'],
+        })
+        return context
 
-            # """False-False-False"""
-            if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
-                mine_count = Execution.objects.all().count()
-                mine_count_true = Execution.objects.filter(execution_bool=True).count()
-                try:
-                    percent = int(mine_count_true * 100 / mine_count)
-                except ZeroDivisionError:
-                    percent = 0
+    def form_valid(self, form):
+        # Получаем данные из формы
+        mine = form.cleaned_data.get("number_mines").title
+        subsystem = form.cleaned_data.get("subsystems").title
+        incl_blocks = form.cleaned_data.get("incl_blocks").title
 
-            # """False-True-False"""
-            elif mine == 'Все шахты' and subsystem in subsystems_list and incl_blocks == 'Все уклонные блоки':
-                mine_count_eq = Execution.objects.filter(equipment_install__subsystem__title=subsystem).count()
-                mine_count_cab = Execution.objects.filter(cable_magazine__subsystem__title=subsystem).count()
-                mine_count = mine_count_eq + mine_count_cab
-                mine_count_eq_true = Execution.objects.filter(
-                        equipment_install__subsystem__title=subsystem,
-                        execution_bool=True
-                ).count()
-                mine_count_cab_true = Execution.objects.filter(
-                        cable_magazine__subsystem__title=subsystem,
-                        execution_bool=True
-                ).count()
-                mine_count_true = mine_count_eq_true + mine_count_cab_true
-                try:
-                    percent = int(mine_count_true * 100 / mine_count)
-                except ZeroDivisionError:
-                    percent = 0
+        # Вызываем сервис для расчета процента
+        result = PercentService.calculate_percent(mine, subsystem, incl_blocks)
 
-            # """True-False-False"""
-            elif mine in number_mines_list and subsystem == 'Все подсистемы' and \
-                    incl_blocks == 'Все уклонные блоки':
-                mine_count_eq = Execution.objects.filter(equipment_install__number_mine__title=mine).count()
-                # mine_all = Execution.objects.(equipment_install__number_mine__title=mine).count()
-                mine_count_cab = Execution.objects.filter(cable_magazine__number_mine__title__contains=mine).count()
-                mine_count = mine_count_eq + mine_count_cab
-                mine_count_eq_true = Execution.objects.filter(
-                        equipment_install__number_mine__title__contains=mine,
-                        execution_bool=True
-                ).count()
-                mine_count_cab_true = Execution.objects.filter(
-                        cable_magazine__number_mine__title__contains=mine,
-                        execution_bool=True
-                ).count()
-                mine_count_true = mine_count_eq_true + mine_count_cab_true
-                try:
-                    percent = int(mine_count_true * 100 / mine_count)
-                except ZeroDivisionError:
-                    percent = 0
+        # Обновляем контекст данными из формы и результатами расчета
+        context = self.get_context_data(form=form)
+        context.update({
+            'mine': mine,
+            'subsystem': subsystem,
+            'incl_blocks': incl_blocks,
+            'percent': result['percent'],
+            'data': {
+                'total_count': result['total_count'],
+                'true_count': result['true_count'],
+            },
+        })
 
-            # """True-True-False"""
-            elif mine in number_mines_list and subsystem in subsystems_list and incl_blocks == 'Все уклонные блоки':
-                mine_count_eq = Execution.objects.filter(
-                        equipment_install__number_mine__title=mine,
-                        equipment_install__subsystem__title=subsystem
-                ).count()
-                mine_count_cab = Execution.objects.filter(
-                        cable_magazine__number_mine__title=mine,
-                        cable_magazine__subsystem__title=subsystem
-                ).count()
-                mine_count = mine_count_eq + mine_count_cab
-                mine_count_eq_true = Execution.objects.filter(
-                        equipment_install__number_mine__title=mine,
-                        equipment_install__subsystem__title=subsystem,
-                        execution_bool=True
-                ).count()
-                mine_count_cab_true = Execution.objects.filter(
-                        cable_magazine__number_mine__title=mine,
-                        cable_magazine__subsystem__title=subsystem,
-                        execution_bool=True
-                ).count()
-                mine_count_true = mine_count_eq_true + mine_count_cab_true
-                try:
-                    percent = int(mine_count_true * 100 / mine_count)
-                except ZeroDivisionError:
-                    percent = 0
-
-            # """True-True-True"""
-            elif mine in number_mines_list and subsystem in subsystems_list and incl_blocks in incl_blocks_list:
-                mine_count_eq = Execution.objects.filter(
-                        equipment_install__number_mine__title=mine,
-                        equipment_install__subsystem__title=subsystem,
-                        equipment_install__inclined_blocks__title=incl_blocks
-                ).count()
-                mine_count_cab = Execution.objects.filter(
-                        cable_magazine__number_mine__title=mine,
-                        cable_magazine__subsystem__title=subsystem,
-                        cable_magazine__inclined_blocks__title=incl_blocks
-                ).count()
-                mine_count = mine_count_eq + mine_count_cab
-                mine_count_eq_true = Execution.objects.filter(
-                        equipment_install__number_mine__title=mine,
-                        equipment_install__subsystem__title=subsystem,
-                        equipment_install__inclined_blocks__title=incl_blocks,
-                        execution_bool=True
-                ).count()
-                mine_count_cab_true = Execution.objects.filter(
-                        cable_magazine__number_mine__title=mine,
-                        cable_magazine__subsystem__title=subsystem,
-                        cable_magazine__inclined_blocks__title=incl_blocks,
-                        execution_bool=True
-                ).count()
-                mine_count_true = mine_count_eq_true + mine_count_cab_true
-                try:
-                    percent = int(mine_count_true * 100 / mine_count)
-                except ZeroDivisionError:
-                    percent = 0
-
-            # """True-False-True"""
-            elif mine in number_mines_list and subsystem == 'Все подсистемы' and incl_blocks in incl_blocks_list:
-                mine_count_eq = Execution.objects.filter(
-                        equipment_install__number_mine__title=mine,
-                        equipment_install__inclined_blocks__title=incl_blocks
-                ).count()
-                mine_count_cab = Execution.objects.filter(
-                        cable_magazine__number_mine__title=mine,
-                        cable_magazine__inclined_blocks__title=incl_blocks
-                ).count()
-                mine_count = mine_count_eq + mine_count_cab
-                mine_count_eq_true = Execution.objects.filter(
-                        equipment_install__number_mine__title=mine,
-                        equipment_install__inclined_blocks__title=incl_blocks,
-                        execution_bool=True
-                ).count()
-                mine_count_cab_true = Execution.objects.filter(
-                        cable_magazine__number_mine__title=mine,
-                        cable_magazine__inclined_blocks__title=incl_blocks,
-                        execution_bool=True
-                ).count()
-                mine_count_true = mine_count_eq_true + mine_count_cab_true
-                try:
-                    percent = int(mine_count_true * 100 / mine_count)
-                except ZeroDivisionError:
-                    percent = 0
-
-            update = DateUpdate.objects.latest('update')
-            data = [mine, subsystem, incl_blocks, mine_count, mine_count_true,
-                    number_mines_list, mine_count_eq, mine_all]
-            context = {'form': form,
-                       'mine': mine,
-                       'subsystem': subsystem,
-                       'incl_blocks': incl_blocks,
-                       'percent': percent,
-                       'update': update,
-                       'data': data,
-                       }
-
-            return render(request, 'mfss/percents.html', context)
-
-    else:
-        form = PercentForm()
-    context = {'form': form}
-    return render(request, 'mfss/percents.html', context)
-
-
-# class FormListViewMixin(FormMixin, ListView):
-#     """Подготавливаем миксин для сохранения в гет запросе значений полей из формы"""
-#
-#     result = 0
-#
-#     def get(self, request, *args, **kwargs):
-#         # From ProcessFormMixin
-#         form_class = self.get_form_class()
-#         self.form = self.get_form(form_class)
-#
-#         # From BaseListView
-#         self.object_list = self.get_queryset()
-#         allow_empty = self.get_allow_empty()
-#         if not allow_empty and len(self.object_list) == 0:
-#             raise Http404(
-#                     u"Empty list and '%(class_name)s.allow_empty' is False."
-#                     % {'class_name': self.__class__.__name__}
-#             )
-#
-#         context = self.get_context_data(object_list=self.object_list, form=self.form)
-#         return self.render_to_response(context)
-#
-#     def post(self, request, *args, **kwargs):
-#         return self.get(request, *args, **kwargs)
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['mine'] = self.request.GET.get('number_mines')
-#         context['subsystem'] = self.request.GET.get('subsystems')
-#         context['incl_blocks'] = self.request.GET.get('incl_blocks')
-#         context['equipment'] = self.request.GET.get('equipment')
-#         context['cable'] = self.request.GET.get('cable')
-#         context['new'] = self.object_list
-#         context['result'] = self.result
-#         context['bool'] = Execution.objects.all()
-#         # context['phone_number'] = PointPhone.objects.all()
-#         return context
-#
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         mine = self.request.GET.get('number_mines')
-#         subsystem = self.request.GET.get('subsystems')
-#
-#         if mine == 'Все шахты' and subsystem == 'Все подсистемы':
-#             self.result = 1
-#             object_list = queryset.all().order_by('number_mine__title')
-#             return object_list
-#
-#         elif mine == 'Все шахты' and subsystem:
-#             self.result = 2
-#             object_list = queryset.filter(
-#                     subsystem__title=subsystem,
-#             )
-#             return object_list
-#
-#         elif mine and subsystem == 'Все подсистемы':
-#             self.result = 3
-#             object_list = queryset.filter(
-#                     number_mine__title=mine,
-#             )
-#             return object_list
-#
-#         elif mine and subsystem:
-#             self.result = 4
-#             object_list = queryset.filter(
-#                     number_mine__title=mine,
-#                     subsystem__title=subsystem,
-#             )
-#             return object_list
+        # Рендерим шаблон с обновленным контекстом
+        return self.render_to_response(context)
 
 
 class EquipmentListView(FormView):
+    """
+    Вывод списка установленного оборудования
+    """
     form_class = EquipmentForm
     model = Execution
     template_name = 'mfss/equipment_list.html'
@@ -378,36 +113,20 @@ class EquipmentListView(FormView):
     }
     result = 0
 
-    def post(self, request, *args, **kwargs):
-        print("POST-запрос получен")
-        return super().post(request, *args, **kwargs)
-
     def form_valid(self, form):
         """
         Метод вызывается, если форма прошла валидацию.
         """
-        # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines', )
-        subsystem = form.cleaned_data.get('subsystems', )
-        incl_blocks = form.cleaned_data.get('incl_blocks', )
-        equipment = form.cleaned_data.get('equipment', )
-        print("Данные из формы получены:", mine, subsystem, incl_blocks, equipment)
-
-        query_params = {
-                'mine': mine,
-                'subsystem': subsystem,
-                'incl_blocks': incl_blocks,
-                'equipment': equipment,
+        params = {
+                "mine": form.cleaned_data.get("number_mines", ),
+                "subsystem": form.cleaned_data.get("subsystems", ),
+                "incl_blocks": form.cleaned_data.get("incl_blocks", ),
+                "equipment": form.cleaned_data.get("equipment", ),
         }
 
-        url = f"{reverse('mfss:equipment')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+        url = f"{reverse('mfss:equipment')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
         return HttpResponseRedirect(url)
-
-    def form_invalid(self, form):
-        print("Форма не прошла валидацию")
-        print(form.errors)  # Вывод ошибок формы
-        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         """
@@ -415,100 +134,27 @@ class EquipmentListView(FormView):
         Здесь выполняется фильтрация данных из базы.
         """
         context = super().get_context_data(**kwargs)
+        filter_params = FilterParams(self.request)
 
-        # Получаем параметры из GET-запроса
-        mine = self.request.GET.get('mine', )
-        subsystem = self.request.GET.get('subsystem', )
-        incl_blocks = self.request.GET.get('incl_blocks', )
-        equipment = self.request.GET.get('equipment', )
+        context["equipment_list"] = EquipmentFilterService.get_filtered_queryset(filter_params)
 
-        equipment_list = None
-
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                equipment == 'Все оборудование':
-            self.result = 1
-            equipment_list = Execution.objects.filter(execution_bool=True).order_by(
-                    'equipment_install__number_mine__title'
-            )
-
-        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки' and \
-                equipment == 'Все оборудование':
-            self.result = 2
-            equipment_list = Execution.objects.filter(
-                    equipment_install__subsystem__title=subsystem,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                equipment == 'Все оборудование':
-            self.result = 3
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and \
-                equipment == 'Все оборудование':
-            self.result = 4
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__subsystem__title=subsystem,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks and \
-                equipment == 'Все оборудование':
-            self.result = 5
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__inclined_blocks__title=incl_blocks,
-                    execution_bool=True
-            )
-
-        elif mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                equipment:
-            self.result = 6
-            equipment_list = Execution.objects.filter(equipment_install__title__title=equipment, execution_bool=True)
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                equipment:
-            self.result = 7
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__title__title=equipment,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and equipment:
-            self.result = 8
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__subsystem__title=subsystem,
-                    equipment_install__title__title=equipment,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks and equipment:
-            self.result = 9
-            equipment_list = Execution.objects.filter(
-                    equipment_install__number_mine__title=mine,
-                    equipment_install__subsystem__title=subsystem,
-                    equipment_install__inclined_blocks__title=incl_blocks,
-                    equipment_install__title__title=equipment,
-                    execution_bool=True
-            )
-
-        context['equipment_list'] = equipment_list
-        context['mine'] = mine
-        context['subsystem'] = subsystem
-        context['incl_blocks'] = incl_blocks
-        context['equipment'] = equipment
-        context['result'] = self.result
+        # Добавляем параметры в контекст для отображения в шаблоне
+        context.update(
+                {
+                        "mine": filter_params.get("mine", ),
+                        "subsystem": filter_params.get("subsystem", ),
+                        "incl_blocks": filter_params.get("incl_blocks", ),
+                        "equipment": filter_params.get("equipment", ),
+                }
+        )
 
         return context
 
 
 class CableListView(FormView):
+    """
+    Вывод списка проложенных трасс кабелей
+    """
     form_class = CableForm
     model = Execution
     template_name = 'mfss/cable_list.html'
@@ -519,36 +165,21 @@ class CableListView(FormView):
     }
     result = 0
 
-    def post(self, request, *args, **kwargs):
-        print("POST-запрос получен")
-        return super().post(request, *args, **kwargs)
-
     def form_valid(self, form):
         """
         Метод вызывается, если форма прошла валидацию.
         """
-        # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines', )
-        subsystem = form.cleaned_data.get('subsystems', )
-        incl_blocks = form.cleaned_data.get('incl_blocks', )
-        cable = form.cleaned_data.get('cable', )
-        print("Данные из формы получены:", mine, subsystem, incl_blocks, cable)
 
-        query_params = {
-                'mine': mine,
-                'subsystem': subsystem,
-                'incl_blocks': incl_blocks,
-                'cable': cable,
+        params = {
+                "mine": form.cleaned_data.get("number_mines", ),
+                "subsystem": form.cleaned_data.get("subsystems", ),
+                "incl_blocks": form.cleaned_data.get("incl_blocks", ),
+                "cable": form.cleaned_data.get("cable", ),
         }
 
-        url = f"{reverse('mfss:cable')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+        url = f"{reverse('mfss:cable')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
         return HttpResponseRedirect(url)
-
-    def form_invalid(self, form):
-        print("Форма не прошла валидацию")
-        print(form.errors)  # Вывод ошибок формы
-        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         """
@@ -556,97 +187,27 @@ class CableListView(FormView):
         Здесь выполняется фильтрация данных из базы.
         """
         context = super().get_context_data(**kwargs)
+        filter_params = FilterParams(self.request)
 
-        # Получаем параметры из GET-запроса
-        mine = self.request.GET.get('mine', )
-        subsystem = self.request.GET.get('subsystem', )
-        incl_blocks = self.request.GET.get('incl_blocks', )
-        cable = self.request.GET.get('cable', )
+        context["cable_list"] = CableFilterService.get_filtered_queryset(filter_params)
 
-        cable_list = None
-
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                cable == 'Все кабели':
-            self.result = 1
-            cable_list = Execution.objects.filter(execution_bool=True)
-
-        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки' and \
-                cable == 'Все кабели':
-            self.result = 2
-            cable_list = Execution.objects.filter(
-                    cable_magazine__subsystem__title=subsystem,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                cable == 'Все кабели':
-            self.result = 3
-            cable_list = Execution.objects.filter(
-                    cable_magazine__number_mine__title=mine,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and \
-                cable == 'Все кабели':
-            self.result = 4
-            cable_list = Execution.objects.filter(
-                    cable_magazine__number_mine__title=mine,
-                    cable_magazine__subsystem__title=subsystem,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks and \
-                cable == 'Все кабели':
-            self.result = 5
-            cable_list = Execution.objects.filter(
-                    cable_magazine__number_mine__title=mine,
-                    cable_magazine__inclined_blocks__title=incl_blocks,
-                    execution_bool=True
-            )
-
-        elif mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                cable:
-            self.result = 6
-            cable_list = Execution.objects.filter(cable_magazine__cable__title=cable, execution_bool=True)
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки' and \
-                cable:
-            self.result = 7
-            cable_list = Execution.objects.filter(
-                    cable_magazine__number_mine__title=mine,
-                    cable_magazine__cable__title=cable, execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки' and cable:
-            self.result = 8
-            cable_list = Execution.objects.filter(
-                    cable_magazine__number_mine__title=mine,
-                    cable_magazine__subsystem__title=subsystem,
-                    cable_magazine__cable__title=cable,
-                    execution_bool=True
-            )
-
-        elif mine and subsystem and incl_blocks and cable:
-            self.result = 9
-            cable_list = Execution.objects.filter(
-                    cable_magazine__number_mine__title=mine,
-                    cable_magazine__subsystem__title=subsystem,
-                    cable_magazine__inclined_blocks__title=incl_blocks,
-                    cable_magazine__cable__title=cable,
-                    execution_bool=True
-            )
-
-        context['cable_list'] = cable_list
-        context['mine'] = mine
-        context['subsystem'] = subsystem
-        context['incl_blocks'] = incl_blocks
-        context['cable'] = cable
-        context['result'] = self.result
+        # Добавляем параметры в контекст для отображения в шаблоне
+        context.update(
+                {
+                        "mine": filter_params.get("mine", ),
+                        "subsystem": filter_params.get("subsystem", ),
+                        "incl_blocks": filter_params.get("incl_blocks", ),
+                        "cable": filter_params.get("cable", ),
+                }
+        )
 
         return context
 
 
 class BoxListView(FormView):
+    """
+    Вывод списка подключенных устройств
+    """
     form_class = BoxForm
     model = BranchesBox
     template_name = 'mfss/box_list.html'
@@ -657,27 +218,18 @@ class BoxListView(FormView):
     }
     result = 0
 
-    def post(self, request, *args, **kwargs):
-        print("POST-запрос получен")
-        return super().post(request, *args, **kwargs)
-
     def form_valid(self, form):
         """
         Метод вызывается, если форма прошла валидацию.
         """
-        # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines', )
-        subsystem = form.cleaned_data.get('subsystems', )
-        incl_blocks = form.cleaned_data.get('incl_blocks', )
-        print("Данные из формы получены:", mine, subsystem, incl_blocks)
 
-        query_params = {
-                'mine': mine,
-                'subsystem': subsystem,
-                'incl_blocks': incl_blocks,
+        params = {
+                "mine": form.cleaned_data.get("number_mines", ),
+                "subsystem": form.cleaned_data.get("subsystems", ),
+                "incl_blocks": form.cleaned_data.get("incl_blocks", ),
         }
 
-        url = f"{reverse('mfss:box')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+        url = f"{reverse('mfss:box')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
         return HttpResponseRedirect(url)
 
@@ -687,62 +239,26 @@ class BoxListView(FormView):
         Здесь выполняется фильтрация данных из базы.
         """
         context = super().get_context_data(**kwargs)
+        filter_params = FilterParams(self.request)
 
-        # Получаем параметры из GET-запроса
-        mine = self.request.GET.get('mine', )
-        subsystem = self.request.GET.get('subsystem', )
-        incl_blocks = self.request.GET.get('incl_blocks', )
+        context["box_list"] = BoxFilterService.get_filtered_queryset(filter_params)
 
-        box_list = None
-
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
-            self.result = 1
-            box_list = BranchesBox.objects.all()
-
-        elif mine == 'Все шахты' and subsystem and incl_blocks == 'Все уклонные блоки':
-            self.result = 2
-            box_list = BranchesBox.objects.filter(
-                    subsystem__title=subsystem,
-            )
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks == 'Все уклонные блоки':
-            self.result = 3
-            box_list = BranchesBox.objects.filter(
-                    number_mine__title=mine,
-            )
-
-        elif mine and subsystem and incl_blocks == 'Все уклонные блоки':
-            self.result = 4
-            box_list = BranchesBox.objects.filter(
-                    number_mine__title=mine,
-                    subsystem__title=subsystem,
-            )
-
-        elif mine and subsystem == 'Все подсистемы' and incl_blocks:
-            self.result = 5
-            box_list = BranchesBox.objects.filter(
-                    number_mine__title=mine,
-                    inclined_blocks__title=incl_blocks,
-            )
-
-        elif mine and subsystem and incl_blocks:
-            self.result = 9
-            box_list = BranchesBox.objects.filter(
-                    number_mine__title=mine,
-                    subsystem__title=subsystem,
-                    inclined_blocks__title=incl_blocks,
-            )
-
-        context['box_list'] = box_list
-        context['mine'] = mine
-        context['subsystem'] = subsystem
-        context['incl_blocks'] = incl_blocks
-        context['result'] = self.result
+        # Добавляем параметры в контекст для отображения в шаблоне
+        context.update(
+                {
+                        "mine": filter_params.get("mine", ),
+                        "subsystem": filter_params.get("subsystem", ),
+                        "incl_blocks": filter_params.get("incl_blocks", ),
+                }
+        )
 
         return context
 
 
 class EquipmentFileListView(ListView):
+    """
+    Вывод списка файлов с документацией по оборудованию
+    """
     model = Equipment
     template_name = 'mfss/equipment_file_list.html'
     context_object_name = 'equipment_file_list'
@@ -752,6 +268,9 @@ class EquipmentFileListView(ListView):
 
 
 class CableFileListView(ListView):
+    """
+    Вывод списка файлов с документацией по кабелям
+    """
     model = Cable
     template_name = 'mfss/cable_file_list.html'
     context_object_name = 'cable_file_list'
@@ -761,6 +280,9 @@ class CableFileListView(ListView):
 
 
 class ViolationsListView(ListView):
+    """
+    Вывод списка замечаний
+    """
     model = Violations
     template_name = 'mfss/violations_list.html'
     context_object_name = 'violations_list'
@@ -814,6 +336,9 @@ class ViolationsListView(ListView):
 
 
 class VisualView(FormView):
+    """
+    Вывод файла pdf для визуализации установленного оборудования
+    """
     model = Visual
     form_class = VisualCreateForm
     template_name = 'mfss/visual_list.html'
@@ -827,17 +352,12 @@ class VisualView(FormView):
         """
         Метод вызывается, если форма прошла валидацию.
         """
-        # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines', )
-        equipment = form.cleaned_data.get('equipment', )
-        print("Данные из формы получены:", mine, equipment, )
-
-        query_params = {
-                'mine': mine,
-                'equipment': equipment,
+        params = {
+                'mine': form.cleaned_data.get("number_mines", ),
+                'equipment': form.cleaned_data.get("equipment", ),
         }
 
-        url = f"{reverse('mfss:visual')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+        url = f"{reverse('mfss:visual')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
         return HttpResponseRedirect(url)
 
@@ -847,26 +367,26 @@ class VisualView(FormView):
         Здесь выполняется фильтрация данных из базы.
         """
         context = super().get_context_data(**kwargs)
+        filter_params = FilterParams(self.request)
 
-        # Получаем параметры из GET-запроса
-        mine = self.request.GET.get('mine')
-        equipment = self.request.GET.get('equipment')
+        context["visual_list"] = VisualFilterService.get_filtered_queryset(filter_params)
 
-        visual_list = Visual.objects.filter(
-                number_mines=mine,
-                equipment=equipment,
+        context.update(
+                {
+                        "mine": filter_params.get("mine", ),
+                        "equipment": filter_params.get("equipment", ),
+                }
         )
 
-        context['mine'] = mine
-        context['equipment'] = equipment
-
-        for visual in visual_list:
+        for visual in context["visual_list"]:
             context['pdf_visual'] = visual.file_pdf
-        print(context)
         return context
 
 
-class ProjectEquipmentListView(FormView):
+class ProjectEquipmentListView(LoginRequiredMixin, FormView):
+    """
+    Вывод списка оборудования в соответствии с проектом МФСБ
+    """
     model = EquipmentInstallation
     form_class = ProjectEquipmentForm
     template_name = 'mfss/project_equipment_list.html'
@@ -876,25 +396,17 @@ class ProjectEquipmentListView(FormView):
             'title': "Проект МФСБ (оборудование)",
     }
 
-    def post(self, request, *args, **kwargs):
-        print("POST-запрос получен")
-        return super().post(request, *args, **kwargs)
-
     def form_valid(self, form):
         """
         Метод вызывается, если форма прошла валидацию.
         """
-        # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines', )
-        subsystem = form.cleaned_data.get('subsystems', )
-        print("Данные из формы получены:", mine, subsystem)
 
-        query_params = {
-                'mine': mine,
-                'subsystem': subsystem,
+        params = {
+                'mine': form.cleaned_data.get('number_mines', ),
+                'subsystem': form.cleaned_data.get('subsystems', )
         }
 
-        url = f"{reverse('mfss:project_equipment')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+        url = f"{reverse('mfss:project_equipment')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
         return HttpResponseRedirect(url)
 
@@ -904,42 +416,24 @@ class ProjectEquipmentListView(FormView):
         Здесь выполняется фильтрация данных из базы.
         """
         context = super().get_context_data(**kwargs)
+        filter_params = FilterParams(self.request)
 
-        mine = self.request.GET.get('mine', )
-        subsystem = self.request.GET.get('subsystem', )
+        context["project_equipment_list"] = ProjectEquipmentFilterService.get_filtered_queryset(filter_params)
 
-        project_equipment_list = None
-
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы':
-            project_equipment_list = EquipmentInstallation.objects.all().order_by('number_mine__title')
-
-        elif mine == 'Все шахты' and subsystem:
-            # self.result = 2
-            project_equipment_list = EquipmentInstallation.objects.filter(
-                    subsystem__title=subsystem,
-            ).order_by('number_mine__title')
-
-        elif mine and subsystem == 'Все подсистемы':
-            # self.result = 3
-            project_equipment_list = EquipmentInstallation.objects.filter(
-                    number_mine__title=mine,
-            )
-
-        elif mine and subsystem:
-            # self.result = 4
-            project_equipment_list = EquipmentInstallation.objects.filter(
-                    number_mine__title=mine,
-                    subsystem__title=subsystem,
-            )
-
-        context['mine'] = mine
-        context['subsystem'] = subsystem
-        context['project_equipment_list'] = project_equipment_list
+        context.update(
+                {
+                        "mine": filter_params.get("mine", ),
+                        "subsystem": filter_params.get("subsystem", ),
+                }
+        )
 
         return context
 
 
 class ProjectCableListView(LoginRequiredMixin, FormView):
+    """
+    Вывод списка кабельной продукции в соответствии с проектом МФСБ
+    """
     model = CableMagazine
     form_class = ProjectCableForm
     template_name = 'mfss/project_cable_list.html'
@@ -949,32 +443,19 @@ class ProjectCableListView(LoginRequiredMixin, FormView):
             'title': "Проект МФСБ (кабельная продукция)",
     }
 
-    def post(self, request, *args, **kwargs):
-        print("POST-запрос получен")
-        return super().post(request, *args, **kwargs)
-
     def form_valid(self, form):
         """
         Метод вызывается, если форма прошла валидацию.
         """
-        # Получаем данные из формы
-        mine = form.cleaned_data.get('number_mines', )
-        subsystem = form.cleaned_data.get('subsystems', )
-        print("Данные из формы получены:", mine, subsystem)
 
-        query_params = {
-                'mine': mine,
-                'subsystem': subsystem,
+        params = {
+                'mine': form.cleaned_data.get('number_mines', ),
+                'subsystem': form.cleaned_data.get('subsystems', )
         }
 
-        url = f"{reverse('mfss:project_cable')}?{'&'.join(f'{key}={value}' for key, value in query_params.items())}"
+        url = f"{reverse('mfss:project_cable')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
         return HttpResponseRedirect(url)
-
-    def form_invalid(self, form):
-        print("Форма не прошла валидацию")
-        print(form.errors)  # Вывод ошибок формы
-        return super().form_invalid(form)
 
     def get_context_data(self, *args, **kwargs):
         """
@@ -982,44 +463,24 @@ class ProjectCableListView(LoginRequiredMixin, FormView):
         Здесь выполняется фильтрация данных из базы.
         """
         context = super().get_context_data(**kwargs)
+        filter_params = FilterParams(self.request)
 
-        mine = self.request.GET.get('mine', )
-        subsystem = self.request.GET.get('subsystem', )
+        context["project_cable_list"] = ProjectCableFilterService.get_filtered_queryset(filter_params)
 
-        project_cable_list = None
-
-        if mine == 'Все шахты' and subsystem == 'Все подсистемы':
-            project_cable_list = CableMagazine.objects.all().order_by('number_mine__title')
-
-        elif mine == 'Все шахты' and subsystem:
-            # self.result = 2
-            project_cable_list = CableMagazine.objects.filter(
-                    subsystem__title=subsystem,
-            ).order_by('number_mine__title')
-
-        elif mine and subsystem == 'Все подсистемы':
-            # self.result = 3
-            project_cable_list = CableMagazine.objects.filter(
-                    number_mine__title=mine,
-            )
-
-        elif mine and subsystem:
-            # self.result = 4
-            project_cable_list = CableMagazine.objects.filter(
-                    number_mine__title=mine,
-                    subsystem__title=subsystem,
-            )
-
-        context['mine'] = mine
-        context['subsystem'] = subsystem
-        context['project_cable_list'] = project_cable_list
+        context.update(
+                {
+                        "mine": filter_params.get("mine", ),
+                        "subsystem": filter_params.get("subsystem", ),
+                }
+        )
 
         return context
 
 
-
-
 class ContactFormView(LoginRequiredMixin, FormView):
+    """
+    Форма для отправки сообщений администратору
+    """
     template_name = 'mfss/contact.html'  # Шаблон для отображения формы
     form_class = ContactForm  # Форма, которую мы будем использовать
     success_url = reverse_lazy('mfss:contact_success')  # URL для перенаправления после успешной отправки
@@ -1037,24 +498,79 @@ class ContactFormView(LoginRequiredMixin, FormView):
         # Отправка письма администратору
         admin_subject = f"Новое сообщение от {name}"
         admin_message = f"Имя: {name}\nEmail: {email}\n\nСообщение:\n{message}"
-        send_mail(
+
+        try:
+            send_mail(
                 admin_subject,
                 admin_message,
                 settings.DEFAULT_FROM_EMAIL,
                 [settings.EMAIL_HOST_USER],  # Email администратора
                 fail_silently=False,
-        )
+            )
 
-        # Отправка письма пользователю
-        user_subject = "Ваше сообщение получено"
-        user_message = f"Здравствуйте, {name}!\n\nСпасибо за ваше сообщение.\n\nВаше сообщение:\n{message}"
-        send_mail(
+            # Отправка письма пользователю
+            user_subject = "Ваше сообщение получено"
+            user_message = f"Здравствуйте, {name}!\n\nСпасибо за ваше сообщение.\n\nВаше сообщение:\n{message}"
+            send_mail(
                 user_subject,
                 user_message,
                 settings.DEFAULT_FROM_EMAIL,
                 [email],  # Email пользователя
                 fail_silently=False,
+            )
+            # Возвращаем стандартный метод после успешной обработки
+            return super().form_valid(form)
+
+        except Exception as e:
+            logger = logging.getLogger(__name__)
+            # Добавляем ошибку в форму при проблемах с отправкой
+            form.add_error(None, 'Ошибка отправки. Попробуйте позже.')
+            logger.error(f"Ошибка отправки письма: {e}")
+            return self.form_invalid(form)
+
+
+class QuantityEquipmentCableView(LoginRequiredMixin, FormView):
+    """
+    Вывод количества установленного оборудования и кабельной продукции
+    """
+    form_class = QuantityEquipmentCableForm
+    template_name = 'mfss/quantity_equipment_cable.html'
+    context_object_name = 'quantity_equipment_cable_list'
+    success_url = reverse_lazy('mfss:quantity_equipment_cable')
+    extra_context = {
+            'title': "Количество оборудования и кабельной продукции",
+    }
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        Метод для добавления дополнительного контекста в шаблон.
+        Здесь выполняется фильтрация данных из базы.
+        """
+        context = super().get_context_data(**kwargs)
+
+        # Добавляем дополнительные данные в контекст
+        context['update'] = QuantityEqCabFilterService.get_latest_update()
+
+        return context
+
+    def form_valid(self, form):
+        """
+        Метод вызывается, если форма прошла валидацию.
+        """
+        mine = form.cleaned_data.get("number_mines")
+        equipment = form.cleaned_data.get("equipment")
+        cable = form.cleaned_data.get("cable")
+
+        result = QuantityEqCabFilterService.calculate_quantity(equipment, cable, mine)
+        context = self.get_context_data(form=form)
+        context.update(
+                {
+                        'mine': mine,
+                        'equipment': equipment,
+                        'cable': cable,
+                        'quantity': result['quantity'],
+                        'total_length': result['total_length'],
+                }
         )
 
-        # Возвращаем стандартный метод после успешной обработки
-        return super().form_valid(form)
+        return self.render_to_response(context)
