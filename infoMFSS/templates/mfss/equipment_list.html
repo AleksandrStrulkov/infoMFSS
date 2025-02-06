@@ -18,7 +18,6 @@
     </div>
     <div class="container margin-auth-block">
         <form method="post" action="{% url 'mfss:equipment' %}">
-            {% csrf_token %}
             <div class="row text-center mx-auto mt-4 mb-sm-5">
                 <div class="col-sm-4">
                 </div>
@@ -29,10 +28,9 @@
                         </h4>
                     </div>
                     <div class="card-body text-start">
-                        {#                        {% load crispy_forms_tags %}#}
                         {% csrf_token %}
                         {% crispy form %}
-                        <button type="submit" class="btn elem-button btn-md mx-2">
+                        <button type="submit" class="btn elem-button btn-md">
                             Применить
                         </button>
 
@@ -43,76 +41,64 @@
             </div>
         </form>
     </div>
-    {#    <div class="spinner-border text-primary" role="status">#}
-    {#        <span class="visually-hidden">Загрузка...</span>#}
-    {#    </div>#}
     <div class="container text-center">
         {% if mine is not None %}
             {% if equipment_list %}
-                <h9>По критериям: {{ mine }}
+                <h9>{{ mine }}
                     &#8594;
                     {{ subsystem }}
                     &#8594;
                     {{ incl_blocks }} &#9989;
                 </h9>
             {% else %}
-                <h9a>По критериям: {{ mine }}
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" clip-rule="evenodd"
-                              d="M1 8C1 7.72386 1.22386 7.5 1.5 7.5L13.2929 7.5L10.1464 4.35355C9.95118 4.15829 9.95118 3.84171 10.1464 3.64645C10.3417 3.45118 10.6583 3.45118 10.8536 3.64645L14.8536 7.64645C15.0488 7.84171 15.0488 8.15829 14.8536 8.35355L10.8536 12.3536C10.6583 12.5488 10.3417 12.5488 10.1464 12.3536C9.95118 12.1583 9.95118 11.8417 10.1464 11.6464L13.2929 8.5H1.5C1.22386 8.5 1 8.27614 1 8Z"
-                              fill="red"/>
-                    </svg>
+                <h9a>{{ mine }}
+                    &#8594;
                     {{ subsystem }}
                     &#10060;
                     {{ incl_blocks }}</h9a><br><br>
                 <h9a>Данные отсутствуют</h9a>
             {% endif %}
         {% endif %}
-    </div>
-{#        <div class="container text-center">#}
-{#            {{ equipment_list }}#}
-{#            {{ result }}#}
-{#        </div>#}
-    <div class="container text-center mt-5 mb-5">
-        <div class="mt-sm-5 mb-sm-5">
-            <div class="container mt-5 mb-5 table-responsive">
-                {% if equipment_list %}
-                    <table class="table table-hover">
-                    <thead class="table-primary">
-                    <tr class="table-active">
-                        <th>Шахта</th>
-                        <th>Подсистема</th>
-                        <th>Выработка</th>
-                        <th>Уклонный блок</th>
-                        <th>Пикет</th>
-                        <th>Оборудование</th>
-                        <th class="text-center">Обозначение в проекте</th>
-                    </tr>
-                    </thead>
+        <div class="container text-center mb-5">
+            <div class="mt-sm-3 mb-sm-5">
+                <div class="container mb-5 table-responsive">
+                    {% if equipment_list %}
+                        <table class="table table-hover table-bordered table-sm">
+                        <thead class="table-primary">
+                        <tr class="table-active box-table-th">
+                            <th class="align-middle">Шахта</th>
+                            <th class="align-middle">Подсистема</th>
+                            <th class="align-middle">Выработка</th>
+                            <th class="align-middle">Уклонный блок</th>
+                            <th class="align-middle">Пикет</th>
+                            <th class="align-middle">Оборудование</th>
+                            <th class="text-center align-middle">Обозначение в проекте</th>
+                        </tr>
+                        </thead>
+                    {% endif %}
                     <tbody>
-                    {#                {% endif %}#}
-                    {#                    {% if equipment_list %}#}
                     {% for equipment in equipment_list %}
                         {% if equipment.equipment_install %}
-                            <tr>
-                                <td>{{ equipment.equipment_install.number_mine.title }}</td>
-                                <td>{{ equipment.equipment_install.subsystem.title }}</td>
-                                <td>{{ equipment.equipment_install.tunnel.title }}</td>
-                                <td>{{ equipment.equipment_install.inclined_blocks.title }}</td>
-                                <td>{{ equipment.equipment_install.picket }}</td>
+                            <tr class="box-table-td">
+                                <td class="align-middle">{{ equipment.equipment_install.number_mine.title }}</td>
+                                <td class="align-middle">{{ equipment.equipment_install.subsystem.title }}</td>
+                                <td class="align-middle">{{ equipment.equipment_install.tunnel.title }}</td>
+                                <td class="align-middle">{{ equipment.equipment_install.inclined_blocks.title }}</td>
+                                <td class="align-middle">{{ equipment.equipment_install.picket }}</td>
                                 {% if equipment.equipment_install.point_phone %}
-                                    <td>{{ equipment.equipment_install.title }}(АН {{ equipment.equipment_install.point_phone.subscriber_number }})
+                                    <td class="align-middle">{{ equipment.equipment_install.title }}(АН
+                                        {{ equipment.equipment_install.point_phone.subscriber_number }})
                                     </td>
                                 {% else %}
-                                    <td>{{ equipment.equipment_install.title }}</td>
+                                    <td class="align-middle">{{ equipment.equipment_install.title }}</td>
                                 {% endif %}
-                                <td class="text-center">{{ equipment.equipment_install.name }}</td>
+                                <td class="text-center align-middle">{{ equipment.equipment_install.name }}</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
-                {% endif %}
-                </tbody>
-                </table>
+                    </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

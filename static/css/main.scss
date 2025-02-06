@@ -246,6 +246,19 @@ h10 {
   font-weight: 370;
 }
 
+h11 {
+  font-size: 26px;
+  line-height: 12px;
+  text-align: center;
+  //margin: 0 0 36px;
+  cursor: default;
+  font-weight: 470;
+  display: block;
+  margin-top: 7px;
+  margin-bottom: 1.67em;
+  //font-weight: bold;
+}
+
 h14 {
   font-size: 18px;
   font-weight: 300;
@@ -260,25 +273,16 @@ hfy {
   font-weight: 200;
 }
 
+//label[for="id_captcha"] {
+//        font-size: 18px;  /* Размер текста */
+//        color: #333;      /* Цвет текста */
+//        font-weight: bold;
+//    }
 
-//.nav {
-//  position: sticky;
-//  top: 0;
-//width: 100%; /* Шапка займёт всю ширину окна браузера */
-//z-index: 1000; /* Высокое значение, чтобы шапка была всегда на первом плане */
-//}
-
-//.footer-container {
-//  //background-color: #ffffff;
-//  //background-size: 100%;
-//  //background-color: #ffffff;
-//  padding: 10px;
-//  text-align: left;
-//  margin: 5px;
-//  //border-radius: 10px;
-//
-//  width: 100%;
-//  max-width: 1270px;
+//captcha-input {
+//  font-size: 25px;  /* Размер текста */
+//        color: #333;      /* Цвет текста */
+//        font-weight: bold;
 //}
 
 .arrow {
@@ -301,9 +305,6 @@ hfy {
   color: #9579ff; /* Цвет текста при наведении */
 }
 
-//$table-bg-primary: #cfc3fd; // Новый цвет для primary
-//@import "bootstrap";
-
 .box-table-th {
   font-size: 13px;
 }
@@ -314,17 +315,9 @@ hfy {
 
 .h7modal {
   font-size: 35px;
-  //background: rgba(109, 55, 255, .3);
-  //color: #ffffff;
-  //padding: 4px;
-  //border-radius: 15px 15px 15px 15px;
-  //line-height: 40px;
-  //display: flex;
   justify-content: left;
-  //text-align: center;
   align-items: center;
   margin: auto;
-  //cursor: default;
   font-weight: 200;
 }
 
@@ -758,6 +751,11 @@ $text-color: #000;
 .color-text-violet {
   color: #6d37ff;
   font-size: 17px;
+}
+
+.color-text-violet-contents {
+  color: #6d37ff;
+  font-size: 23px;
 }
 
 .underline-none {

@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container text-center mt-5 mb-5">
+    <div class="container text-center mt-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
                 <h8>
@@ -17,19 +17,30 @@
             </div>
         </div>
     </div>
-    <div class="row mb-5">
+    <div class="row text-center">
         <div class="col">
         </div>
         <div class="col">
         </div>
         <div class="col">
         </div>
-        <div class="col">
-            <a href="{% url 'mfss:project_equipment' %}" class="btn nsh-button" type="button">Оборудование
+        <div class="col text-start">
+            <a href="{% url 'mfss:project_equipment' %}" class="color-text-violet-contents underline-none"
+               type="button">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 1C1.44772 1 1 1.44772 1 2V14C1 14.5523 1.44772 15 2 15H14C14.5523 15 15 14.5523 15 14V2C15 1.44772 14.5523 1 14 1H9.5C8.94771 1 8.5 1.44772 8.5 2V9.29289L11.1464 6.64645C11.3417 6.45118 11.6583 6.45118 11.8536 6.64645C12.0488 6.84171 12.0488 7.15829 11.8536 7.35355L8.35355 10.8536C8.15829 11.0488 7.84171 11.0488 7.64645 10.8536L4.14645 7.35355C3.95118 7.15829 3.95118 6.84171 4.14645 6.64645C4.34171 6.45118 4.65829 6.45118 4.85355 6.64645L7.5 9.29289V2C7.5 0.895431 8.39543 0 9.5 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.89543 16 0 15.1046 0 14V2C0 0.895431 0.895431 0 2 0H4.5C4.77614 0 5 0.223858 5 0.5C5 0.776142 4.77614 1 4.5 1H2Z"/>
+                </svg>
+                Оборудование
             </a>
         </div>
-        <div class="col">
-            <a href="{% url 'mfss:project_cable' %}" class="btn nsh-button" type="button">Кабель
+        <div class="col text-end">
+            <a href="{% url 'mfss:project_cable' %}" class="color-text-violet-contents underline-none"
+               type="button">
+
+                Кабель
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 1C1.44772 1 1 1.44772 1 2V14C1 14.5523 1.44772 15 2 15H14C14.5523 15 15 14.5523 15 14V2C15 1.44772 14.5523 1 14 1H9.5C8.94771 1 8.5 1.44772 8.5 2V9.29289L11.1464 6.64645C11.3417 6.45118 11.6583 6.45118 11.8536 6.64645C12.0488 6.84171 12.0488 7.15829 11.8536 7.35355L8.35355 10.8536C8.15829 11.0488 7.84171 11.0488 7.64645 10.8536L4.14645 7.35355C3.95118 7.15829 3.95118 6.84171 4.14645 6.64645C4.34171 6.45118 4.65829 6.45118 4.85355 6.64645L7.5 9.29289V2C7.5 0.895431 8.39543 0 9.5 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.89543 16 0 15.1046 0 14V2C0 0.895431 0.895431 0 2 0H4.5C4.77614 0 5 0.223858 5 0.5C5 0.776142 4.77614 1 4.5 1H2Z"/>
+                </svg>
             </a>
         </div>
         <div class="col">
@@ -40,7 +51,7 @@
         </div>
     </div>
     <div class="container margin-auth-block">
-        <form method="get">
+        <form method="post" action="{% url 'mfss:project_cable' %}">
             <div class="row text-center mx-auto mt-4 mb-sm-5">
                 <div class="col-sm-4">
                 </div>
@@ -51,7 +62,7 @@
                         </h4>
                     </div>
                     <div class="card-body text-start">
-                        {% load crispy_forms_tags %}
+                        {#                        {% load crispy_forms_tags %}#}
                         {% csrf_token %}
                         {% crispy form %}
                         <button type="submit" class="btn elem-button btn-md mx-2">
@@ -63,33 +74,41 @@
                 </div>
             </div>
         </form>
+        {#        </form>#}
         <div class="container text-center">
             {% if mine is not None %}
-                {% if object_list %}
-                    <h9>По критериям: {{ mine }} ➡️ {{ subsystem }} &#9989;</h9>
+                {% if project_cable_list %}
+                    <h9>По критериям: {{ mine }}
+                        &#8594;
+                        {{ subsystem }}
+                        &#9989;
+                    </h9>
                 {% else %}
-                    <h9a>По критериям: {{ mine }} ➡️ {{ subsystem }} &#10060;</h9a><br><br>
-                    <h9a>Не верно указаны параметры или данные отсутствуют</h9a><br><br><br>
+                    <h9a>По критериям: {{ mine }}
+                        &#8594;
+                        {{ subsystem }}
+                        &#10060;
+                    </h9a><br><br>
+                    <h9a>Данные отсутствуют</h9a><br><br><br>
                 {% endif %}
             {% endif %}
         </div>
-        {#                {{ result }}#}
-        <div class="container text-center mt-5 mb-5">
-            <div class="mt-sm-5 mb-sm-5">
-                <div class="container mt-5 mb-5 table-responsive">
-                    {% if object_list %}
-                        <table class="table table-hover">
+        <div class="container text-center mb-5">
+            <div class="mt-sm-3 mb-sm-5">
+                <div class="container mb-5 table-responsive">
+                    {% if project_cable_list %}
+                        <table class="table table-hover table-bordered table-sm">
                         <thead class="table-primary">
                         <tr class="table-active box-table-th">
-                            <th>Нефтешахта</th>
-                            <th>Подсистема</th>
-                            <th>Начало трассы</th>
-                            <th>Конец трассы</th>
-                            <th>Уклонный блок</th>
-                            <th>Протяженность</th>
-                            <th>Марка кабеля</th>
-                            <th>Обозначение в проекте</th>
-                            <th>Проложен</th>
+                            <th class="align-middle">Нефтешахта</th>
+                            <th class="align-middle">Подсистема</th>
+                            <th class="align-middle">Начало трассы</th>
+                            <th class="align-middle">Конец трассы</th>
+                            <th class="align-middle">Уклонный блок</th>
+                            <th class="align-middle">Протяженность</th>
+                            <th class="align-middle">Марка кабеля</th>
+                            <th class="align-middle">Обозначение в проекте</th>
+                            <th class="align-middle">Проложен</th>
                         </tr>
                         </thead>
                     {% endif %}
@@ -97,29 +116,29 @@
                     {% for object in project_cable_list %}
                         {% if object %}
                             <tr class="box-table-td">
-                                <td>{{ object.number_mine.title }}</td>
-                                <td>{{ object.subsystem.title }}</td>
-                                <td>{{ object.track_from_box.title }}
+                                <td class="align-middle">{{ object.number_mine.title }}</td>
+                                <td class="align-middle">{{ object.subsystem.title }}</td>
+                                <td class="align-middle">{{ object.track_from_box.title }}
                                     ({{ object.track_from_box.tunnel.title }})
                                 </td>
                                 {% if object.track_to_box.title %}
-                                    <td>{{ object.track_to_box.title }}
+                                    <td class="align-middle">{{ object.track_to_box.title }}
                                         ({{ object.track_to_box.tunnel.title }})
                                     </td>
                                 {% else %}
-                                    <td>{{ object.track_to_phone.title }}
+                                    <td class="align-middle">{{ object.track_to_phone.title }}
                                         ({{ object.track_to_phone.tunnel.title }})
                                         ({{ object.track_to_phone.subscriber_number }})
                                     </td>
                                 {% endif %}
-                                <td>{{ object.inclined_blocks.title }}</td>
-                                <td>{{ object.distance }}</td>
-                                <td>{{ object.cable.title }}</td>
-                                <td>{{ object.name }}</td>
+                                <td class="align-middle">{{ object.inclined_blocks.title }}</td>
+                                <td class="align-middle">{{ object.distance }}</td>
+                                <td class="align-middle">{{ object.cable.title }}</td>
+                                <td class="align-middle">{{ object.name }}</td>
                                 {% if object.cable_bool.execution_bool == True %}
-                                    <td class="text-center">&#9989;</td>
+                                    <td class="align-middle text-center">&#9989;</td>
                                 {% else %}
-                                    <td class="text-center">&#128500;</td>
+                                    <td class="align-middle text-center">&#128500;</td>
                                 {% endif %}
                             </tr>
                         {% endif %}
@@ -129,16 +148,8 @@
                 </div>
             </div>
         </div>
-
     </div>
 
-    </form>
-    </div>
-    {#    </div>#}
-    <div class="container">
-    </div>
-    <div class="container">
-    </div>
 {% endblock %}
 {% block footer %}
     {% include 'users/includes/auth_footer.html' %}

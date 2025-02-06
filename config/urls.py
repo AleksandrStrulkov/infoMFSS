@@ -26,6 +26,7 @@ urlpatterns = [
     path(r'^chaining/', include('smart_selects.urls')),
     path('', include('infoMFSS.urls', namespace='mfss')),
     path('users/', include('users.urls', namespace='users')),
+    path('captcha/', include('captcha.urls')),
 ]
 
 if settings.DEBUG:

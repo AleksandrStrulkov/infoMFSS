@@ -158,6 +158,16 @@ h10 {
   cursor: default;
   font-weight: 370; }
 
+h11 {
+  font-size: 26px;
+  line-height: 12px;
+  text-align: center;
+  cursor: default;
+  font-weight: 470;
+  display: block;
+  margin-top: 7px;
+  margin-bottom: 1.67em; }
+
 h14 {
   font-size: 18px;
   font-weight: 300; }
@@ -471,6 +481,10 @@ hfy {
 .color-text-violet {
   color: #6d37ff;
   font-size: 17px; }
+
+.color-text-violet-contents {
+  color: #6d37ff;
+  font-size: 23px; }
 
 .underline-none {
   text-decoration: none; }

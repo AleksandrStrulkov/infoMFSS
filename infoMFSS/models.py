@@ -81,14 +81,14 @@ class Tunnel(models.Model):
 
     def __str__(self):
         if self.inclined_blocks is not None:
-            return f'{self.title} {self.inclined_blocks}'
+            return f'(НШ-{self.number_mine.title[-1]}) {self.title} {self.inclined_blocks}'
         else:
-            return f'{self.title}'
+            return f'(НШ-{self.number_mine.title[-1]}) {self.title}'
 
     class Meta:
         verbose_name = 'выработка'
         verbose_name_plural = 'выработки'
-        ordering = ['title']
+        ordering = ['number_mine']
 
 
 class Unit(models.Model):
@@ -310,9 +310,10 @@ class CableMagazine(models.Model):
 
     def __str__(self):
         if self.inclined_blocks:
-            return f'{self.name}: {self.subsystem} {self.inclined_blocks}'
+            return f'(НШ-{self.number_mine.title[-1]})-{self.cable.title}-({self.name})-{self.subsystem}' \
+                   f' {self.inclined_blocks}'
         else:
-            return f'{self.name}: {self.subsystem}'
+            return f'(НШ-{self.number_mine.title[-1]})-{self.cable.title}-({self.name})-{self.subsystem}'
 
     class Meta:
         verbose_name = 'отдельную позицию'

@@ -17,9 +17,8 @@
         </div>
     </div>
     <div class="container margin-auth-block">
-        <form method="post" action="{% url 'mfss:visual' %}">
-            {% csrf_token %}
-            <div class="row text-center mx-auto mt-4 mb-sm-5">
+        <form method="post" action="{% url 'mfss:quantity_equipment_cable' %}">
+            <div class="row text-center mx-auto mt-4 mb-sm-1">
                 <div class="col-sm-4">
                 </div>
                 <div class="col-sm-4 card mb-3 box-shadow card-imad-auth border-none">
@@ -29,9 +28,11 @@
                         </h4>
                     </div>
                     <div class="card-body text-start">
+                        {% load crispy_forms_tags %}
+                        {% csrf_token %}
                         {% crispy form %}
-                        <button type="submit" class="btn elem-button btn-md mt-2">
-                            Сгенерировать ссылку
+                        <button type="submit" class="btn elem-button btn-md mx-2">
+                            Выполнить
                         </button>
                     </div>
                 </div>
@@ -40,27 +41,32 @@
             </div>
         </form>
     </div>
-    {% if mine is not None %}
-        <div class="container-xxl text-center">
-            <div class="col-xxl">
-                <div class="row mb-5">
-                    <div class="col">
-                        {% if pdf_visual %}
-                            <a href="{{ pdf_visual.url }}" class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
-                            >&#128409;Ссылка для просмотра по фильтру: {{ mine }}, {{ equipment }}&#128408;
-                            </a>
-                        {% else %}
-                            <a class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
-                            >&#128409;Ссылка отсутствует&#128408;
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-{% endblock %}
 
+    <div class="container ">
+    <div class="row mx-auto">
+    <div class="col-sm-4">
+    </div>
+    <div class="col-sm-4 mx-5">
+        {% if mine is not None %}
+            <h9>Нефтешахта: {{ mine }}</h9><br>
+            {% if equipment %}
+                <h9>Оборудование: {{ equipment }}</h9><br>
+            {% elif cable %}
+                <h9>Кабель: {{ cable }}</h9><br>
+            {% endif %}
+            {% if equipment %}
+                <h9>Количество: {{ quantity }} шт.</h9>
+            {% elif cable %}
+                <h9>Количество: {{ total_length }} м.</h9>
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="col-sm-4">
+    </div>
+
+
+{% endblock %}
 {% block footer %}
     {% include 'users/includes/auth_footer.html' %}
 {% endblock %}
+
