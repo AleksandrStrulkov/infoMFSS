@@ -50,6 +50,8 @@
                             <h14>На дату: {{ update }}</h14>
                             <br>
                             <br>
+                            {% elif percent == 0 %}
+                            <h8>Данные отсутствуют</h8>
                         {% endif %}
                     </div>
                 </div>
@@ -60,64 +62,6 @@
         <div class="container">
         </div>
     </div>
-
-
-
-
-
-
-    {#    <div class="container text-center mt-sm-5">#}
-    {#        <form action="" method="POST">#}
-    {#            {% csrf_token %}#}
-    {#                {{ form.as_p }}#}
-    {#            {% crispy form %}#}
-    {#            <input type="Submit" name="submit" value="Submit"/>#}
-    {#        <button type="submit" class="btn btn-outline-light btn-md mx-2"></button>#}
-    {#            {% if submitbutton == "Submit" %}#}
-    {#                <h1>Your first name is {{ numbermine }}</h1>#}
-    {#                <h1>Your last name is {{ subsystem }}</h1>#}
-    {#                <h1>Your last name is percent {{ percent }}</h1>#}
-    {#        <h1>Your email is {{ emailvalue }}</h1>#}
-    {#            {% endif %}#}
-    {##}
-    {#        </form>#}
-    {#    </div>#}
-
-
-
-
-
-
-
-    {#    <div class="container">#}
-    {#        <form method="post" action="" class="form-signin">#}
-    {#            <div class="row text-start mx-auto mt-4">#}
-    {#                <div class="col-sm">#}
-    {#                </div>#}
-    {#                <div class="col-sm card mb-4 box-shadow card_imad" Style="border-color:#7777ff;">#}
-    {#                    <div class="text-center">#}
-    {#                        <h4 class="my-0 font-weight-normal">#}
-    {#                            Пожалуйста зарегистрируйтесь#}
-    {#                        </h4>#}
-    {#                    </div>#}
-    {#                    <div class="card-body">#}
-    {#                        {% csrf_token %}#}
-    {#                        {% crispy form %}#}
-    {#                        <button type="submit" class="btn btn-outline-light btn-md mx-2"#}
-    {#                                style="background-color: #7777ff;">Регистрация#}
-    {#                        </button>#}
-    {#                    </div>#}
-    {#                </div>#}
-    {#                <div class="col-sm">#}
-    {#                </div>#}
-    {#            </div>#}
-    {#        </form>#}
-    {#    </div>#}
-    {##}
-    {#    {% if submitbutton == "Submit" %}#}
-    {#    <h1>Your first name is {{ percent }}</h1>#}
-
-    {#    {% endif %}#}
 {% endblock %}
 
 {% block footer %}
