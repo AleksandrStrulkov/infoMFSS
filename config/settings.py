@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from pythonjsonlogger.jsonlogger import JsonFormatter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -146,14 +147,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # это пока не нужно
 # end
 
 # Настройка отправки сообщений по электронной почте
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 587
+EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+ADMINS = [('adminAS', 'info-mfss@ya.ru')]
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
@@ -252,6 +254,70 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
+
 # Настройка django-smart-select
 JQUERY_URL = True
+# end
+
+# logging
+LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+
+        'formatters': {
+                'simple': {
+                        'format': '{asctime} - {levelname} - {classname} - {funcName} - {lineno} - {'
+                                  'message}',
+                        'style': '{',
+                        'datefmt': '%d.%m.%Y %H:%M:%S',
+                },
+        },
+
+        'handlers': {
+                'console_dev': {
+                        'class': 'logging.StreamHandler',
+                        'formatter': 'simple',
+                        'level': 'INFO',
+                        'filters': [],
+                },
+                'console_prod': {
+                        'class': 'logging.StreamHandler',
+                        'formatter': 'simple',
+                        'level': 'ERROR',
+                        'filters': [],
+                },
+                'file': {
+                        'class': 'logging.FileHandler',
+                        'filename': os.path.join(BASE_DIR, 'logs/infoMFSS.log'),
+                        'level': 'INFO',
+                        'formatter': 'simple',
+                        'encoding': 'utf-8',
+                },
+                'mail': {
+                        'class': 'django.utils.log.AdminEmailHandler',
+                        'level': 'ERROR',
+                        'include_html': False,
+                }
+        },
+        'filters': {
+                'require_debug_false': {
+                        '()': 'django.utils.log.RequireDebugFalse',
+                },
+                'require_debug_true': {
+                        '()': 'django.utils.log.RequireDebugTrue',
+                }
+        },
+        'loggers': {
+                'infoMFSS': {
+                        'handlers': ['console_dev', 'file', 'mail', 'console_prod'],
+                        'level': 'INFO',
+                        'propagate': True,
+                },
+                'users': {
+                        'handlers': ['console_dev', 'file', 'mail', 'console_prod'],
+                        'level': 'INFO',
+                        'propagate': True,
+                }
+        }
+}
 # end
