@@ -271,8 +271,9 @@
                              class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
                         <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Проектные решения</h5>
-                            <p class="card-text h3-block-card-footer">Просмотр проектного решения</p>
+                            <h5 class="card-title h3-block-card-head">Общий просмотр</h5>
+                            <p class="card-text h3-block-card-footer">Выполните просмотр всего оборудования или кабельной
+                            продукции с указанием выполнения</p>
                             <a href="{% url 'mfss:project_equipment' %}" class="stretched-link"></a>
                         </div>
                     </div>
@@ -283,10 +284,11 @@
                              class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
                         <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Обратная связь</h5>
-                            <p class="card-text h3-block-card-footer">В случае обнаружения ошибки в данных
-                            напишите письмо администратору ресурса</p>
-                            <a href="{% url 'mfss:contact' %}" class="stretched-link"></a>
+                            <h5 class="card-title h3-block-card-head">Всего установлено</h5>
+                            <p class="card-text h3-block-card-footer">Осуществите просмотр общего количества
+                                установленного оборудования или кабельной
+                                продукции</p>
+                            <a href="{% url 'mfss:quantity_equipment_cable' %}" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>
@@ -327,12 +329,13 @@
                             {##}
                             {#                            </p>#}
                             {#                            <a href="#" class="stretched-link"></a>#}
-                            <h5 class="card-title h3-block-card-head">Количество установленного оборудования</h5>
-                            <p class="card-text h3-block-card-footer">Выберите по фильтру требуемые для вывода данные,
-                                сформируйте отчет и отправьте себе на электронную почту.
-
+                            <h5 class="card-title h3-block-card-head">Обратная связь</h5>
+                            <p class="card-text h3-block-card-footer">В случае обнаружения ошибки в данных
+                            напишите письмо администратору ресурса, в случае просьбы с вашей стороны включить Вас в
+                                список разрешенных пользователей для регистрации укажите ваше место работы и
+                                должность в сообщении
                             </p>
-                            <a href="{% url 'mfss:quantity_equipment_cable' %}" class="stretched-link"></a>
+                            <a href="{% url 'mfss:contact' %}" class="stretched-link"></a>
                         </div>
                     </div>
                 </div>
