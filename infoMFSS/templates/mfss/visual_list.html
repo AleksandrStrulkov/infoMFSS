@@ -25,7 +25,7 @@
                 <div class="col-sm-4 card mb-3 box-shadow card-imad-auth border-none">
                     <div class="card-body mt-2 text-center">
                         <h4 class="my-0 font-weight-normal">
-                            Выбор критерия
+                            Фильтр
                         </h4>
                     </div>
                     <div class="card-body text-start">
@@ -47,7 +47,7 @@
                     <div class="col">
                         {% if pdf_visual %}
                             <a href="{{ pdf_visual.url }}" class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
-                            >&#128409;Ссылка для просмотра по фильтру: {{ mine }}, {{ equipment }}&#128408;
+                            >&#128409;Ссылка: {{ mine }}, {{ equipment }}&#128408;
                             </a>
                         {% else %}
                             <a class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
