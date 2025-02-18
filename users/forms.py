@@ -4,6 +4,9 @@ from django import forms
 from users.models import User
 from users.signals import post_register
 import re
+from .models import AllowedPerson
+from django.core.exceptions import ValidationError
+
 
 class StyleFormMixin:
     def __init__(self, *args, **kwargs):
@@ -18,7 +21,7 @@ class UserProfileForm(StyleFormMixin, UserChangeForm):
 
     class Meta:
         model = User
-        fields = ('email', 'password', 'first_name', 'phone')
+        fields = ('last_name', 'first_name', 'middle_name', 'email', 'phone', 'location_of_work', 'post', 'password',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -42,11 +45,14 @@ class RegisterForm(StyleFormMixin, UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'phone')
+        fields = ('last_name', 'first_name', 'middle_name', 'email', 'phone', 'location_of_work', 'post',)
 
     def clean(self):
         cleaned_data = super().clean()
         phone = cleaned_data.get('phone')
+        last_name = cleaned_data.get('last_name')
+        first_name = cleaned_data.get('first_name')
+        middle_name = cleaned_data.get('middle_name')
 
         if phone:
             if not phone.startswith('+7'):
@@ -55,6 +61,32 @@ class RegisterForm(StyleFormMixin, UserCreationForm):
         digits = phone[2:]
         if not re.match(r'^\d{10}$', digits):  # Проверяем, что оставшиеся 10 символов — цифры
             self.add_error('phone', "Введите 10 цифр после '+7'.")
+
+            # Проверяем, есть ли ФИО в списке разрешённых
+        # if not AllowedPerson.objects.filter(
+        #         last_name=last_name,
+        #         first_name=first_name,
+        #         middle_name=middle_name,
+        #         is_active=True
+        # ).exists():
+        #     raise ValidationError(
+        #             "Ваши ФИО не входят в список разрешённых для регистрации. Обратитесь пожалуйста к администратору "
+        #             "ресурса."
+        #     )
+
+            # Проверяем, существует ли пользователь с такими же ФИО
+        if User.objects.filter(
+                last_name=last_name,
+                first_name=first_name,
+                middle_name=middle_name,
+        ).exists():
+            raise ValidationError("Пользователь с такими ФИО уже зарегистрирован.")
+
+        if User.objects.filter(
+                phone=phone,
+        ).exists():
+            # raise ValidationError("Пользователь с таким номером телефона уже зарегистрирован.")
+            self.add_error('phone', 'Пользователь с таким номером телефона уже зарегистрирован.')
 
         return cleaned_data
 
