@@ -1,18 +1,27 @@
 <!-- Modal -->
 {#{% extends 'mfss/base.html' %}#}
 <div class="modal fade" id="nsh1Modal" tabindex="-1" aria-labelledby="nsh1ModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="nsh1ModalLabel">Нефтешахта №1</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-          <h3>Выполнение: {{ percent_mine1 }} %</h3>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn nsh-button" data-bs-dismiss="modal">Close</button>
-      </div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nsh1ModalLabel">Нефтешахта: {{ mine }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if equipment %}
+                    <h3>Оборудование: {{ equipment }}</h3>
+                {% elif cable %}
+                    <h3>Кабель: {{ cable }}</h3><br>
+                {% endif %}
+                {% if equipment %}
+                    <h3>Количество: {{ quantity }} шт.</h3>
+                {% elif cable %}
+                    <h3>Количество: {{ total_length }} м.</h3>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn nsh-button" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>

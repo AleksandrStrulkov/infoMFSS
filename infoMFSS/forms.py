@@ -118,7 +118,7 @@ class ContactForm(forms.Form):
     email = forms.EmailField(label="Ваш email")
     message = forms.CharField(widget=forms.Textarea, label="Сообщение")
     captcha = CaptchaField(label='Введите ответ', generator='captcha.helpers.math_challenge',
-                               error_messages={'invalid': 'Неправильный текст'}, )
+                               error_messages={'invalid': 'Неправильный ответ'}, )
 
 
 class QuantityEquipmentCableForm(forms.Form):

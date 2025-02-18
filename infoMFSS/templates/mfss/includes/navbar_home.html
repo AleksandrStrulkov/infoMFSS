@@ -80,11 +80,13 @@
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="{% url 'mfss:project_equipment' %}">Проектные решения</a></li>
-{#                                <li>#}
-{#                                    <hr class="dropdown-divider">#}
-{#                                </li>#}
-{#                                <li><a class="dropdown-item" href="{% url 'mfss:contact' %}">Обратная связь</a></li>#}
+                                <li><a class="dropdown-item" href="{% url 'mfss:project_equipment' %}">Общий
+                                    просмотр</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:quantity_equipment_cable' %}">Всего
+                                    установлено</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -104,7 +106,7 @@
                                         role="button"
                                         data-bs-toggle="dropdown"
                                         aria-expanded="false">
-                                    {{ user.first_name }}
+                                    {{ user.first_name}} {{ user.last_name |slice:":1"| upper }}.
                                     <span class="arrow"></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">

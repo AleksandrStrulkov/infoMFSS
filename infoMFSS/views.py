@@ -1,5 +1,3 @@
-import logging
-
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
@@ -10,7 +8,7 @@ from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, Inclin
     Equipment, Cable, Violations, Visual, EquipmentInstallation, CableMagazine
 from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, VisualCreateForm, ProjectEquipmentForm, \
     ProjectCableForm, ContactForm, QuantityEquipmentCableForm
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin, \
@@ -18,6 +16,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin, 
 from .services import EquipmentFilterService, CableFilterService, BoxFilterService, VisualFilterService, \
     ProjectEquipmentFilterService, ProjectCableFilterService, PercentService, QuantityEqCabFilterService
 from .params import FilterParams
+from infoMFSS.services_logger import *
 
 
 def sass_page_handler(request):
@@ -51,15 +50,19 @@ class MFSSPercentTemplateView(TemplateView):
         # Последнее обновление
         context['update'] = PercentService.get_latest_update()
 
+        logger_context(self)
         return context
 
 
-class PercentView(FormView):
+class PercentView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод процентов выполнения c формой и фильтром
     """
     template_name = 'mfss/percents.html'
     form_class = PercentForm
+    extra_context = {
+            'title': "Процент выполнения",
+    }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -71,6 +74,8 @@ class PercentView(FormView):
             'subsystems': options['subsystems'],
             'incl_blocks': options['incl_blocks'],
         })
+
+        logger_context(self)
         return context
 
     def form_valid(self, form):
@@ -96,10 +101,17 @@ class PercentView(FormView):
         })
 
         # Рендерим шаблон с обновленным контекстом
+        logger_form_valid(self)
         return self.render_to_response(context)
 
+    # def dispatch(self, request, *args, **kwargs):
+    #     if not request.user.is_authenticated:
+    #         return redirect('users:register')
+    #     else:
+    #         return super().dispatch(request, *args, **kwargs)
 
-class EquipmentListView(FormView):
+
+class EquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод списка установленного оборудования
     """
@@ -126,6 +138,7 @@ class EquipmentListView(FormView):
 
         url = f"{reverse('mfss:equipment')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
+        logger_form_valid(self)
         return HttpResponseRedirect(url)
 
     def get_context_data(self, **kwargs):
@@ -148,10 +161,11 @@ class EquipmentListView(FormView):
                 }
         )
 
+        logger_context(self)
         return context
 
 
-class CableListView(FormView):
+class CableListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод списка проложенных трасс кабелей
     """
@@ -179,6 +193,7 @@ class CableListView(FormView):
 
         url = f"{reverse('mfss:cable')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
+        logger_form_valid(self)
         return HttpResponseRedirect(url)
 
     def get_context_data(self, **kwargs):
@@ -201,10 +216,11 @@ class CableListView(FormView):
                 }
         )
 
+        logger_context(self)
         return context
 
 
-class BoxListView(FormView):
+class BoxListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод списка подключенных устройств
     """
@@ -231,6 +247,7 @@ class BoxListView(FormView):
 
         url = f"{reverse('mfss:box')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
+        logger_form_valid(self)
         return HttpResponseRedirect(url)
 
     def get_context_data(self, **kwargs):
@@ -252,10 +269,11 @@ class BoxListView(FormView):
                 }
         )
 
+        logger_context(self)
         return context
 
 
-class EquipmentFileListView(ListView):
+class EquipmentFileListView(LoggingMixin, LoginRequiredMixin, ListView):
     """
     Вывод списка файлов с документацией по оборудованию
     """
@@ -267,7 +285,7 @@ class EquipmentFileListView(ListView):
     }
 
 
-class CableFileListView(ListView):
+class CableFileListView(LoggingMixin, LoginRequiredMixin, ListView):
     """
     Вывод списка файлов с документацией по кабелям
     """
@@ -279,7 +297,7 @@ class CableFileListView(ListView):
     }
 
 
-class ViolationsListView(ListView):
+class ViolationsListView(LoggingMixin, LoginRequiredMixin, ListView):
     """
     Вывод списка замечаний
     """
@@ -332,10 +350,11 @@ class ViolationsListView(ListView):
         context['mine3_percent'] = mine3_percent
         context['update'] = update
 
+        logger_context(self)
         return context
 
 
-class VisualView(FormView):
+class VisualView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод файла pdf для визуализации установленного оборудования
     """
@@ -359,6 +378,7 @@ class VisualView(FormView):
 
         url = f"{reverse('mfss:visual')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
+        logger_form_valid(self)
         return HttpResponseRedirect(url)
 
     def get_context_data(self, *args, **kwargs):
@@ -380,10 +400,12 @@ class VisualView(FormView):
 
         for visual in context["visual_list"]:
             context['pdf_visual'] = visual.file_pdf
+
+        logger_context(self)
         return context
 
 
-class ProjectEquipmentListView(LoginRequiredMixin, FormView):
+class ProjectEquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод списка оборудования в соответствии с проектом МФСБ
     """
@@ -393,7 +415,7 @@ class ProjectEquipmentListView(LoginRequiredMixin, FormView):
     context_object_name = 'project_equipment_list'
     success_url = reverse_lazy('mfss:project_equipment')
     extra_context = {
-            'title': "Проект МФСБ (оборудование)",
+            'title': "Общий просмотр (оборудование)",
     }
 
     def form_valid(self, form):
@@ -407,7 +429,9 @@ class ProjectEquipmentListView(LoginRequiredMixin, FormView):
         }
 
         url = f"{reverse('mfss:project_equipment')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
+        logger.info(f"Форма {self.form_class} прошла валидацию")
 
+        logger_form_valid(self)
         return HttpResponseRedirect(url)
 
     def get_context_data(self, *args, **kwargs):
@@ -427,10 +451,11 @@ class ProjectEquipmentListView(LoginRequiredMixin, FormView):
                 }
         )
 
+        logger_context(self)
         return context
 
 
-class ProjectCableListView(LoginRequiredMixin, FormView):
+class ProjectCableListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод списка кабельной продукции в соответствии с проектом МФСБ
     """
@@ -440,7 +465,7 @@ class ProjectCableListView(LoginRequiredMixin, FormView):
     context_object_name = 'project_cable_list'
     success_url = reverse_lazy('mfss:project_cable')
     extra_context = {
-            'title': "Проект МФСБ (кабельная продукция)",
+            'title': "Общий просмотр (кабельная продукция)",
     }
 
     def form_valid(self, form):
@@ -455,6 +480,7 @@ class ProjectCableListView(LoginRequiredMixin, FormView):
 
         url = f"{reverse('mfss:project_cable')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
 
+        logger_form_valid(self)
         return HttpResponseRedirect(url)
 
     def get_context_data(self, *args, **kwargs):
@@ -474,10 +500,11 @@ class ProjectCableListView(LoginRequiredMixin, FormView):
                 }
         )
 
+        logger_context(self)
         return context
 
 
-class ContactFormView(LoginRequiredMixin, FormView):
+class ContactFormView(LoggingMixin, FormView):
     """
     Форма для отправки сообщений администратору
     """
@@ -519,17 +546,23 @@ class ContactFormView(LoginRequiredMixin, FormView):
                 fail_silently=False,
             )
             # Возвращаем стандартный метод после успешной обработки
+            logger.info("Письмо успешно отправлено", extra={'classname': self.__class__.__name__})
             return super().form_valid(form)
 
         except Exception as e:
-            logger = logging.getLogger(__name__)
-            # Добавляем ошибку в форму при проблемах с отправкой
             form.add_error(None, 'Ошибка отправки. Попробуйте позже.')
-            logger.error(f"Ошибка отправки письма: {e}")
+            logger.error(f"Ошибка отправки письма: {e}", extra={'classname': self.__class__.__name__})
             return self.form_invalid(form)
 
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.request.user.is_authenticated:
+            initial['email'] = self.request.user.email  # Подставляем email авторизованного пользователя
+            initial['name'] = self.request.user.first_name  # Подставляем имя авторизованного пользователя
+        return initial
 
-class QuantityEquipmentCableView(LoginRequiredMixin, FormView):
+
+class QuantityEquipmentCableView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод количества установленного оборудования и кабельной продукции
     """
@@ -538,7 +571,7 @@ class QuantityEquipmentCableView(LoginRequiredMixin, FormView):
     context_object_name = 'quantity_equipment_cable_list'
     success_url = reverse_lazy('mfss:quantity_equipment_cable')
     extra_context = {
-            'title': "Количество оборудования и кабельной продукции",
+            'title': "Всего установлено",
     }
 
     def get_context_data(self, *args, **kwargs):
@@ -551,6 +584,7 @@ class QuantityEquipmentCableView(LoginRequiredMixin, FormView):
         # Добавляем дополнительные данные в контекст
         context['update'] = QuantityEqCabFilterService.get_latest_update()
 
+        logger_context(self)
         return context
 
     def form_valid(self, form):
@@ -573,4 +607,5 @@ class QuantityEquipmentCableView(LoginRequiredMixin, FormView):
                 }
         )
 
+        logger_form_valid(self)
         return self.render_to_response(context)
