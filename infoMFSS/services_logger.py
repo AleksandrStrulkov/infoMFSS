@@ -1,19 +1,22 @@
 import logging
 from django.core.mail import mail_admins
 
-
 logger = logging.getLogger(__name__)
 
 
 class LoggingMixin:
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            logger.info(f'Запрос: {request.method} {request.path} {request.user.last_name}',
-                        extra={'classname': self.__class__.__name__})
+            logger.info(
+                f'Запрос: {request.method} {request.path}Пользователь: {request.user.last_name}',
+                extra={'classname': self.__class__.__name__}
+                )
             return super().dispatch(request, *args, **kwargs)
         else:
-            logger.info(f'Запрос: {request.method} {request.path} ANONYMOUS USER',
-                        extra={'classname': self.__class__.__name__})
+            logger.info(
+                f'Запрос: {request.method} {request.path} ANONYMOUS USER',
+                extra={'classname': self.__class__.__name__}
+                )
             return super().dispatch(request, *args, **kwargs)
 
     def form_invalid(self, form):
@@ -35,22 +38,30 @@ class LoggingMixin:
         return super().form_invalid(form)
 
 
-def logger_context(self):
+def logger_context_info(self):
     user = self.request.user
     if user.is_authenticated:
-        return logger.info(f'Контекст обработан и выведен в шаблон. Пользователь: {user.last_name}',
-                       extra={'classname': self.__class__.__name__})
-    return logger.info(
-        f'Контекст обработан и выведен в шаблон. Анонимный пользователь',
-        extra={'classname': self.__class__.__name__}
-        )
-
-def logger_form_valid(self):
-    user = self.request.user
-    if user.is_authenticated:
-        return logger.info(f'Форма успешно обработана. Пользователь: {user.last_name}',
-                       extra={'classname': self.__class__.__name__})
+        return logger.info(
+            f'Контекст обработан и выведен в шаблон. Пользователь: {user.last_name}',
+            extra={'classname': self.__class__.__name__}
+            )
     return logger.info(
             f'Контекст обработан и выведен в шаблон. Анонимный пользователь',
             extra={'classname': self.__class__.__name__}
     )
+
+
+def logger_context_warning(self, e):
+    user = self.request.user
+    return logger.warning(
+            f'Ошибка обработки контекста {str(e)}. Пользователь: {user.last_name}',
+            extra={'classname': self.__class__.__name__}
+            )
+
+
+def logger_form_valid(self):
+    user = self.request.user
+    return logger.info(
+            f'Форма успешно обработана. Пользователь: {user.last_name}',
+            extra={'classname': self.__class__.__name__}
+            )
