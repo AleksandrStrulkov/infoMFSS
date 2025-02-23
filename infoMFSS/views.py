@@ -29,28 +29,33 @@ class MFSSPercentTemplateView(TemplateView):
     """
     template_name = 'mfss/home.html'
     extra_context = {
-        'title': "МФСС",
+            'title': "МФСС",
     }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Список всех шахт
-        mines = ["Нефтешахта №1", "Нефтешахта №2", "Нефтешахта №3"]
+        try:
+            # Список всех шахт
+            mines = ["Нефтешахта №1", "Нефтешахта №2", "Нефтешахта №3"]
 
-        # Вычисляем проценты для каждой шахты
-        for mine in mines:
-            result = PercentService.calculate_percent(mine=mine)
-            context[f'percent_{mine.lower().replace(" ", "_").replace("нефтешахта_№", "mine")}'] = result['percent']
+            # Вычисляем проценты для каждой шахты
+            for mine in mines:
+                result = PercentService.calculate_percent(mine=mine)
+                context[f'percent_{mine.lower().replace(" ", "_").replace("нефтешахта_№", "mine")}'] = result['percent']
 
-        # Общий процент для всех шахт
-        result_all = PercentService.calculate_percent()
-        context['percent_mine123'] = result_all['percent']
+            # Общий процент для всех шахт
+            result_all = PercentService.calculate_percent()
+            context['percent_mine123'] = result_all['percent']
 
-        # Последнее обновление
-        context['update'] = PercentService.get_latest_update()
+            # Последнее обновление
+            context['update'] = PercentService.get_latest_update()
 
-        logger_context(self)
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
 
@@ -66,16 +71,24 @@ class PercentView(LoggingMixin, LoginRequiredMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Добавляем дополнительные данные в контекст
-        context['update'] = PercentService.get_latest_update()
-        options = PercentService.get_mines_subsystems_incl_blocks()
-        context.update({
-            'mines': options['mines'],
-            'subsystems': options['subsystems'],
-            'incl_blocks': options['incl_blocks'],
-        })
 
-        logger_context(self)
+        try:
+            # Добавляем дополнительные данные в контекст
+            context['update'] = PercentService.get_latest_update()
+            options = PercentService.get_mines_subsystems_incl_blocks()
+            context.update(
+                {
+                        'mines': options['mines'],
+                        'subsystems': options['subsystems'],
+                        'incl_blocks': options['incl_blocks'],
+                }
+            )
+
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
     def form_valid(self, form):
@@ -89,16 +102,18 @@ class PercentView(LoggingMixin, LoginRequiredMixin, FormView):
 
         # Обновляем контекст данными из формы и результатами расчета
         context = self.get_context_data(form=form)
-        context.update({
-            'mine': mine,
-            'subsystem': subsystem,
-            'incl_blocks': incl_blocks,
-            'percent': result['percent'],
-            'data': {
-                'total_count': result['total_count'],
-                'true_count': result['true_count'],
-            },
-        })
+        context.update(
+                {
+                        'mine': mine,
+                        'subsystem': subsystem,
+                        'incl_blocks': incl_blocks,
+                        'percent': result['percent'],
+                        'data': {
+                                'total_count': result['total_count'],
+                                'true_count': result['true_count'],
+                        },
+                }
+        )
 
         # Рендерим шаблон с обновленным контекстом
         logger_form_valid(self)
@@ -149,19 +164,24 @@ class EquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         filter_params = FilterParams(self.request)
 
-        context["equipment_list"] = EquipmentFilterService.get_filtered_queryset(filter_params)
+        try:
+            context["equipment_list"] = EquipmentFilterService.get_filtered_queryset(filter_params)
 
-        # Добавляем параметры в контекст для отображения в шаблоне
-        context.update(
+            # Добавляем параметры в контекст для отображения в шаблоне
+            context.update(
                 {
                         "mine": filter_params.get("mine", ),
                         "subsystem": filter_params.get("subsystem", ),
                         "incl_blocks": filter_params.get("incl_blocks", ),
                         "equipment": filter_params.get("equipment", ),
                 }
-        )
+            )
 
-        logger_context(self)
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
 
@@ -204,19 +224,25 @@ class CableListView(LoggingMixin, LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         filter_params = FilterParams(self.request)
 
-        context["cable_list"] = CableFilterService.get_filtered_queryset(filter_params)
+        try:
+            context["cable_list"] = CableFilterService.get_filtered_queryset(filter_params)
 
-        # Добавляем параметры в контекст для отображения в шаблоне
-        context.update(
+            # Добавляем параметры в контекст для отображения в шаблоне
+            context.update(
                 {
                         "mine": filter_params.get("mine", ),
                         "subsystem": filter_params.get("subsystem", ),
                         "incl_blocks": filter_params.get("incl_blocks", ),
                         "cable": filter_params.get("cable", ),
                 }
-        )
+            )
 
-        logger_context(self)
+            logger_context_info(self)
+
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
 
@@ -258,18 +284,23 @@ class BoxListView(LoggingMixin, LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         filter_params = FilterParams(self.request)
 
-        context["box_list"] = BoxFilterService.get_filtered_queryset(filter_params)
+        try:
+            context["box_list"] = BoxFilterService.get_filtered_queryset(filter_params)
 
-        # Добавляем параметры в контекст для отображения в шаблоне
-        context.update(
+            # Добавляем параметры в контекст для отображения в шаблоне
+            context.update(
                 {
                         "mine": filter_params.get("mine", ),
                         "subsystem": filter_params.get("subsystem", ),
                         "incl_blocks": filter_params.get("incl_blocks", ),
                 }
-        )
+            )
 
-        logger_context(self)
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
 
@@ -310,47 +341,53 @@ class ViolationsListView(LoggingMixin, LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        summ = Violations.objects.all().count()
-        mine1_summ = Violations.objects.filter(number_mine__title='Нефтешахта №1').count()
-        mine1_true = Violations.objects.filter(number_mine__title='Нефтешахта №1', execution_bool=True).count()
-
-        mine2_summ = Violations.objects.filter(number_mine__title='Нефтешахта №2').count()
-        mine2_true = Violations.objects.filter(number_mine__title='Нефтешахта №2', execution_bool=True).count()
-
-        mine3_summ = Violations.objects.filter(number_mine__title='Нефтешахта №3').count()
-        mine3_true = Violations.objects.filter(number_mine__title='Нефтешахта №3', execution_bool=True).count()
-
-        update = DateUpdate.objects.latest('update')
-
-        context['summ'] = summ
-        context['mine1_summ'] = mine1_summ
-        context['mine1_true'] = mine1_true
-        context['mine2_summ'] = mine2_summ
-        context['mine2_true'] = mine2_true
-        context['mine3_summ'] = mine3_summ
-        context['mine3_true'] = mine3_true
 
         try:
-            mine1_percent = int(mine1_true * 100 / mine1_summ)
-        except ZeroDivisionError:
-            mine1_percent = 0
+            summ = Violations.objects.all().count()
+            mine1_summ = Violations.objects.filter(number_mine__title='Нефтешахта №1').count()
+            mine1_true = Violations.objects.filter(number_mine__title='Нефтешахта №1', execution_bool=True).count()
 
-        try:
-            mine2_percent = int(mine2_true * 100 / mine2_summ)
-        except ZeroDivisionError:
-            mine2_percent = 0
+            mine2_summ = Violations.objects.filter(number_mine__title='Нефтешахта №2').count()
+            mine2_true = Violations.objects.filter(number_mine__title='Нефтешахта №2', execution_bool=True).count()
 
-        try:
-            mine3_percent = int(mine3_true * 100 / mine3_summ)
-        except ZeroDivisionError:
-            mine3_percent = 0
+            mine3_summ = Violations.objects.filter(number_mine__title='Нефтешахта №3').count()
+            mine3_true = Violations.objects.filter(number_mine__title='Нефтешахта №3', execution_bool=True).count()
 
-        context['mine1_percent'] = mine1_percent
-        context['mine2_percent'] = mine2_percent
-        context['mine3_percent'] = mine3_percent
-        context['update'] = update
+            update = DateUpdate.objects.latest('update')
 
-        logger_context(self)
+            context['summ'] = summ
+            context['mine1_summ'] = mine1_summ
+            context['mine1_true'] = mine1_true
+            context['mine2_summ'] = mine2_summ
+            context['mine2_true'] = mine2_true
+            context['mine3_summ'] = mine3_summ
+            context['mine3_true'] = mine3_true
+
+            try:
+                mine1_percent = int(mine1_true * 100 / mine1_summ)
+            except ZeroDivisionError:
+                mine1_percent = 0
+
+            try:
+                mine2_percent = int(mine2_true * 100 / mine2_summ)
+            except ZeroDivisionError:
+                mine2_percent = 0
+
+            try:
+                mine3_percent = int(mine3_true * 100 / mine3_summ)
+            except ZeroDivisionError:
+                mine3_percent = 0
+
+            context['mine1_percent'] = mine1_percent
+            context['mine2_percent'] = mine2_percent
+            context['mine3_percent'] = mine3_percent
+            context['update'] = update
+
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
 
@@ -389,19 +426,24 @@ class VisualView(LoggingMixin, LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         filter_params = FilterParams(self.request)
 
-        context["visual_list"] = VisualFilterService.get_filtered_queryset(filter_params)
+        try:
+            context["visual_list"] = VisualFilterService.get_filtered_queryset(filter_params)
 
-        context.update(
+            context.update(
                 {
                         "mine": filter_params.get("mine", ),
                         "equipment": filter_params.get("equipment", ),
                 }
-        )
+            )
 
-        for visual in context["visual_list"]:
-            context['pdf_visual'] = visual.file_pdf
+            for visual in context["visual_list"]:
+                context['pdf_visual'] = visual.file_pdf
 
-        logger_context(self)
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
 
@@ -442,16 +484,21 @@ class ProjectEquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         filter_params = FilterParams(self.request)
 
-        context["project_equipment_list"] = ProjectEquipmentFilterService.get_filtered_queryset(filter_params)
+        try:
+            context["project_equipment_list"] = ProjectEquipmentFilterService.get_filtered_queryset(filter_params)
 
-        context.update(
+            context.update(
                 {
                         "mine": filter_params.get("mine", ),
                         "subsystem": filter_params.get("subsystem", ),
                 }
-        )
+            )
 
-        logger_context(self)
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
 
@@ -491,16 +538,21 @@ class ProjectCableListView(LoggingMixin, LoginRequiredMixin, FormView):
         context = super().get_context_data(**kwargs)
         filter_params = FilterParams(self.request)
 
-        context["project_cable_list"] = ProjectCableFilterService.get_filtered_queryset(filter_params)
+        try:
+            context["project_cable_list"] = ProjectCableFilterService.get_filtered_queryset(filter_params)
 
-        context.update(
+            context.update(
                 {
                         "mine": filter_params.get("mine", ),
                         "subsystem": filter_params.get("subsystem", ),
                 }
-        )
+            )
 
-        logger_context(self)
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
 
@@ -524,26 +576,26 @@ class ContactFormView(LoggingMixin, FormView):
 
         # Отправка письма администратору
         admin_subject = f"Новое сообщение от {name}"
-        admin_message = f"Имя: {name}\nEmail: {email}\n\nСообщение:\n{message}"
+        admin_message = f"Имя: {name}\nEmail: {email}\n\nСообщение:\n\n{message}"
 
         try:
             send_mail(
-                admin_subject,
-                admin_message,
-                settings.DEFAULT_FROM_EMAIL,
-                [settings.EMAIL_HOST_USER],  # Email администратора
-                fail_silently=False,
+                    admin_subject,
+                    admin_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.EMAIL_HOST_USER],  # Email администратора
+                    fail_silently=False,
             )
 
             # Отправка письма пользователю
             user_subject = "Ваше сообщение получено"
-            user_message = f"Здравствуйте, {name}!\n\nСпасибо за ваше сообщение.\n\nВаше сообщение:\n{message}"
+            user_message = f"Здравствуйте, {name}!\n\nСпасибо за ваше сообщение.\n\nВаше сообщение:\n\n{message}"
             send_mail(
-                user_subject,
-                user_message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],  # Email пользователя
-                fail_silently=False,
+                    user_subject,
+                    user_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],  # Email пользователя
+                    fail_silently=False,
             )
             # Возвращаем стандартный метод после успешной обработки
             logger.info("Письмо успешно отправлено", extra={'classname': self.__class__.__name__})
@@ -581,10 +633,15 @@ class QuantityEquipmentCableView(LoggingMixin, LoginRequiredMixin, FormView):
         """
         context = super().get_context_data(**kwargs)
 
-        # Добавляем дополнительные данные в контекст
-        context['update'] = QuantityEqCabFilterService.get_latest_update()
+        try:
+            # Добавляем дополнительные данные в контекст
+            context['update'] = QuantityEqCabFilterService.get_latest_update()
 
-        logger_context(self)
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
         return context
 
     def form_valid(self, form):
@@ -609,3 +666,4 @@ class QuantityEquipmentCableView(LoggingMixin, LoginRequiredMixin, FormView):
 
         logger_form_valid(self)
         return self.render_to_response(context)
+

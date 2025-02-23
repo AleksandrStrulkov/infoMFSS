@@ -29,7 +29,7 @@
                         </h4>
                     </div>
                     <div class="card-body text-start">
-{#                        {% load crispy_forms_tags %}#}
+                        {#                        {% load crispy_forms_tags %}#}
                         {% csrf_token %}
                         {% crispy form %}
                         <button type="submit" class="btn elem-button btn-md">
@@ -50,8 +50,10 @@
                             <h14>На дату: {{ update }}</h14>
                             <br>
                             <br>
-                            {% elif percent == 0 %}
+                        {% elif percent == 0 %}
                             <h8>Данные отсутствуют</h8>
+                        {% else %}
+                            <h8>{{ error_message }}</h8>
                         {% endif %}
                     </div>
                 </div>

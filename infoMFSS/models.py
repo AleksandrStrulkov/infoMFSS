@@ -1,6 +1,7 @@
 from django.db import models
-from django.utils import formats
-import locale
+import logging
+
+logger = logging.getLogger(__name__)
 
 NULLABLE = {'blank': True, 'null': True}
 
@@ -148,6 +149,15 @@ class Equipment(models.Model):
     def __str__(self):
         return f'{self.title}'
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding  # Проверяем, что объект новый
+        super().save(*args, **kwargs)
+        if is_new:
+            logger.info(
+                    f'Создан новое оборудование: {self.title} (ID: {self.id})',
+                    extra={'classname': self.__class__.__name__}
+            )
+
     class Meta:
         verbose_name = 'оборудование'
         verbose_name_plural = 'оборудования'
@@ -170,6 +180,15 @@ class Cable(models.Model):
 
     def __str__(self):
         return f'{self.title}'
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding  # Проверяем, что объект новый
+        super().save(*args, **kwargs)
+        if is_new:
+            logger.info(
+                    f'Создан новый кабель: {self.title} (ID: {self.id})',
+                    extra={'classname': self.__class__.__name__}
+            )
 
     class Meta:
         verbose_name = 'кабель'
@@ -199,6 +218,15 @@ class PointPhone(models.Model):
 
     def __str__(self):
         return f'{self.title}/{self.subscriber_number}/{self.number_mine}'
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding  # Проверяем, что объект новый
+        super().save(*args, **kwargs)
+        if is_new:
+            logger.info(
+                    f'Создан новая точка телефонии: {self.title} (ID: {self.id})',
+                    extra={'classname': self.__class__.__name__}
+            )
 
     class Meta:
         verbose_name = 'точка телефонии'
@@ -241,7 +269,13 @@ class BranchesBox(models.Model):
         # Генерируем name перед сохранением
         self.name_slag = f"{self.title[0:2]}#{self.title[3:]}({self.number_mine.title[0]}" \
                          f"Ш{self.number_mine.title[-1]})"
+        is_new = self._state.adding  # Проверяем, что объект новый
         super().save(*args, **kwargs)
+        if is_new:
+            logger.info(
+                    f'Создан новая распред.коробка: {self.title} (ID: {self.id})',
+                    extra={'classname': self.__class__.__name__}
+            )
 
     def __str__(self):
         return f'{self.title}'
@@ -306,7 +340,13 @@ class CableMagazine(models.Model):
             self.name = f"{self.track_from_box.title}/{self.track_to_box.title}"
         else:
             self.name = f"{self.track_from_box.title}/{self.track_to_phone.title}"
+        is_new = self._state.adding  # Проверяем, что объект новый
         super().save(*args, **kwargs)
+        if is_new:
+            logger.info(
+                    f'Создан новая точка телефонии: {self.name} (ID: {self.id})',
+                    extra={'classname': self.__class__.__name__}
+            )
 
     def __str__(self):
         if self.inclined_blocks:
@@ -364,6 +404,15 @@ class EquipmentInstallation(models.Model):
         return f'{self.title}-({self.name})/{self.subsystem}/{self.tunnel}/' \
                f'ПК{self.picket}'
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding  # Проверяем, что объект новый
+        super().save(*args, **kwargs)
+        if is_new:
+            logger.info(
+                    f'Добавлено новое место установки оборудования: {self.name} (ID: {self.id})',
+                    extra={'classname': self.__class__.__name__}
+            )
+
     class Meta:
         verbose_name = 'место установки оборудования'
         verbose_name_plural = 'места установки оборудования'
@@ -420,6 +469,21 @@ class Execution(models.Model):
         elif self.cable_magazine:
             return f'{self.cable_magazine}'
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding  # Проверяем, что объект новый
+        super().save(*args, **kwargs)
+        if is_new:
+            if self.equipment_install:
+                logger.info(
+                    f'Добавлено новое выполнение работ: {self.equipment_install.title}',
+                    extra={'classname': self.__class__.__name__}
+                )
+            elif self.cable_magazine:
+                logger.info(
+                    f'Добавлено новое выполнение работ: {self.cable_magazine.cable.title}',
+                    extra={'classname': self.__class__.__name__}
+                )
+
     class Meta:
         verbose_name = 'выполнение работы'
         verbose_name_plural = 'отчет выполнения работ'
@@ -462,6 +526,16 @@ class Violations(models.Model):
     def __str__(self):
         return f'{self.number_act} от {self.date_act}'
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding  # Проверяем, что объект новый
+        super().save(*args, **kwargs)
+        if is_new:
+            logger.info(
+                    f'Добавлено новое нарушение: {self.number_mine.title} '
+                    f'{self.title[:10]}',
+                    extra={'classname': self.__class__.__name__}
+            )
+
     class Meta:
         verbose_name = 'нарушение'
         verbose_name_plural = 'нарушения'
@@ -502,6 +576,15 @@ class Visual(models.Model):
 
     def __str__(self):
         return f'{self.equipment} ({self.number_mines}, {self.subsystems})'
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding  # Проверяем, что объект новый
+        super().save(*args, **kwargs)
+        if is_new:
+            logger.info(
+                    f'Добавлен новый файл pdf: {self.equipment} (ID: {self.id})',
+                    extra={'classname': self.__class__.__name__}
+            )
 
     class Meta:
         verbose_name = 'визуализация'

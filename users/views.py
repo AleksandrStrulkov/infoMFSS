@@ -25,7 +25,7 @@ class LoginView(LoggingMixin, BaseLoginView):
         username = form.cleaned_data.get('username')
 
         # Логирование успешной авторизации
-        logger.info(f'Пользователь {username} . успешно авторизовался',
+        logger.info(f'Пользователь {username} успешно авторизовался',
                     extra={'classname': self.__class__.__name__})
 
         return super().form_valid(form)
