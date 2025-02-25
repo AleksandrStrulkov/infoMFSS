@@ -2,6 +2,7 @@ from django import forms
 from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, Visual, \
     EquipmentInstallation, CableMagazine
 import captcha as captcha
+import captcha as captcha
 from captcha.fields import CaptchaField
 
 
