@@ -37,7 +37,9 @@ class InfoFormMixin(forms.Form):
         for subsystem_all in subsystems_all:
             subsystems_list.append(subsystem_all.title)
 
-        incl_all_list.remove('Все уклонные блоки')
+        if 'Все уклонные блоки' in incl_all_list:
+
+            incl_all_list.remove('Все уклонные блоки')
 
         if incl_in_mines:
             if incl_blocks not in incl_list:
