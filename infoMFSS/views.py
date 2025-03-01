@@ -1,3 +1,4 @@
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.core.cache import cache
@@ -7,7 +8,8 @@ from django.urls import reverse
 from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone, BranchesBox, \
     Equipment, Cable, Violations, Visual, EquipmentInstallation, CableMagazine
 from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, VisualCreateForm, ProjectEquipmentForm, \
-    ProjectCableForm, ContactForm, QuantityEquipmentCableForm
+    ProjectCableForm, ContactForm, QuantityEquipmentCableForm, EquipmentCreateForm, CableCreateForm, \
+    PointPhoneCreateForm
 from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.conf import settings
@@ -17,10 +19,14 @@ from .services import EquipmentFilterService, CableFilterService, BoxFilterServi
     ProjectEquipmentFilterService, ProjectCableFilterService, PercentService, QuantityEqCabFilterService
 from .params import FilterParams
 from infoMFSS.services_logger import *
+from django.contrib import messages
 
 
 def sass_page_handler(request):
     return render(request, 'mfss/base.html')
+
+
+"""Чтение и вывод данных по формам и фильтрам зарегистрированным пользователям"""
 
 
 class MFSSPercentTemplateView(TemplateView):
@@ -77,11 +83,11 @@ class PercentView(LoggingMixin, LoginRequiredMixin, FormView):
             context['update'] = PercentService.get_latest_update()
             options = PercentService.get_mines_subsystems_incl_blocks()
             context.update(
-                {
-                        'mines': options['mines'],
-                        'subsystems': options['subsystems'],
-                        'incl_blocks': options['incl_blocks'],
-                }
+                    {
+                            'mines': options['mines'],
+                            'subsystems': options['subsystems'],
+                            'incl_blocks': options['incl_blocks'],
+                    }
             )
 
             logger_context_info(self)
@@ -169,12 +175,12 @@ class EquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
 
             # Добавляем параметры в контекст для отображения в шаблоне
             context.update(
-                {
-                        "mine": filter_params.get("mine", ),
-                        "subsystem": filter_params.get("subsystem", ),
-                        "incl_blocks": filter_params.get("incl_blocks", ),
-                        "equipment": filter_params.get("equipment", ),
-                }
+                    {
+                            "mine": filter_params.get("mine", ),
+                            "subsystem": filter_params.get("subsystem", ),
+                            "incl_blocks": filter_params.get("incl_blocks", ),
+                            "equipment": filter_params.get("equipment", ),
+                    }
             )
 
             logger_context_info(self)
@@ -229,12 +235,12 @@ class CableListView(LoggingMixin, LoginRequiredMixin, FormView):
 
             # Добавляем параметры в контекст для отображения в шаблоне
             context.update(
-                {
-                        "mine": filter_params.get("mine", ),
-                        "subsystem": filter_params.get("subsystem", ),
-                        "incl_blocks": filter_params.get("incl_blocks", ),
-                        "cable": filter_params.get("cable", ),
-                }
+                    {
+                            "mine": filter_params.get("mine", ),
+                            "subsystem": filter_params.get("subsystem", ),
+                            "incl_blocks": filter_params.get("incl_blocks", ),
+                            "cable": filter_params.get("cable", ),
+                    }
             )
 
             logger_context_info(self)
@@ -289,11 +295,11 @@ class BoxListView(LoggingMixin, LoginRequiredMixin, FormView):
 
             # Добавляем параметры в контекст для отображения в шаблоне
             context.update(
-                {
-                        "mine": filter_params.get("mine", ),
-                        "subsystem": filter_params.get("subsystem", ),
-                        "incl_blocks": filter_params.get("incl_blocks", ),
-                }
+                    {
+                            "mine": filter_params.get("mine", ),
+                            "subsystem": filter_params.get("subsystem", ),
+                            "incl_blocks": filter_params.get("incl_blocks", ),
+                    }
             )
 
             logger_context_info(self)
@@ -430,10 +436,10 @@ class VisualView(LoggingMixin, LoginRequiredMixin, FormView):
             context["visual_list"] = VisualFilterService.get_filtered_queryset(filter_params)
 
             context.update(
-                {
-                        "mine": filter_params.get("mine", ),
-                        "equipment": filter_params.get("equipment", ),
-                }
+                    {
+                            "mine": filter_params.get("mine", ),
+                            "equipment": filter_params.get("equipment", ),
+                    }
             )
 
             for visual in context["visual_list"]:
@@ -488,10 +494,10 @@ class ProjectEquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
             context["project_equipment_list"] = ProjectEquipmentFilterService.get_filtered_queryset(filter_params)
 
             context.update(
-                {
-                        "mine": filter_params.get("mine", ),
-                        "subsystem": filter_params.get("subsystem", ),
-                }
+                    {
+                            "mine": filter_params.get("mine", ),
+                            "subsystem": filter_params.get("subsystem", ),
+                    }
             )
 
             logger_context_info(self)
@@ -542,10 +548,10 @@ class ProjectCableListView(LoggingMixin, LoginRequiredMixin, FormView):
             context["project_cable_list"] = ProjectCableFilterService.get_filtered_queryset(filter_params)
 
             context.update(
-                {
-                        "mine": filter_params.get("mine", ),
-                        "subsystem": filter_params.get("subsystem", ),
-                }
+                    {
+                            "mine": filter_params.get("mine", ),
+                            "subsystem": filter_params.get("subsystem", ),
+                    }
             )
 
             logger_context_info(self)
@@ -667,3 +673,66 @@ class QuantityEquipmentCableView(LoggingMixin, LoginRequiredMixin, FormView):
         logger_form_valid(self)
         return self.render_to_response(context)
 
+
+"""Запись и изменение данных для модераторов"""
+
+
+class CreateEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Добавить в базу данных оборудование
+    """
+    model = Equipment
+    form_class = EquipmentCreateForm
+    permission_required = 'infoMFSS.add_equipment'
+    success_url = reverse_lazy('mfss:create_equipment')
+    template_name = 'mfss/equipment_form.html'
+    context_object_name = 'equipment_list'
+    # success_message = 'Оборудование "%(title)s" успешно создано.'
+    extra_context = {
+            'title': "Добавить оборудование",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['equipment_list'] = Equipment.objects.all()
+        return context
+
+
+class CreateCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Добавить в базу данных кабельную продукцию
+    """
+    model = Cable
+    form_class = CableCreateForm
+    permission_required = 'infoMFSS.add_cable'
+    success_url = reverse_lazy('mfss:create_cable')
+    template_name = 'mfss/cable_form.html'
+    context_object_name = 'cable_list'
+    extra_context = {
+            'title': "Добавить кабельную продукцию",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['cable_list'] = Cable.objects.all()
+        return context
+
+
+class CreatePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Добавить в базу данных точку телефонной связи
+    """
+    model = PointPhone
+    form_class = PointPhoneCreateForm
+    permission_required = 'infoMFSS.add_pointphone'
+    success_url = reverse_lazy('mfss:create_pointphone')
+    template_name = 'mfss/pointphone_form.html'
+    context_object_name = 'pointphone_list'
+    extra_context = {
+            'title': "Добавить точку телефонной связи",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pointphone_list'] = PointPhone.objects.all()
+        return context
