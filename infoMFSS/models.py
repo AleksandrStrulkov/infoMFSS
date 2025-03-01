@@ -42,7 +42,7 @@ class InclinedBlocks(models.Model):
     def __str__(self):
         if self.number_mine is None:
             return self.title
-        return f'{self.title}'
+        return f'УБ {self.title} (НШ-{self.number_mine.title[-1]})'
 
     class Meta:
         verbose_name = 'уклонный блок'
@@ -82,9 +82,9 @@ class Tunnel(models.Model):
 
     def __str__(self):
         if self.inclined_blocks is not None:
-            return f'(НШ-{self.number_mine.title[-1]}) {self.title} {self.inclined_blocks}'
+            return f'{self.title} {self.inclined_blocks}'
         else:
-            return f'(НШ-{self.number_mine.title[-1]}) {self.title}'
+            return f'{self.title} (НШ-{self.number_mine.title[-1]})'
 
     class Meta:
         verbose_name = 'выработка'
@@ -142,9 +142,9 @@ class Equipment(models.Model):
             verbose_name='Подсистема', **NULLABLE
     )
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
-    file_pdf = models.FileField(upload_to='pdf', **NULLABLE)
-    file_passport = models.FileField(upload_to='pdf_passport', **NULLABLE)
-    file_certificate = models.FileField(upload_to='pdf_certificate', **NULLABLE)
+    file_pdf = models.FileField(upload_to='pdf', **NULLABLE, verbose_name='Руководство по эксплуатации')
+    file_passport = models.FileField(upload_to='pdf_passport', **NULLABLE, verbose_name='Паспорт')
+    file_certificate = models.FileField(upload_to='pdf_certificate', **NULLABLE, verbose_name='Сертификат')
 
     def __str__(self):
         return f'{self.title}'
@@ -168,15 +168,15 @@ class Cable(models.Model):
     """Перечень кабелей"""
 
     title = models.CharField(max_length=100, verbose_name='Кабель')
-    subsystem = models.ForeignKey(
-            Subsystem, related_name='subsystem_cable', on_delete=models.CASCADE,
-            verbose_name='Подсистема', **NULLABLE
-    )
+    # subsystem = models.ForeignKey(
+    #         Subsystem, related_name='subsystem_cable', on_delete=models.CASCADE,
+    #         verbose_name='Подсистема', **NULLABLE
+    # )
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
-    slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
-    file_pdf = models.FileField(upload_to='pdf', **NULLABLE)
-    file_passport = models.FileField(upload_to='pdf_passport', **NULLABLE)
-    file_certificate = models.FileField(upload_to='pdf_certificate', **NULLABLE)
+    # slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
+    file_pdf = models.FileField(upload_to='pdf', **NULLABLE, verbose_name='Руководство по эксплуатации')
+    file_passport = models.FileField(upload_to='pdf_passport', **NULLABLE, verbose_name='Паспорт')
+    file_certificate = models.FileField(upload_to='pdf_certificate', **NULLABLE, verbose_name='Сертификат')
 
     def __str__(self):
         return f'{self.title}'
@@ -193,7 +193,7 @@ class Cable(models.Model):
     class Meta:
         verbose_name = 'кабель'
         verbose_name_plural = 'кабели'
-        ordering = ['title']
+        ordering = ['-id']
 
 
 class PointPhone(models.Model):
@@ -211,7 +211,7 @@ class PointPhone(models.Model):
             InclinedBlocks, related_name='block_phones', on_delete=models.CASCADE,
             verbose_name='Уклонный блок', **NULLABLE,
     )
-    subscriber_number = models.CharField(max_length=10, verbose_name='Абонентский номер', unique=True, )
+    subscriber_number = models.CharField(max_length=10, verbose_name='Абонентский номер',)
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
@@ -231,7 +231,7 @@ class PointPhone(models.Model):
     class Meta:
         verbose_name = 'точка телефонии'
         verbose_name_plural = 'точки телефонии'
-        ordering = ['title']
+        ordering = ['-id']
 
 
 class BranchesBox(models.Model):
