@@ -77,10 +77,10 @@ class EquipmentAdmin(admin.ModelAdmin):
 
 # @admin.register(Cable)
 class CableAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'subsystem', 'slug', 'file_pdf', 'file_passport', 'file_certificate')
+    list_display = ('title', 'description', 'file_pdf', 'file_passport', 'file_certificate')
     list_filter = ('title',)
     search_fields = ('title',)
-    prepopulated_fields = {'slug': ('title',)}
+    # prepopulated_fields = {'slug': ('title',)}
 
 
 # @admin.register(PointPhone)
