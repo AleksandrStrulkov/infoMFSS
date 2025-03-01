@@ -1,0 +1,98 @@
+{% extends 'mfss/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block navbar %}
+    {% include 'mfss/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container margin-auth-block">
+        <form method="post" action="" class="">
+            <div class="row text-center mx-auto mt-4 mb-sm-5">
+                <div class="col-sm-3">
+                </div>
+                <div class="col-sm-6 card mb-3 box-shadow border-none">
+                    <div class="card-body mt-2 text-center">
+                        <h4 class="my-0 font-weight-normal">
+
+                        </h4>
+                    </div>
+                    <div class="card-body text-start">
+                        {% load crispy_forms_tags %}
+                        {% csrf_token %}
+                        {% crispy form %}
+                        <button type="submit" class="btn elem-button btn-md">
+                            Применить
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5 table-responsive">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-primary">
+                    <tr class="table-active">
+                        <th class="align-middle">Оборудование</th>
+                        <th class="align-middle">Подсистема</th>
+                        <th class="align-middle">Описание</th>
+                        <th class="text-center text-danger ">Руководство по эксплуатации</th>
+                        <th class="text-center text-danger ">Паспорт</th>
+                        <th class="text-center text-danger ">Сертификат</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for equipment in equipment_list %}
+{#                        {% if equipment_file.title != 'Все оборудование' %}#}
+                            <tr>
+                            <td class="align-middle">{{ equipment.title }}</td>
+                            <td class="align-middle">{{ equipment.subsystem }}</td>
+                            <td class="align-middle">{{ equipment.description }}</td>
+
+                            {% if equipment.file_pdf %}
+                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                           href="{{ equipment.file_pdf.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center align-middle"><a>-</a></td>
+                            {% endif %}
+
+                            {% if equipment.file_passport %}
+                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                           href="{{ equipment.file_passport.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center align-middle"><a>-</a></td>
+                            {% endif %}
+
+                            {% if equipment.file_certificate %}
+                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
+                                                           href="{{ equipment.file_certificate.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center align-middle"><a>-</a></td>
+                            {% endif %}
+{#                        {% endif %}#}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            </div>
+            </div>
+
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}
