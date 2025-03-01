@@ -26,14 +26,14 @@ class LoggingMixin:
                         f'Класс: {self.__class__.__name__}'
 
         # Логирование ошибки
-        logger.error(error_message, extra={'classname': self.__class__.__name__})
+        logger.warning(error_message, extra={'classname': self.__class__.__name__})
 
         # Отправка email администратору
-        mail_admins(
-                subject='Ошибка валидации формы',
-                message=error_message,
-                fail_silently=True,
-        )
+        # mail_admins(
+        #         subject='Ошибка валидации формы',
+        #         message=error_message,
+        #         fail_silently=True,
+        # )
 
         return super().form_invalid(form)
 
@@ -53,7 +53,7 @@ def logger_context_info(self):
 
 def logger_context_warning(self, e):
     user = self.request.user
-    return logger.warning(
+    return logger.error(
             f'Ошибка обработки контекста {str(e)}. Пользователь: {user.last_name}',
             extra={'classname': self.__class__.__name__}
             )
