@@ -1,19 +1,23 @@
+from itertools import chain
+from django.db.models import Case, When, Value, IntegerField
 from django import forms
 from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, Visual, \
-    EquipmentInstallation, CableMagazine
-import captcha as captcha
-import captcha as captcha
+    EquipmentInstallation, CableMagazine, PointPhone
 from captcha.fields import CaptchaField
 
 
 class InfoFormMixin(forms.Form):
     number_mines = forms.ModelChoiceField(
-            queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
+            queryset=NumberMine.objects.none(), to_field_name="title", label='Шахта',
             initial='Все шахты'
     )
     subsystems = forms.ModelChoiceField(
-            queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
+            queryset=Subsystem.objects.none(), to_field_name="title", label='Подсистема',
             initial='Все подсистемы'
+    )
+    incl_blocks = forms.ModelChoiceField(
+            queryset=InclinedBlocks.objects.none(), to_field_name="title", label='Уклонный блок',
+            initial='Все уклонные блоки',
     )
 
     def clean(self):
@@ -47,63 +51,114 @@ class InfoFormMixin(forms.Form):
         if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
             self.add_error('number_mines', 'Нефтешахта не выбрана')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Добавляем "Все шахты" и реальные объекты
+        all_number_mines_option = NumberMine.objects.filter(title='Все шахты').first()
+        if all_number_mines_option:
+            self.fields['number_mines'].queryset = NumberMine.objects.annotate(
+                    custom_order=Case(
+                            When(id=all_number_mines_option.id, then=Value(0)),  # "Все шахты" получает порядок 0
+                            default=Value(1),  # Все остальные получают порядок 1
+                            output_field=IntegerField(),
+                    )
+            ).order_by('custom_order', 'title')
+        else:
+            self.fields['number_mines'].queryset = NumberMine.objects.all()
+
+        all_subsystems_option = Subsystem.objects.filter(title='Все подсистемы').first()
+        if all_subsystems_option:
+            self.fields['subsystems'].queryset = Subsystem.objects.annotate(
+                    custom_order=Case(
+                            When(id=all_subsystems_option.id, then=Value(0)),  # "Все шахты" получает порядок 0
+                            default=Value(1),  # Все остальные получают порядок 1
+                            output_field=IntegerField(),
+                    )
+            ).order_by('custom_order', 'title')
+        else:
+            self.fields['subsystems'].queryset = Subsystem.objects.all()
+
+        # Добавляем "Все шахты" и реальные объекты
+        all_blocks_option = InclinedBlocks.objects.filter(title='Все уклонные блоки').first()
+        if all_blocks_option:
+            self.fields['incl_blocks'].queryset = InclinedBlocks.objects.annotate(
+                    custom_order=Case(
+                            When(id=all_blocks_option.id, then=Value(0)),  # "Все шахты" получает порядок 0
+                            default=Value(1),  # Все остальные получают порядок 1
+                            output_field=IntegerField(),
+                    )
+            ).order_by('custom_order', 'number_mine')
+        else:
+            self.fields['incl_blocks'].queryset = InclinedBlocks.objects.all()
+
+
+class InfoProjectFormMixin(InfoFormMixin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.pop('incl_blocks')
+
+    def clean(self):
+        return self.cleaned_data
+
 
 class PercentForm(InfoFormMixin):
-    incl_blocks = forms.ModelChoiceField(
-            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
-            initial='Все уклонные блоки'
-    )
+    pass
 
 
 class EquipmentForm(InfoFormMixin):
-    incl_blocks = forms.ModelChoiceField(
-            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
-            initial='Все уклонные блоки'
-    )
     equipment = forms.ModelChoiceField(
-            queryset=Equipment.objects.all(), to_field_name="title", label='Оборудование',
+            queryset=Equipment.objects.none(), to_field_name="title", label='Оборудование',
             initial='Все оборудование'
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Добавляем "Все шахты" и реальные объекты
+        all_equipment_option = Equipment.objects.filter(title='Все оборудование').first()
+        if all_equipment_option:
+            self.fields['equipment'].queryset = Equipment.objects.annotate(
+                    custom_order=Case(
+                            When(id=all_equipment_option.id, then=Value(0)),  # "Все шахты" получает порядок 0
+                            default=Value(1),  # Все остальные получают порядок 1
+                            output_field=IntegerField(),
+                    )
+            ).order_by('custom_order', 'title')
+        else:
+            self.fields['equipment'].queryset = Equipment.objects.all()
+
 
 class CableForm(InfoFormMixin):
-    incl_blocks = forms.ModelChoiceField(
-            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
-            initial='Все уклонные блоки'
-    )
     cable = forms.ModelChoiceField(
-            queryset=Cable.objects.all(), to_field_name="title", label='Кабель',
+            queryset=Cable.objects.none(), to_field_name="title", label='Кабель',
             initial='Все кабели'
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Добавляем "Все шахты" и реальные объекты
+        all_cable_option = Cable.objects.filter(title='Все кабели').first()
+        if all_cable_option:
+            self.fields['cable'].queryset = Cable.objects.annotate(
+                    custom_order=Case(
+                            When(id=all_cable_option.id, then=Value(0)),  # "Все шахты" получает порядок 0
+                            default=Value(1),  # Все остальные получают порядок 1
+                            output_field=IntegerField(),
+                    )
+            ).order_by('custom_order', 'title')
+        else:
+            self.fields['cable'].queryset = Cable.objects.all()
+
 
 class BoxForm(InfoFormMixin):
-    incl_blocks = forms.ModelChoiceField(
-            queryset=InclinedBlocks.objects.all(), to_field_name="title", label='Уклонный блок',
-            initial='Все уклонные блоки'
-    )
+    pass
 
 
-class ProjectEquipmentForm(forms.Form):
-    number_mines = forms.ModelChoiceField(
-            queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
-            initial='Все шахты'
-    )
-    subsystems = forms.ModelChoiceField(
-            queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
-            initial='Все подсистемы'
-    )
+class ProjectEquipmentForm(InfoProjectFormMixin):
+    pass
 
 
-class ProjectCableForm(forms.Form):
-    number_mines = forms.ModelChoiceField(
-            queryset=NumberMine.objects.all(), to_field_name="title", label='Шахта',
-            initial='Все шахты'
-    )
-    subsystems = forms.ModelChoiceField(
-            queryset=Subsystem.objects.all(), to_field_name="title", label='Подсистема',
-            initial='Все подсистемы'
-    )
+class ProjectCableForm(InfoProjectFormMixin):
+    pass
 
 
 class VisualCreateForm(forms.ModelForm):
@@ -113,13 +168,12 @@ class VisualCreateForm(forms.ModelForm):
 
 
 class ContactForm(forms.Form):
-
-                           # widget=forms.TextInput(attrs={'class': 'captcha-input'}))
     name = forms.CharField(max_length=100, label="Ваше имя")
     email = forms.EmailField(label="Ваш email")
     message = forms.CharField(widget=forms.Textarea, label="Сообщение")
-    captcha = CaptchaField(label='Введите ответ', generator='captcha.helpers.math_challenge',
-                               error_messages={'invalid': 'Неправильный ответ'}, )
+    captcha = CaptchaField(
+        label='Введите ответ', generator='captcha.helpers.math_challenge',
+        error_messages={'invalid': 'Неправильный ответ'}, )
 
 
 class QuantityEquipmentCableForm(forms.Form):
@@ -151,3 +205,90 @@ class QuantityEquipmentCableForm(forms.Form):
 
         if equipment and cable:
             self.add_error('equipment', 'Выберите только один из вариантов')
+
+
+class EquipmentCreateForm(forms.ModelForm):
+    class Meta:
+        model = Equipment
+        fields = ('title', 'description', 'subsystem', 'file_pdf', 'file_passport', 'file_certificate',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['subsystem'].queryset = Subsystem.objects.exclude(title="Все подсистемы")
+
+        for field_name, field in self.fields.items():
+            if isinstance(field, forms.ModelChoiceField):
+                field.empty_label = "Выберите значение"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        subsystem = cleaned_data.get('subsystem')
+
+        if subsystem is None:
+            self.add_error('subsystem', 'Подсистема не выбрана')
+
+
+class CableCreateForm(forms.ModelForm):
+    class Meta:
+        model = Cable
+        fields = ('title', 'description', 'file_pdf', 'file_passport', 'file_certificate',)
+
+
+class PointPhoneCreateForm(forms.ModelForm):
+    class Meta:
+        model = PointPhone
+        fields = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number', 'picket', 'description')
+        required = True
+        widgets = {
+                'title': forms.TextInput(
+                        attrs={
+                                'placeholder': 'T1-65',
+                        }
+                ),
+                'subscriber_number': forms.TextInput(
+                        attrs={
+                                'placeholder': '8777',
+                        }
+                ),
+                'picket': forms.TextInput(
+                        attrs={
+                                'placeholder': '12',
+                        }
+                ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['number_mine'].queryset = NumberMine.objects.exclude(title="Все шахты")
+        self.fields['inclined_blocks'].queryset = InclinedBlocks.objects.exclude(title="Все уклонные блоки")
+        # self.fields['number_mine'].empty_label = "Выберите значение"
+
+        for field_name, field in self.fields.items():
+            if isinstance(field, forms.ModelChoiceField):
+                field.empty_label = "Выберите значение"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        number_mine = cleaned_data.get('number_mine')
+        tunnel = cleaned_data.get('tunnel')
+        inclined_blocks = cleaned_data.get('inclined_blocks')
+        title = cleaned_data.get('title')
+        subscriber_number = cleaned_data.get('subscriber_number')
+
+        if title is None:
+            self.add_error('title', 'Укажите обозначение точки телефонии')
+
+        if number_mine is None:
+            self.add_error('number_mine', 'Нефтешахта не выбрана')
+
+        if tunnel is None:
+            self.add_error('tunnel', 'Выработка не выбрана')
+
+        if subscriber_number is None:
+            self.add_error('subscriber_number', 'Укажите абонентский номер')
+
+        if tunnel.inclined_blocks is not None and inclined_blocks is None:
+            self.add_error('inclined_blocks', f'Уклонный блок {tunnel.inclined_blocks.title} не выбран')
+
+
+
