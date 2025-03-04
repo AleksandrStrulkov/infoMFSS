@@ -101,12 +101,12 @@ class BranchesBoxAdmin(admin.ModelAdmin):
     # prepopulated_fields = {'slug': ('title', 'number_mine')}
 
 
-# @admin.register(Visual)
+@admin.register(Visual)
 class VisualAdmin(admin.ModelAdmin):
-    list_display = ('id', 'number_mines', 'subsystems', 'equipment', 'file_pdf', 'data',)
-    list_filter = ('number_mines', 'subsystems', 'equipment',
+    list_display = ('number_mine', 'subsystem', 'equipment', 'cable', 'file_pdf', 'data',)
+    list_filter = ('number_mine', 'subsystem', 'equipment', 'cable',
                    'data')
-    search_fields = ('number_mines', 'subsystems', 'equipment',
+    search_fields = ('number_mine', 'subsystem', 'equipment', 'cable',
                    'data')
 
 
