@@ -46,9 +46,17 @@
                 <div class="row mb-5">
                     <div class="col">
                         {% if pdf_visual %}
-                            <a href="{{ pdf_visual.url }}" class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
-                            >&#128409;Ссылка: {{ mine }}, {{ equipment }}&#128408;
-                            </a>
+                            {% if equipment is not None %}
+                                <a href="{{ pdf_visual.url }}" class="btn btn-link"
+                                   Style="color:#6d37ff; font-size: 20px;"
+                                >&#128409;Ссылка: {{ mine }}, {{ equipment }}&#128408;
+                                </a>
+                            {% elif equipment is None %}
+                                <a href="{{ pdf_visual.url }}" class="btn btn-link"
+                                   Style="color:#6d37ff; font-size: 20px;"
+                                >&#128409;Ссылка: {{ mine }}, {{ cable }}&#128408;
+                                </a>
+                            {% endif %}
                         {% else %}
                             <a class="btn btn-link" Style="color:#6d37ff; font-size: 20px;"
                             >&#128409;Ссылка отсутствует&#128408;

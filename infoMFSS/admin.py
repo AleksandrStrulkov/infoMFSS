@@ -77,10 +77,10 @@ class EquipmentAdmin(admin.ModelAdmin):
 
 # @admin.register(Cable)
 class CableAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'subsystem', 'slug', 'file_pdf', 'file_passport', 'file_certificate')
+    list_display = ('title', 'description', 'file_pdf', 'file_passport', 'file_certificate')
     list_filter = ('title',)
     search_fields = ('title',)
-    prepopulated_fields = {'slug': ('title',)}
+    # prepopulated_fields = {'slug': ('title',)}
 
 
 # @admin.register(PointPhone)
@@ -101,12 +101,12 @@ class BranchesBoxAdmin(admin.ModelAdmin):
     # prepopulated_fields = {'slug': ('title', 'number_mine')}
 
 
-# @admin.register(Visual)
+@admin.register(Visual)
 class VisualAdmin(admin.ModelAdmin):
-    list_display = ('id', 'number_mines', 'subsystems', 'equipment', 'file_pdf', 'data',)
-    list_filter = ('number_mines', 'subsystems', 'equipment',
+    list_display = ('number_mine', 'subsystem', 'equipment', 'cable', 'file_pdf', 'data',)
+    list_filter = ('number_mine', 'subsystem', 'equipment', 'cable',
                    'data')
-    search_fields = ('number_mines', 'subsystems', 'equipment',
+    search_fields = ('number_mine', 'subsystem', 'equipment', 'cable',
                    'data')
 
 

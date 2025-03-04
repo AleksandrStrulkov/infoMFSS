@@ -1,19 +1,22 @@
 <!-- Modal -->
 {#{% extends 'mfss/base.html' %}#}
 {#{% load my_is_tags %}#}
-<div class="modal fade" id="nsh123Modal" tabindex="-1" aria-labelledby="nsh123ModalLabel" aria-hidden="true">
+<div class="modal fade" id="equipmentModal" tabindex="-1" aria-labelledby="equipmentModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="nsh123ModalLabel">Всего по нефтешахтам: {{ all_mailings }}</h5>
+          {% if messages %}
+{#        <h5 class="modal-title" id="nsh123ModalLabel">Всего по нефтешахтам: {{ all_mailings }}</h5>#}
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <h3>Выполнение: {{ percent_mine123 }} %</h3>
+{#        <h3>Выполнение: {{ percent_mine123 }} %</h3>#}
+      <h3{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</h3>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn nsh-button" data-bs-dismiss="modal">Close</button>
       </div>
+        {% endif %}
     </div>
   </div>
 </div>

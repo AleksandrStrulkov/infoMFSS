@@ -4,7 +4,9 @@ from infoMFSS.apps import InfomfssConfig
 from django.urls import path
 from infoMFSS.views import EquipmentListView, CableListView, BoxListView, \
     EquipmentFileListView, CableFileListView, ViolationsListView, ProjectEquipmentListView, \
-    ProjectCableListView, MFSSPercentTemplateView, ContactFormView, VisualView, PercentView, QuantityEquipmentCableView
+    ProjectCableListView, MFSSPercentTemplateView, ContactFormView, PercentView, QuantityEquipmentCableView, \
+    CreateEquipmentView, CreateCableView, CreatePointPhoneView, CreateBranchesBoxView, CreateCableMagazineView, \
+    CreateViolationsView, VisualView
 
 # from mfss.views import SubsystemTemplateView
 # from infoMFSS.views import index
@@ -15,7 +17,6 @@ urlpatterns = [
         path('', MFSSPercentTemplateView.as_view(), name='home'),
         path('percents/', PercentView.as_view(), name='percents'),
         path('equipment_list/', EquipmentListView.as_view(), name='equipment'),
-        # path('equipment_list/', EquipmentView.as_view(), name='equipment'),
         path('cable_list/', CableListView.as_view(), name='cable'),
         path('box_list/', BoxListView.as_view(), name='box'),
         path('equipment_file/', EquipmentFileListView.as_view(), name='equipment_file'),
@@ -32,4 +33,11 @@ urlpatterns = [
             'quantity/', QuantityEquipmentCableView.as_view(template_name='mfss/quantity_equipment_cable.html'),
             name='quantity_equipment_cable'
             ),
+        path('moderator/create/equipment/', CreateEquipmentView.as_view(), name='create_equipment'),
+        path('moderator/create/cable/', CreateCableView.as_view(), name='create_cable'),
+        path('moderator/create/pointphone/', CreatePointPhoneView.as_view(), name='create_pointphone'),
+        path('moderator/create/branchesbox/', CreateBranchesBoxView.as_view(), name='create_branchesbox'),
+        path('moderator/create/cablemagazine/', CreateCableMagazineView.as_view(), name='create_cablemagazine'),
+        path('moderator/create/violations/', CreateViolationsView.as_view(), name='create_violations'),
+        # path('moderator/create/visual/', CreateVisualView.as_view(), name='create_visual'),
 ]

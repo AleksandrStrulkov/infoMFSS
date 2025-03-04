@@ -1,6 +1,6 @@
 from django.db.models import Q, Sum
-from .models import DateUpdate, Execution, BranchesBox, Visual, EquipmentInstallation, CableMagazine, NumberMine, \
-    Subsystem, InclinedBlocks, Equipment, Cable
+from .models import DateUpdate, Execution, BranchesBox, EquipmentInstallation, CableMagazine, NumberMine, \
+    Subsystem, InclinedBlocks, Equipment, Cable, Visual
 
 
 class BaseFilterService:
@@ -125,12 +125,41 @@ class BoxFilterService(BaseFilterService):
 
 class VisualFilterService(BaseFilterService):
     model = Visual
-    default_order = "number_mines"
+    default_order = "number_mine"
 
     filter_config = {
-            "mine": ("number_mines", "Все шахты"),
-            "equipment": ("equipment", "Все оборудование"),
+            "mine": ("number_mine__title", None),
+            "equipment": ("equipment__title", None),
+            "cable": ("cable__title", None),
     }
+
+    @classmethod
+    def get_filtered_queryset(cls, filter_params):
+        if not filter_params.is_form_submitted:
+            return cls.model.objects.none()
+
+        # Получаем параметры
+        mine = filter_params.get("mine", None)
+        equipment = filter_params.get("equipment", None)
+        cable = filter_params.get("cable", None)
+
+        # Базовый фильтр
+        filters = Q()
+
+        # Фильтр по шахте (обязательное условие)
+        if mine is not None:
+            filters &= Q(number_mine__title=mine)
+
+        # Фильтр по оборудованию или кабелю
+        if equipment is not None or cable is not None:
+            # Создаем два отдельных фильтра
+            equipment_filter = Q(equipment__title=equipment) if equipment is not None else Q()
+            cable_filter = Q(cable__title=cable) if cable is not None else Q()
+
+            # Объединяем их через ИЛИ
+            filters &= (equipment_filter | cable_filter)
+
+        return cls.model.objects.filter(filters).order_by(cls.default_order)
 
 
 class ProjectEquipmentFilterService(BaseFilterService):

@@ -295,7 +295,7 @@ LOGGING = {
                 },
                 'mail': {
                         'class': 'django.utils.log.AdminEmailHandler',
-                        'level': 'WARNING',
+                        'level': 'ERROR',
                         'include_html': False,
                 }
         },
