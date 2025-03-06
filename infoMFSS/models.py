@@ -20,7 +20,7 @@ class NumberMine(models.Model):
     slug = models.SlugField(max_length=15, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
     class Meta:
         verbose_name = 'нефтешахта'
@@ -40,9 +40,9 @@ class InclinedBlocks(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
-        if self.number_mine is None:
-            return self.title
-        return f'УБ {self.title} (НШ-{self.number_mine.title[-1]})'
+        # if self.number_mine is None:
+        return self.title
+        # return f'УБ {self.title} (НШ-{self.number_mine.title[-1]})'
 
     class Meta:
         verbose_name = 'уклонный блок'
@@ -147,7 +147,7 @@ class Equipment(models.Model):
     file_certificate = models.FileField(upload_to='pdf_certificate', **NULLABLE, verbose_name='Сертификат')
 
     def __str__(self):
-        return f'{self.title}'
+        return self.title
 
     def save(self, *args, **kwargs):
         is_new = self._state.adding  # Проверяем, что объект новый
