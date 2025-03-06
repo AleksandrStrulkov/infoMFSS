@@ -29,36 +29,71 @@ class InfoFormMixin(forms.Form):
             # widget=CustomSelect(),
     )
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-        # number_mines = cleaned_data.get('number_mines').title
-        # subsystems = cleaned_data.get('subsystems').title
-        # incl_blocks = cleaned_data.get('incl_blocks').title
-        # incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
-        # incl_all_blocks = InclinedBlocks.objects.all()
-        # subsystems_all = Subsystem.objects.all()
-        # incl_list = []
-        # incl_all_list = []
-        # subsystems_list = []
-        #
-        # for incl_in_mine in incl_in_mines:
-        #     incl_list.append(incl_in_mine.title)
-        #     incl_list.append('Все уклонные блоки')
-        #
-        # for incl_all_block in incl_all_blocks:
-        #     incl_all_list.append(incl_all_block.title)
-        #
-        # for subsystem_all in subsystems_all:
-        #     subsystems_list.append(subsystem_all.title)
-        #
-        # incl_all_list.remove('Все уклонные блоки')
+# <<<<<<< develop
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         number_mines = cleaned_data.get('number_mines').title
+#         subsystems = cleaned_data.get('subsystems').title
+#         incl_blocks = cleaned_data.get('incl_blocks').title
+#         incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
+#         incl_all_blocks = InclinedBlocks.objects.all()
+#         subsystems_all = Subsystem.objects.all()
+#         incl_list = []
+#         incl_all_list = []
+#         subsystems_list = []
+        
+#         for incl_in_mine in incl_in_mines:
+#             incl_list.append(incl_in_mine.title)
+#             incl_list.append('Все уклонные блоки')
+        
+#         for incl_all_block in incl_all_blocks:
+#             incl_all_list.append(incl_all_block.title)
+        
+#         for subsystem_all in subsystems_all:
+#             subsystems_list.append(subsystem_all.title)
+        
+#         incl_all_list.remove('Все уклонные блоки')
 
-        # if incl_in_mines:
-        #     if incl_blocks not in incl_list:
-        #         self.add_error('incl_blocks', 'Не верно указан уклонный блок')
-        #
-        # if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
-        #     self.add_error('number_mines', 'Нефтешахта не выбрана')
+#         if incl_in_mines:
+#             if incl_blocks not in incl_list:
+#                 self.add_error('incl_blocks', 'Не верно указан уклонный блок')
+        
+#         if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
+#             self.add_error('number_mines', 'Нефтешахта не выбрана')
+# =======
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         number_mines = cleaned_data.get('number_mines').title
+#         subsystems = cleaned_data.get('subsystems').title
+#         incl_blocks = cleaned_data.get('incl_blocks').title
+#         incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
+#         incl_all_blocks = InclinedBlocks.objects.all()
+#         subsystems_all = Subsystem.objects.all()
+#         incl_list = []
+#         incl_all_list = []
+#         subsystems_list = []
+
+#         for incl_in_mine in incl_in_mines:
+#             incl_list.append(incl_in_mine.title)
+#             incl_list.append('Все уклонные блоки')
+
+#         for incl_all_block in incl_all_blocks:
+#             incl_all_list.append(incl_all_block.title)
+
+#         for subsystem_all in subsystems_all:
+#             subsystems_list.append(subsystem_all.title)
+
+#         if 'Все уклонные блоки' in incl_all_list:
+
+#             incl_all_list.remove('Все уклонные блоки')
+
+#         if incl_in_mines:
+#             if incl_blocks not in incl_list:
+#                 self.add_error('incl_blocks', 'Не верно указан уклонный блок')
+
+#         if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
+#             self.add_error('number_mines', 'Нефтешахта не выбрана')
+# >>>>>>> main
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
