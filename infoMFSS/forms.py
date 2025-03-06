@@ -1,6 +1,8 @@
 from itertools import chain
 from django.db.models import Case, When, Value, IntegerField
 from django import forms
+
+from infoMFSS.castom_widgets_form import CustomModelChoiceField
 from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, \
     EquipmentInstallation, CableMagazine, PointPhone, Violations, Visual
 from captcha.fields import CaptchaField
@@ -8,50 +10,90 @@ from captcha.fields import CaptchaField
 
 class InfoFormMixin(forms.Form):
     number_mines = forms.ModelChoiceField(
-            queryset=NumberMine.objects.none(), to_field_name="title", label='Шахта',
+            queryset=NumberMine.objects.none(),
+            to_field_name="title",
+            label='Шахта',
             initial='Все шахты'
     )
     subsystems = forms.ModelChoiceField(
-            queryset=Subsystem.objects.none(), to_field_name="title", label='Подсистема',
+            queryset=Subsystem.objects.none(),
+            to_field_name="title",
+            label='Подсистема',
             initial='Все подсистемы'
     )
-    incl_blocks = forms.ModelChoiceField(
-            queryset=InclinedBlocks.objects.none(), to_field_name="title", label='Уклонный блок',
+    incl_blocks = CustomModelChoiceField(
+            queryset=InclinedBlocks.objects.none(),
+            to_field_name="title",
+            label='Уклонный блок',
             initial='Все уклонные блоки',
+            # widget=CustomSelect(),
     )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        number_mines = cleaned_data.get('number_mines').title
-        subsystems = cleaned_data.get('subsystems').title
-        incl_blocks = cleaned_data.get('incl_blocks').title
-        incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
-        incl_all_blocks = InclinedBlocks.objects.all()
-        subsystems_all = Subsystem.objects.all()
-        incl_list = []
-        incl_all_list = []
-        subsystems_list = []
+# <<<<<<< develop
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         number_mines = cleaned_data.get('number_mines').title
+#         subsystems = cleaned_data.get('subsystems').title
+#         incl_blocks = cleaned_data.get('incl_blocks').title
+#         incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
+#         incl_all_blocks = InclinedBlocks.objects.all()
+#         subsystems_all = Subsystem.objects.all()
+#         incl_list = []
+#         incl_all_list = []
+#         subsystems_list = []
+        
+#         for incl_in_mine in incl_in_mines:
+#             incl_list.append(incl_in_mine.title)
+#             incl_list.append('Все уклонные блоки')
+        
+#         for incl_all_block in incl_all_blocks:
+#             incl_all_list.append(incl_all_block.title)
+        
+#         for subsystem_all in subsystems_all:
+#             subsystems_list.append(subsystem_all.title)
+        
+#         incl_all_list.remove('Все уклонные блоки')
 
-        for incl_in_mine in incl_in_mines:
-            incl_list.append(incl_in_mine.title)
-            incl_list.append('Все уклонные блоки')
+#         if incl_in_mines:
+#             if incl_blocks not in incl_list:
+#                 self.add_error('incl_blocks', 'Не верно указан уклонный блок')
+        
+#         if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
+#             self.add_error('number_mines', 'Нефтешахта не выбрана')
+# =======
+#     def clean(self):
+#         cleaned_data = super().clean()
+#         number_mines = cleaned_data.get('number_mines').title
+#         subsystems = cleaned_data.get('subsystems').title
+#         incl_blocks = cleaned_data.get('incl_blocks').title
+#         incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
+#         incl_all_blocks = InclinedBlocks.objects.all()
+#         subsystems_all = Subsystem.objects.all()
+#         incl_list = []
+#         incl_all_list = []
+#         subsystems_list = []
 
-        for incl_all_block in incl_all_blocks:
-            incl_all_list.append(incl_all_block.title)
+#         for incl_in_mine in incl_in_mines:
+#             incl_list.append(incl_in_mine.title)
+#             incl_list.append('Все уклонные блоки')
 
-        for subsystem_all in subsystems_all:
-            subsystems_list.append(subsystem_all.title)
+#         for incl_all_block in incl_all_blocks:
+#             incl_all_list.append(incl_all_block.title)
 
-        if 'Все уклонные блоки' in incl_all_list:
+#         for subsystem_all in subsystems_all:
+#             subsystems_list.append(subsystem_all.title)
 
-            incl_all_list.remove('Все уклонные блоки')
+#         if 'Все уклонные блоки' in incl_all_list:
 
-        if incl_in_mines:
-            if incl_blocks not in incl_list:
-                self.add_error('incl_blocks', 'Не верно указан уклонный блок')
+#             incl_all_list.remove('Все уклонные блоки')
 
-        if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
-            self.add_error('number_mines', 'Нефтешахта не выбрана')
+#         if incl_in_mines:
+#             if incl_blocks not in incl_list:
+#                 self.add_error('incl_blocks', 'Не верно указан уклонный блок')
+
+#         if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
+#             self.add_error('number_mines', 'Нефтешахта не выбрана')
+# >>>>>>> main
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -109,7 +151,9 @@ class PercentForm(InfoFormMixin):
 
 class EquipmentForm(InfoFormMixin):
     equipment = forms.ModelChoiceField(
-            queryset=Equipment.objects.none(), to_field_name="title", label='Оборудование',
+            queryset=Equipment.objects.none(),
+            to_field_name="title",
+            label='Оборудование',
             initial='Все оборудование'
     )
 
