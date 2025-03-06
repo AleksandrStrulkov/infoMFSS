@@ -63,16 +63,16 @@ class RegisterForm(StyleFormMixin, UserCreationForm):
             self.add_error('phone', "Введите 10 цифр после '+7'.")
 
             # Проверяем, есть ли ФИО в списке разрешённых
-        # if not AllowedPerson.objects.filter(
-        #         last_name=last_name,
-        #         first_name=first_name,
-        #         middle_name=middle_name,
-        #         is_active=True
-        # ).exists():
-        #     raise ValidationError(
-        #             "Ваши ФИО не входят в список разрешённых для регистрации. Обратитесь пожалуйста к администратору "
-        #             "ресурса."
-        #     )
+        if not AllowedPerson.objects.filter(
+                last_name=last_name,
+                first_name=first_name,
+                middle_name=middle_name,
+                is_active=True
+        ).exists():
+            raise ValidationError(
+                    "Ваши ФИО не входят в список разрешённых для регистрации. Обратитесь пожалуйста к администратору "
+                    "ресурса."
+            )
 
             # Проверяем, существует ли пользователь с такими же ФИО
         if User.objects.filter(

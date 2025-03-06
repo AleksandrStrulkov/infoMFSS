@@ -53,15 +53,25 @@ def logger_context_info(self):
 
 def logger_context_warning(self, e):
     user = self.request.user
-    return logger.error(
+    if user.is_authenticated:
+        return logger.error(
             f'Ошибка обработки контекста {str(e)}. Пользователь: {user.last_name}',
+            extra={'classname': self.__class__.__name__}
+            )
+    return logger.error(
+            f'Ошибка обработки контекста {str(e)}. Анонимный пользователь',
             extra={'classname': self.__class__.__name__}
             )
 
 
 def logger_form_valid(self):
     user = self.request.user
-    return logger.info(
+    if user.is_authenticated:
+        return logger.info(
             f'Форма успешно обработана. Пользователь: {user.last_name}',
             extra={'classname': self.__class__.__name__}
             )
+    return logger.error(
+        f'Форма успешно обработана. Анонимный пользователь',
+        extra={'classname': self.__class__.__name__}
+    )
