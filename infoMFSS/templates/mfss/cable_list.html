@@ -1,4 +1,5 @@
 {% extends 'mfss/base.html' %}
+
 {% load crispy_forms_tags %}
 
 {% block navbar %}
@@ -6,6 +7,25 @@
 {% endblock %}
 
 {% block content %}
+    <!-- Подключение Bootstrap Table CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/hint-css.js@1.4.0/src/hint-css.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Кастомные стили для кнопок -->
+    <style>
+        .custom-btn-color {
+            background-color: #4CAF50 !important; /* Зеленый цвет */
+            border-color: #4CAF50 !important; /* Цвет границы */
+            color: white !important; /* Цвет текста */
+        }
+
+        .custom-btn-color:hover {
+            background-color: #45a049 !important; /* Цвет при наведении */
+            border-color: #45a049 !important;
+        }
+    </style>
+
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -59,22 +79,39 @@
                 <h9a>Данные отсутствуют</h9a><br><br><br>
             {% endif %}
         {% endif %}
-        {#    </div>#}
         <div class="container text-center mb-5">
             <div class="mt-sm-3 mb-sm-5">
                 <div class="container mb-5 table-responsive">
                     {% if cable_list %}
-                        <table class="table table-hover table-bordered table-sm">
-                        <thead class="table-primary">
-                        <tr class="table-active box-table-th">
-                            <th class="align-middle">Шахта</th>
-                            <th class="align-middle">Подсистема</th>
-                            <th class="align-middle">Начало трассы</th>
-                            <th class="align-middle">Конец трассы</th>
-                            <th class="align-middle">Уклонный блок</th>
-                            <th class="align-middle">Протяженность, м</th>
-                            <th class="align-middle">Марка кабеля</th>
-                            <th class="text-center align-middle">Обозначение в проекте</th>
+                        <table
+                                id="Table"
+                                class="table table-hover table-bordered table-sm"
+                                data-toggle="table"
+                                data-pagination="true"
+                                data-search="true"
+                                data-show-pagination-switch="true"
+                                data-show-refresh="true"
+                                data-show-toggle="true"
+                                data-show-columns="true"
+                                data-show-fullscreen="true"
+{#                                data-buttons-class="violet-table"#}
+                                data-buttons-prefix="btn-sm btn"
+                                data-buttons-attribute-title="data-hint"
+                                data-search-align="left"
+                        >
+                        <thead>
+                        <tr class="box-table-th">
+                            <th class="align-middle" data-field="mine" data-sortable="true">Шахта</th>
+                            <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                            <th class="align-middle" data-field="track_from" data-sortable="true">Начало трассы</th>
+                            <th class="align-middle" data-field="track_to" data-sortable="true">Конец трассы</th>
+                            <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок
+                            </th>
+                            <th class="align-middle" data-field="distance" data-sortable="true">Протяженность, м</th>
+                            <th class="align-middle" data-field="cable" data-sortable="true">Марка кабеля</th>
+                            <th class="text-center align-middle" data-field="project_name" data-sortable="true">
+                                Обозначение в проекте
+                            </th>
                         </tr>
                     {% endif %}
                     </thead>
@@ -109,6 +146,61 @@
             </div>
         </div>
     </div>
+
+    <!-- Подключение jQuery (необходим для Bootstrap Table) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Подключение Bootstrap Table JS -->
+    <script src="https://unpkg.com/hint-css.js@1.4.0/src/hint-css.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/locale/bootstrap-table-ru-RU.min.js"></script>
+
+    <!-- Инициализация таблицы и добавление кастомного класса к кнопкам -->
+    <script>
+        $(document).ready(function () {
+            // Инициализация таблицы
+
+            $('#Table').bootstrapTable({
+                pagination: true,
+                search: true,
+                searchText: 'Поиск',  // Устанавливаем текст подсказки
+                sortable: true,
+                pageSize: 10,
+                pageList: [10, 25, 50, 100],
+            });
+
+            console.log('Таблица инициализирована'); // Проверка
+
+            // Функция для применения стиля к кнопкам
+            function applyCustomButtonStyle() {
+                $('.bootstrap-table .btn').addClass('violet-table');
+                console.log('Кнопки найдены и класс применен'); // Проверка
+            }
+
+            // Применяем стиль сразу после инициализации
+            applyCustomButtonStyle();
+
+            // Наблюдаем за изменениями в DOM
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'childList') {
+                        // Применяем стиль к новым кнопкам
+                        applyCustomButtonStyle();
+                    }
+                });
+            });
+
+            // Начинаем наблюдение за изменениями в таблице
+            const table = document.getElementById('Table');
+            if (table) {
+                observer.observe(table, {childList: true, subtree: true});
+            }
+            $('#Table thead').addClass('table-thead-violet-light');
+            $('#Table thead tr').addClass('table-thead-violet-light');
+            $('#Table thead th').addClass('table-thead-violet-light');
+        });
+        // Применяем кастомный класс к <thead>
+
+    </script>
 {% endblock %}
 
 {% block footer %}
