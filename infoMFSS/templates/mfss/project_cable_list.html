@@ -7,6 +7,9 @@
 {% endblock %}
 
 {% block content %}
+
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -97,18 +100,35 @@
             <div class="mt-sm-3 mb-sm-5">
                 <div class="container mb-5 table-responsive">
                     {% if project_cable_list %}
-                        <table class="table table-hover table-bordered table-sm">
-                        <thead class="table-primary">
-                        <tr class="table-active box-table-th">
-                            <th class="align-middle">Нефтешахта</th>
-                            <th class="align-middle">Подсистема</th>
-                            <th class="align-middle">Начало трассы</th>
-                            <th class="align-middle">Конец трассы</th>
-                            <th class="align-middle">Уклонный блок</th>
-                            <th class="align-middle">Протяженность</th>
-                            <th class="align-middle">Марка кабеля</th>
-                            <th class="align-middle">Обозначение в проекте</th>
-                            <th class="align-middle">Проложен</th>
+                        <table
+                                id="Table"
+                                class="table table-hover table-bordered table-sm"
+                                data-toggle="table"
+                                data-pagination="true"
+                                data-search="true"
+                                data-show-pagination-switch="true"
+                                data-show-refresh="true"
+                                data-show-toggle="true"
+                                data-show-columns="true"
+                                data-show-fullscreen="true"
+                                data-buttons-prefix="btn-sm btn"
+                                data-buttons-attribute-title="data-hint"
+                                data-search-align="left"
+                                data-toolbar="#toolbar"
+                                data-loading-template="loadingTemplate"
+                                data-show-print="true"
+                        >
+                        <thead>
+                        <tr class="box-table-th">
+                            <th class="align-middle" data-field="number_mine" data-sortable="true" data-width="110">Шахта</th>
+                            <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                            <th class="align-middle" data-field="track_from_box" data-sortable="true">Начало трассы</th>
+                            <th class="align-middle" data-field="track_to_box" data-sortable="true">Конец трассы</th>
+                            <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок</th>
+                            <th class="align-middle" data-field="distance" data-sortable="true">Протяженность</th>
+                            <th class="align-middle" data-field="cable" data-sortable="true">Марка кабеля</th>
+                            <th class="align-middle" data-field="name" data-sortable="true">Обозначение в проекте</th>
+                            <th class="align-middle" data-field="cable_bool" data-sortable="true">Проложен</th>
                         </tr>
                         </thead>
                     {% endif %}
@@ -149,6 +169,8 @@
             </div>
         </div>
     </div>
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}
