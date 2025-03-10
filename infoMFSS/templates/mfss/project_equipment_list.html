@@ -7,6 +7,8 @@
 
 {% block content %}
 
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -26,7 +28,7 @@
         </div>
         <div class="col text-start">
             <a href="{% url 'mfss:project_equipment' %}" class="color-text-violet-contents underline-none"
-                   type="button">
+               type="button">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2 1C1.44772 1 1 1.44772 1 2V14C1 14.5523 1.44772 15 2 15H14C14.5523 15 15 14.5523 15 14V2C15 1.44772 14.5523 1 14 1H9.5C8.94771 1 8.5 1.44772 8.5 2V9.29289L11.1464 6.64645C11.3417 6.45118 11.6583 6.45118 11.8536 6.64645C12.0488 6.84171 12.0488 7.15829 11.8536 7.35355L8.35355 10.8536C8.15829 11.0488 7.84171 11.0488 7.64645 10.8536L4.14645 7.35355C3.95118 7.15829 3.95118 6.84171 4.14645 6.64645C4.34171 6.45118 4.65829 6.45118 4.85355 6.64645L7.5 9.29289V2C7.5 0.895431 8.39543 0 9.5 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.89543 16 0 15.1046 0 14V2C0 0.895431 0.895431 0 2 0H4.5C4.77614 0 5 0.223858 5 0.5C5 0.776142 4.77614 1 4.5 1H2Z"/>
                 </svg>
@@ -35,7 +37,7 @@
         </div>
         <div class="col text-end">
             <a href="{% url 'mfss:project_cable' %}" class="color-text-violet-contents underline-none"
-                   type="button">
+               type="button">
                 Кабель
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2 1C1.44772 1 1 1.44772 1 2V14C1 14.5523 1.44772 15 2 15H14C14.5523 15 15 14.5523 15 14V2C15 1.44772 14.5523 1 14 1H9.5C8.94771 1 8.5 1.44772 8.5 2V9.29289L11.1464 6.64645C11.3417 6.45118 11.6583 6.45118 11.8536 6.64645C12.0488 6.84171 12.0488 7.15829 11.8536 7.35355L8.35355 10.8536C8.15829 11.0488 7.84171 11.0488 7.64645 10.8536L4.14645 7.35355C3.95118 7.15829 3.95118 6.84171 4.14645 6.64645C4.34171 6.45118 4.65829 6.45118 4.85355 6.64645L7.5 9.29289V2C7.5 0.895431 8.39543 0 9.5 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.89543 16 0 15.1046 0 14V2C0 0.895431 0.895431 0 2 0H4.5C4.77614 0 5 0.223858 5 0.5C5 0.776142 4.77614 1 4.5 1H2Z"/>
@@ -94,16 +96,33 @@
                     <div class="mt-sm-3 mb-sm-5">
                         <div class="container mb-5 table-responsive">
                             {% if project_equipment_list %}
-                                <table class="table table-hover table-bordered table-sm">
-                                <thead class="table-primary">
-                                <tr class="table-active box-table-th">
-                                    <th class="align-middle">Нефтешахта</th>
-                                    <th class="align-middle">Подсистема</th>
-                                    <th class="align-middle">Оборудование</th>
-                                    <th class="align-middle">Обозн. в проекте</th>
-                                    <th class="align-middle">Выработка</th>
-                                    <th class="align-middle">Уклонный блок</th>
-                                    <th class="align-middle">Установлено</th>
+                                <table
+                                        id="Table"
+                                        class="table table-hover table-bordered table-sm"
+                                        data-toggle="table"
+                                        data-pagination="true"
+                                        data-search="true"
+                                        data-show-pagination-switch="true"
+                                        data-show-refresh="true"
+                                        data-show-toggle="true"
+                                        data-show-columns="true"
+                                        data-show-fullscreen="true"
+                                        data-buttons-prefix="btn-sm btn"
+                                        data-buttons-attribute-title="data-hint"
+                                        data-search-align="left"
+                                        data-toolbar="#toolbar"
+                                        data-loading-template="loadingTemplate"
+                                        data-show-print="true"
+                                >
+                                <thead>
+                                <tr class="box-table-th">
+                                    <th class="align-middle" data-field="mine" data-sortable="true">Шахта</th>
+                                    <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                                    <th class="align-middle" data-field="equipment" data-sortable="true">Оборудование</th>
+                                    <th class="align-middle" data-field="title" data-sortable="true">Обозн. в проекте</th>
+                                    <th class="align-middle" data-field="tunnel" data-sortable="true">Выработка</th>
+                                    <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок</th>
+                                    <th class="align-middle" data-field="equipment_bool" data-sortable="true">Установлено</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -153,7 +172,11 @@
     </div>
     <div class="container">
     </div>
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
+
 {% endblock %}
+
 {% block footer %}
     {% include 'users/includes/auth_footer.html' %}
 {% endblock %}
