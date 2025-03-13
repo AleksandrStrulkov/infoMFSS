@@ -7,6 +7,8 @@
 
 {% block content %}
 
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -45,17 +47,34 @@
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5 table-responsive">
-                <table class="table table-hover table-bordered table-sm">
-                    <thead class="table-primary">
-                    <tr class="table-active box-table-th">
-                        <th class="align-middle">Номер акта</th>
-                        <th class="align-middle">Дата проверки</th>
-                        <th class="align-middle">Кем выдано</th>
-                        <th class="align-middle">Шахта</th>
+                <table
+                        id="Table"
+                        class="table table-hover table-bordered table-sm"
+                        data-toggle="table"
+                        data-pagination="true"
+                        data-search="true"
+                        data-show-pagination-switch="true"
+                        data-show-refresh="true"
+                        data-show-toggle="true"
+                        data-show-columns="true"
+                        data-show-fullscreen="true"
+                        data-buttons-prefix="btn-sm btn"
+                        data-buttons-attribute-title="data-hint"
+                        data-search-align="left"
+                        data-toolbar="#toolbar"
+                        data-loading-template="loadingTemplate"
+                        data-show-print="true"
+                >
+                    <thead>
+                    <tr class="box-table-th">
+                        <th class="align-middle" data-sortable="true">Номер акта</th>
+                        <th class="align-middle" data-sortable="true">Дата проверки</th>
+                        <th class="align-middle" data-sortable="true">Кем выдано</th>
+                        <th class="align-middle" data-sortable="true" data-width="110">Шахта</th>
                         <th class="align-middle">Описание нарушения</th>
-                        <th class="align-middle text-center">Устранение нарушения</th>
-                        <th class="align-middle text-center">Акт</th>
-                        <th class="align-middle text-center">Уведомление об устранении</th>
+                        <th class="align-middle text-center" data-sortable="true">Устранено</th>
+                        <th class="align-middle text-center" data-width="110">Акт</th>
+                        <th class="align-middle text-center" data-width="110">Уведомление</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -67,19 +86,24 @@
                         <td class="align-middle">{{ violations.number_mine }}</td>
                         <td class="align-middle">{{ violations.title }}</td>
                         {% if violations.execution_bool == True %}
-                        <td class="align-middle text-center">&#9989;</td>
+                            <td class="align-middle text-center">&#9989;</td>
                         {% else %}
-{#                        <td class="align-middle text-center">&#9940;</td>#}
+                            {#                        <td class="align-middle text-center">&#9940;</td>#}
                             <td class="align-middle text-center">&#128500;</td>
-                      {% endif %}
+                        {% endif %}
                         {% if violations.file_act %}
-                            <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;
-                            font-size: 13px;" href="{{ violations.file_act.url }}">Просмотр</a></td>
+                            <td class="text-center align-middle">
+                                <a
+                                        class="btn!important btn-link!important"
+                                        Style="color:#6d37ff; font-size: 13px;"
+                                        href="{{ violations.file_act.url }}">Просмотр
+                                </a>
+                            </td>
                         {% else %}
                             <td class="text-center align-middle"><a>-</a></td>
                         {% endif %}
                         {% if violations.file_notification %}
-                            <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff; font-size:
+                            <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff; font-size:
                          13px;" href="{{ violations.file_notification.url }}">Просмотр</a>
                                 {% else %}
                             <td class="text-center align-middle"><a>-</a></td>
@@ -90,6 +114,8 @@
             </div>
         </div>
     </div>
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}

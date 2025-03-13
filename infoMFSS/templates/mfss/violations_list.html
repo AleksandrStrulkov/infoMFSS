@@ -6,6 +6,9 @@
 {% endblock %}
 
 {% block content %}
+
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -19,24 +22,42 @@
     <div class="container text-center mb-5">
     <div class="mt-sm-5 mb-sm-5">
         <div class="container mt-5 mb-5 table-responsive">
-            <table class="table table-hover table-bordered table-sm">
+            <table
+                    id="Table"
+                    class="table table-hover table-bordered table-sm"
+                    data-toggle="table"
+                    data-pagination="true"
+                    data-search="true"
+                    data-show-pagination-switch="true"
+                    data-show-refresh="true"
+                    data-show-toggle="true"
+                    data-show-columns="true"
+                    data-show-fullscreen="true"
+                    data-buttons-prefix="btn-sm btn"
+                    data-buttons-attribute-title="data-hint"
+                    data-search-align="left"
+                    data-toolbar="#toolbar"
+                    data-loading-template="loadingTemplate"
+                    data-show-print="true"
+            >
                 <thead class="table-primary">
-                <tr class="table-active box-table-th">
-                    <th class="align-middle">Дата выдачи</th>
-                    <th class="align-middle">Номер акта</th>
-                    <th class="align-middle">Нефтешахта</th>
-                    <th class="align-middle">Кем выдано</th>
+                <tr class="box-table-th">
+                    <th class="align-middle" data-field="date_act" data-sortable="true">Дата выдачи</th>
+                    <th class="align-middle" data-field="number_act" data-sortable="true">Номер акта</th>
+                    <th class="align-middle" data-field="mine" data-sortable="true" data-width="110">Шахта</th>
+                    <th class="align-middle" data-field="issued_by_act" data-sortable="true">Кем выдано</th>
                     <th class="align-middle">Описание нарушения</th>
-                    <th class="align-middle">Устранение</th>
-                    <th class="text-center text-danger align-middle">Акт</th>
-                    <th class="text-center text-danger align-middle">Уведомление</th>
+                    <th class="text-center align-middle" data-field="execution_bool" data-sortable="true"
+                        data-width="110"
+                    >Устранение</th>
+                    <th class="text-center text-danger align-middle" data-width="110">Акт</th>
+                    <th class="text-center text-danger align-middle" data-width="110">Уведомление</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for violation in violations_list %}
-                    {#                {% if object.title != 'Все кабели' %}#}
                     <tr class="box-table-td">
-                    <td class="align-middle">{{ violation.date_act }}</td>
+                    <td class="align-middle">{{ violation.date_act|date:'d.m.Y' }}</td>
                     <td class="align-middle">{{ violation.number_act }}</td>
                     <td class="align-middle">{{ violation.number_mine }}</td>
                     <td class="align-middle">{{ violation.issued_by_act }}</td>
@@ -49,15 +70,18 @@
                     {% endif %}
 
                     {% if violation.file_act %}
-                        <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff; font-size: 13px;"
-                                                   href="{{ violation.file_act.url }}">Просмотр</a></td>
+                        <td class="text-center align-middle"><a class="btn!important btn-link!important"
+                                                                Style="color:#6d37ff; font-size: 13px;"
+                                                                href="{{ violation.file_act.url }}">Просмотр</a></td>
                     {% else %}
-                        <td class="text-center align-middle"><a>см. выше</a></td>
+                        <td class="text-center align-middle"><a>-</a></td>
                     {% endif %}
 
                     {% if violation.file_notification %}
-                        <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff; font-size: 13px;"
-                                                   href="{{ violation.file_notification.url }}">Просмотр</a></td>
+                        <td class="text-center align-middle"><a class="btn!important btn-link!important"
+                                                                Style="color:#6d37ff; font-size: 13px;"
+                                                                href="{{ violation.file_notification.url }}">Просмотр</a>
+                        </td>
                     {% else %}
                         <td class="text-center align-middle"><a>-</a></td>
                     {% endif %}
@@ -68,34 +92,24 @@
     </div>
     <div class="container-xxl">
         <div class="container-xxl">
-            <div class="block-white text-center mt-sm-4">
-                <div class="container text-center mt-3">
-                    <h11>
-                        Всего замечаний: {{ summ }}
-                    </h11>
-                </div>
-                <div class="container text-center mt-4">
-                    <h11>
-                        Из них
-                    </h11>
-                </div>
-                <div class="container text-center mt-4">
-                    <h11>
-                        Нефтешахта №1: {{ mine1_summ }}, выполнено: {{ mine1_true }}, что составляет:
+            <div class="block-white text-center">
+                <div class="container text-center mt-2">
+                    <h10>
+                        Нефтешахта №1: замечаний: {{ mine1_summ }}, выполнено: {{ mine1_true }}, выполнение:
                         {{ mine1_percent }}%
-                    </h11>
+                    </h10>
                 </div>
-                <div class="container text-center mt-4">
-                    <h11>
-                        Нефтешахта №2: {{ mine2_summ }}, выполнено: {{ mine2_true }}, что составляет:
+                <div class="container text-center mt-2">
+                    <h10>
+                        Нефтешахта №2: замечаний: {{ mine2_summ }}, выполнено: {{ mine2_true }}, выполнение:
                         {{ mine2_percent }}%
-                    </h11>
+                    </h10>
                 </div>
-                <div class="container text-center mt-4 mb-3">
-                    <h11>
-                        Нефтешахта №3: {{ mine3_summ }}, выполнено: {{ mine3_true }}, что составляет:
+                <div class="container text-center mt-2 mb-2">
+                    <h10>
+                        Нефтешахта №3: замечаний: {{ mine3_summ }}, выполнено: {{ mine3_true }}, выполнение:
                         {{ mine3_percent }}%
-                    </h11>
+                    </h10>
                 </div>
             </div>
             <div class="container text-center mt-1">
@@ -105,7 +119,9 @@
             </div>
         </div>
     </div>
-    {#    </div>#}
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
+
 {% endblock %}
 {% block footer %}
     {% include 'users/includes/auth_footer.html' %}

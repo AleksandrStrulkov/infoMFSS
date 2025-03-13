@@ -40,9 +40,7 @@ class InclinedBlocks(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
-        # if self.number_mine is None:
         return self.title
-        # return f'УБ {self.title} (НШ-{self.number_mine.title[-1]})'
 
     class Meta:
         verbose_name = 'уклонный блок'
@@ -75,14 +73,14 @@ class Tunnel(models.Model):
     def save(self, *args, **kwargs):
         # Генерируем name перед сохранением
         if self.inclined_blocks is not None:
-            self.name_slag = f"{self.title} {self.inclined_blocks}"
+            self.name_slag = f"{self.title} {self.inclined_blocks} "
         else:
             self.name_slag = f"{self.title} {self.number_mine}"
         super().save(*args, **kwargs)
 
     def __str__(self):
         if self.inclined_blocks is not None:
-            return f'{self.title} {self.inclined_blocks}'
+            return f'{self.title} {self.inclined_blocks} (НШ-{self.number_mine.title[-1]})'
         else:
             return f'{self.title} (НШ-{self.number_mine.title[-1]})'
 
@@ -217,7 +215,7 @@ class PointPhone(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
-        return f'{self.title}/{self.subscriber_number}/{self.number_mine}'
+        return f'{self.title}/{self.subscriber_number} (НШ-{self.number_mine.title[-1]})'
 
     def save(self, *args, **kwargs):
         is_new = self._state.adding  # Проверяем, что объект новый
@@ -268,7 +266,7 @@ class BranchesBox(models.Model):
     def save(self, *args, **kwargs):
         # Генерируем name перед сохранением
         self.name_slag = f"{self.title[0:2]}#{self.title[3:]}({self.number_mine.title[0]}" \
-                         f"Ш{self.number_mine.title[-1]})"
+                         f"НШ{self.number_mine.title[-1]})"
         is_new = self._state.adding  # Проверяем, что объект новый
         super().save(*args, **kwargs)
         if is_new:
@@ -278,7 +276,7 @@ class BranchesBox(models.Model):
             )
 
     def __str__(self):
-        return f'{self.title}'
+        return f'{self.title} (НШ-{self.number_mine.title[-1]})'
         # return f'{self.title}({self.number_mine})'
 
     class Meta:
@@ -379,7 +377,7 @@ class EquipmentInstallation(models.Model):
     )
     subsystem = models.ForeignKey(
             Subsystem, related_name='sub_installs', on_delete=models.CASCADE,
-            verbose_name='Подсистема'
+            verbose_name='Подсистема', **NULLABLE,
     )
     number_mine = models.ForeignKey(
             NumberMine, related_name='mine_installs', on_delete=models.CASCADE,
@@ -405,6 +403,21 @@ class EquipmentInstallation(models.Model):
                f'ПК{self.picket}'
 
     def save(self, *args, **kwargs):
+        if self.point_phone is not None:
+            self.name = self.point_phone.title
+            self.number_mine = self.point_phone.number_mine
+            self.tunnel = self.point_phone.tunnel
+            self.picket = self.point_phone.picket
+            if self.point_phone.inclined_blocks is not None:
+                self.inclined_blocks = self.point_phone.inclined_blocks
+        if self.branches_box is not None:
+            self.name = self.branches_box.title
+            self.number_mine = self.branches_box.number_mine
+            self.tunnel = self.branches_box.tunnel
+            self.subsystem = self.branches_box.subsystem
+            self.picket = self.branches_box.picket
+            if self.branches_box.inclined_blocks is not None:
+                self.inclined_blocks = self.branches_box.inclined_blocks
         is_new = self._state.adding  # Проверяем, что объект новый
         super().save(*args, **kwargs)
         if is_new:
@@ -413,10 +426,11 @@ class EquipmentInstallation(models.Model):
                     extra={'classname': self.__class__.__name__}
             )
 
+
     class Meta:
         verbose_name = 'место установки оборудования'
         verbose_name_plural = 'места установки оборудования'
-        ordering = ['title']
+        ordering = ['-id']
 
 
 class Execution(models.Model):
@@ -588,7 +602,7 @@ class Visual(models.Model):
             Cable, related_name='cable_visual', on_delete=models.CASCADE,
             verbose_name='Кабель', **NULLABLE
     )
-    file_pdf = models.FileField(upload_to='pdf_visual', **NULLABLE, verbose_name='Файл pdf')
+    file_pdf = models.FileField(upload_to='pdf_visual', **NULLABLE, verbose_name='Файл')
     data = models.DateTimeField(auto_now=True, verbose_name='Дата изменения')
 
     def __str__(self):
