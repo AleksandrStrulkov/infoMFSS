@@ -7,6 +7,8 @@
 
 {% block content %}
 
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -45,18 +47,35 @@
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5 table-responsive">
-                <table class="table table-hover table-bordered table-sm">
-                    <thead class="table-primary">
-                    <tr class="table-active box-table-th">
-                        <th class="align-middle">Обозначение</th>
-                        <th class="align-middle">Подсистема</th>
-                        <th class="align-middle">Нефтешахта</th>
-                        <th class="align-middle">Уклонный блок</th>
-                        <th class="align-middle">Выработка</th>
+                <table
+                        id="Table"
+                        class="table table-hover table-bordered table-sm"
+                        data-toggle="table"
+                        data-pagination="true"
+                        data-search="true"
+                        data-show-pagination-switch="true"
+                        data-show-refresh="true"
+                        data-show-toggle="true"
+                        data-show-columns="true"
+                        data-show-fullscreen="true"
+                        data-buttons-prefix="btn-sm btn"
+                        data-buttons-attribute-title="data-hint"
+                        data-search-align="left"
+                        data-toolbar="#toolbar"
+                        data-loading-template="loadingTemplate"
+                        data-show-print="true"
+                >
+                    <thead>
+                    <tr class="box-table-th">
+                        <th class="align-middle" data-sortable="true">Обозначение</th>
+                        <th class="align-middle" data-sortable="true">Подсистема</th>
+                        <th class="align-middle" data-sortable="true">Нефтешахта</th>
+                        <th class="align-middle" data-sortable="true">Уклонный блок</th>
+                        <th class="align-middle" data-sortable="true">Выработка</th>
                         <th class="align-middle text-center">Пикет</th>
                         <th class="align-middle">Описание</th>
-                        <th class="align-middle">Связанное оборудование</th>
-                        <th class="align-middle text-center">Оборудование подключено</th>
+                        <th class="align-middle" data-sortable="true">Связанное оборудование</th>
+                        <th class="align-middle text-center" data-sortable="true">Оборудование подключено</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -94,6 +113,8 @@
             </div>
             </div>
             </div>
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}

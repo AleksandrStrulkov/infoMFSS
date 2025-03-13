@@ -6,6 +6,9 @@
 {% endblock %}
 
 {% block content %}
+
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -51,41 +54,61 @@
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5 table-responsive">
-                <table class="table table-hover table-bordered">
-                    <thead class="table-primary">
-                    <tr class="table-active">
-                        <th class="align-middle">Кабель</th>
-                        <th class="align-middle">Подсистема</th>
+                <table
+                        id="Table"
+                        class="table table-hover table-bordered table-sm"
+                        data-toggle="table"
+                        data-pagination="true"
+                        data-search="true"
+                        data-show-pagination-switch="true"
+                        data-show-refresh="true"
+                        data-show-toggle="true"
+                        data-show-columns="true"
+                        data-show-fullscreen="true"
+                        data-buttons-prefix="btn-sm btn"
+                        data-buttons-attribute-title="data-hint"
+                        data-search-align="left"
+                        data-toolbar="#toolbar"
+                        data-loading-template="loadingTemplate"
+                        data-show-print="true"
+                >
+                    <thead>
+                    <tr class="box-table-td">
+                        <th class="align-middle" data-field="cable" data-sortable="true" data-width="250">Кабель</th>
+{#                        <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>#}
                         <th class="align-middle">Описание</th>
-                        <th class="text-center text-danger align-middle">Руководство по эксплуатации</th>
-                        <th class="text-center text-danger align-middle">Паспорт</th>
-                        <th class="text-center text-danger align-middle">Сертификат</th>
+                        <th class="text-center text-danger align-middle" data-field="file_pdf"
+                            data-width="110">Руководство</th>
+                        <th class="text-center text-danger align-middle" data-field="file_passport"
+                            data-width="110">Паспорт</th>
+                        <th class="text-center text-danger align-middle" data-field="file_certificate"
+                            data-width="110">Сертификат</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for cable_file in cable_file_list %}
                         {% if cable_file.title != 'Все кабели' %}
-                            <tr>
+                            <tr class="box-table-td">
                             <td class="align-middle">{{ cable_file.title }}</td>
-                            <td class="align-middle">{{ cable_file.subsystem }}</td>
+{#                            <td class="align-middle">{{ cable_file.subsystem }}</td>#}
                             <td class="align-middle">{{ cable_file.description }}</td>
 
                             {% if cable_file.file_pdf %}
-                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
                                                            href="{{ cable_file.file_pdf.url }}">Просмотр</a></td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
 
                             {% if cable_file.file_passport %}
-                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
                                                            href="{{ cable_file.file_passport.url }}">Просмотр</a></td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
 
                             {% if cable_file.file_certificate %}
-                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
                                                            href="{{ cable_file.file_certificate.url }}">Просмотр</a></td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
@@ -98,6 +121,8 @@
             </div>
         </div>
     </div>
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}

@@ -1087,17 +1087,35 @@ navbar-auth {
   margin-bottom: -11px;
 }
 
-//
-//.block-auth {
-//    width: 1150px;
-//    height: 250px;
-//    position: absolute;
-//    top: 200px;
-//    right: 0;
-//    bottom: 0;
-//    left: 250px;
-//    margin: auto;
-//}
+/* Кастомный класс для кнопок */
+.violet-table {
+  background-color: #6d37ff !important; /* Зеленый цвет */
+  border-color: #6d37ff !important;; /* Цвет границы */
+  color: white !important;; /* Цвет текста */
+}
+
+.violet-table:hover {
+  background-color: #4f11f8 !important;; /* Цвет при наведении */
+  border-color: #4f11f8 !important;;
+}
+
+/* Сброс стилей Bootstrap для <thead> и <tr> */
+#Table thead,
+#Table thead tr,
+#Table thead th {
+  background-color: transparent !important; /* Убираем стандартный цвет */
+  color: inherit !important; /* Сбрасываем цвет текста */
+  border-color: transparent !important; /* Убираем границы, если они есть */
+}
+
+/* Кастомные стили для <thead> и <tr> */
+#Table thead.custom-thead,
+#Table thead.table-thead-violet-light tr,
+#Table thead.table-thead-violet-light th {
+  background-color: #dfd9f3 !important; /* Зеленый цвет */
+  color: black !important; /* Цвет текста */
+  border-color: #bcbcbc !important; /* Цвет границы */
+}
 
 
 

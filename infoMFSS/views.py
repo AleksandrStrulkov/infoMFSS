@@ -9,7 +9,8 @@ from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, Inclin
     Equipment, Cable, Violations, EquipmentInstallation, CableMagazine, Visual
 from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, ProjectEquipmentForm, \
     ProjectCableForm, ContactForm, QuantityEquipmentCableForm, EquipmentCreateForm, CableCreateForm, \
-    PointPhoneCreateForm, BranchesBoxCreateForm, CableMagazineCreateForm, ViolationsCreateForm, VisualForm
+    PointPhoneCreateForm, BranchesBoxCreateForm, CableMagazineCreateForm, ViolationsCreateForm, VisualForm, \
+    VisualCreateNewForm, CreateEquipmentInstallationForm
 from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.conf import settings
@@ -302,7 +303,7 @@ class BoxListView(LoggingMixin, LoginRequiredMixin, FormView):
                             "incl_blocks": filter_params.get("incl_blocks", ),
                     }
             )
-            print(context)
+
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
@@ -800,21 +801,41 @@ class CreateViolationsView(LoggingMixin, LoginRequiredMixin, PermissionRequiredM
         return context
 
 
-# class CreateVisualView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-#     """
-#     Добавить в базу данных визуальное представление выполненных работ
-#     """
-#     model = Visual
-#     form_class = VisualCreateForm
-#     permission_required = 'infoMFSS.add_visual'
-#     success_url = reverse_lazy('mfss:create_visual')
-#     template_name = 'mfss/visual_form.html'
-#     context_object_name = 'visual_list'
-#     extra_context = {
-#             'title': "Добавить визуальное представление выполненных работ",
-#     }
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['visual_list'] = Visual.objects.all()
-#         return context
+class CreateVisualView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Добавить в базу данных визуальное представление выполненных работ
+    """
+    model = Visual
+    form_class = VisualCreateNewForm
+    permission_required = 'infoMFSS.add_visual'
+    success_url = reverse_lazy('mfss:create_visual')
+    template_name = 'mfss/visual_form.html'
+    context_object_name = 'visual_list'
+    extra_context = {
+            'title': "Добавить визуальное представление выполненных работ",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['visual_list'] = Visual.objects.all()
+        return context
+
+
+class CreateEquipmentInstallationView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Добавить в базу данных визуальное представление выполненных работ
+    """
+    model = EquipmentInstallation
+    form_class = CreateEquipmentInstallationForm
+    permission_required = 'infoMFSS.add_equipmentinstallation'
+    success_url = reverse_lazy('mfss:create_equipment_installation')
+    template_name = 'mfss/create_equipment_installation_form.html'
+    context_object_name = 'equipment_installation_list'
+    extra_context = {
+            'title': "Добавить место установки оборудования",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['equipment_installation_list'] = EquipmentInstallation.objects.all()
+        return context

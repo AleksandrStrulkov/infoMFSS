@@ -6,6 +6,9 @@
 {% endblock %}
 
 {% block content %}
+
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -52,42 +55,63 @@
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5 table-responsive">
-                <table class="table table-hover table-bordered">
-                    <thead class="table-primary">
-                    <tr class="table-active">
-                        <th class="align-middle">Оборудование</th>
-                        <th class="align-middle">Подсистема</th>
-                        <th class="align-middle">Описание</th>
-                        <th class="text-center text-danger ">Руководство по эксплуатации</th>
-                        <th class="text-center text-danger ">Паспорт</th>
-                        <th class="text-center text-danger ">Сертификат</th>
+                <table
+                        id="Table"
+                        class="table table-hover table-bordered table-sm"
+                        data-toggle="table"
+                        data-pagination="true"
+                        data-search="true"
+                        data-show-pagination-switch="true"
+                        data-show-refresh="true"
+                        data-show-toggle="true"
+                        data-show-columns="true"
+                        data-show-fullscreen="true"
+                        data-buttons-prefix="btn-sm btn"
+                        data-buttons-attribute-title="data-hint"
+                        data-search-align="left"
+                        data-toolbar="#toolbar"
+                        data-loading-template="loadingTemplate"
+                        data-show-print="true"
+                >
+                    <thead >
+                    <tr class="box-table-th">
+                        <th class="align-middle" data-field="equipment" data-sortable="true">Оборудование</th>
+                        <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                        <th class="align-middle" data-field="description">Описание</th>
+                        <th class="text-center text-danger data" data-field="file_pdf" data-width="110">Руководство</th>
+                        <th class="text-center text-danger" data-field="file_passport" data-width="110">Паспорт</th>
+                        <th class="text-center text-danger" data-field="file_certificate"
+                            data-width="110">Сертификат</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for equipment_file in equipment_file_list %}
                         {% if equipment_file.title != 'Все оборудование' %}
-                            <tr>
+                            <tr class="box-table-td">
                             <td class="align-middle">{{ equipment_file.title }}</td>
                             <td class="align-middle">{{ equipment_file.subsystem }}</td>
                             <td class="align-middle">{{ equipment_file.description }}</td>
 
                             {% if equipment_file.file_pdf %}
-                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
-                                                           href="{{ equipment_file.file_pdf.url }}">Просмотр</a></td>
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
+                                                                        href="{{ equipment_file.file_pdf.url }}">Просмотр</a>
+                                </td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
 
                             {% if equipment_file.file_passport %}
-                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
-                                                           href="{{ equipment_file.file_passport.url }}">Просмотр</a></td>
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
+                                                                        href="{{ equipment_file.file_passport.url }}">Просмотр</a>
+                                </td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
 
                             {% if equipment_filefile_certificate %}
-                                <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;"
-                                                           href="{{ equipment_file.file_certificate.url }}">Просмотр</a></td>
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
+                                                                        href="{{ equipment_file.file_certificate.url }}">Просмотр</a>
+                                </td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
@@ -98,15 +122,9 @@
             </div>
         </div>
     </div>
-    {#    </div>#}
-    {#    </div>#}
-    {#    <div class="container">#}
-    {#        {% for object in object_list %}#}
-    {#            <embed src="{{ object.file_pdf.url }}" type="application/pdf" width="100%" height="600px"/>#}
-    {#            <a href="{% url 'mfss:cable_file' %}" class="btn nsh-button me-md-2" type="button">Кабель#}
-    {#            </a>#}
-    {#        {% endfor %}#}
-    {#    </div>#}
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
+
 {% endblock %}
 
 {% block footer %}

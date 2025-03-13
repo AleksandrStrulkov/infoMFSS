@@ -6,6 +6,9 @@
 {% endblock %}
 
 {% block content %}
+
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -65,19 +68,35 @@
             <div class="mt-sm-3 mb-sm-5">
                 <div class="container mb-5 table-responsive">
                     {% if box_list %}
-                        <table class="table table-hover table-bordered table-sm">
-{#                        <caption>Подключенное оборудование</caption>#}
-                        <thead class="table-primary">
-                        <tr class="table-active box-table-th">
-                            <th class="align-middle">Подсистема</th>
-                            <th class="align-middle">Нефтешахта</th>
-                            <th class="align-middle">Обозначение</th>
-                            <th class="align-middle">Описание</th>
-                            <th class="align-middle">Место монтажа</th>
-                            <th class="align-middle">Подключенное оборудование</th>
-                            <th class="align-middle">Обозначение</th>
-                            <th class="align-middle">Место монтажа</th>
-                            <th class="align-middle">Установлено</th>
+                        <table
+                                id="Table"
+                                class="table table-hover table-bordered table-sm"
+                                data-toggle="table"
+                                data-pagination="true"
+                                data-search="true"
+                                data-show-pagination-switch="true"
+                                data-show-refresh="true"
+                                data-show-toggle="true"
+                                data-show-columns="true"
+                                data-show-fullscreen="true"
+                                data-buttons-prefix="btn-sm btn"
+                                data-buttons-attribute-title="data-hint"
+                                data-search-align="left"
+                                data-toolbar="#toolbar"
+                                data-loading-template="loadingTemplate"
+                                data-show-print="true"
+                        >
+                        <thead>
+                        <tr class="box-table-th">
+                            <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                            <th class="align-middle" data-field="number_mine" data-sortable="true">Нефтешахта</th>
+                            <th class="align-middle" data-field="title" data-sortable="true">Обозначение</th>
+                            <th class="align-middle" data-field="description" data-sortable="true">Описание</th>
+                            <th class="align-middle" data-field="tunnel" data-sortable="true">Место монтажа</th>
+                            <th class="align-middle" data-field="equipment" data-sortable="true">Подключенное оборудование</th>
+                            <th class="align-middle" data-field="name" data-sortable="true">Обозначение</th>
+                            <th class="align-middle" data-field="tunnel" data-sortable="true">Место монтажа</th>
+                            <th class="align-middle" data-field="equipment_bool" data-sortable="true">Установлено</th>
                         </tr>
                         </thead>
                     {% endif %}
@@ -133,6 +152,8 @@
             </div>
         </div>
     </div>
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}
