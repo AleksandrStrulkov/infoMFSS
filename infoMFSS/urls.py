@@ -6,7 +6,7 @@ from infoMFSS.views import EquipmentListView, CableListView, BoxListView, \
     EquipmentFileListView, CableFileListView, ViolationsListView, ProjectEquipmentListView, \
     ProjectCableListView, MFSSPercentTemplateView, ContactFormView, PercentView, QuantityEquipmentCableView, \
     CreateEquipmentView, CreateCableView, CreatePointPhoneView, CreateBranchesBoxView, CreateCableMagazineView, \
-    CreateViolationsView, VisualView
+    CreateViolationsView, VisualView, CreateVisualView, CreateEquipmentInstallationView
 
 # from mfss.views import SubsystemTemplateView
 # from infoMFSS.views import index
@@ -39,5 +39,7 @@ urlpatterns = [
         path('moderator/create/branchesbox/', CreateBranchesBoxView.as_view(), name='create_branchesbox'),
         path('moderator/create/cablemagazine/', CreateCableMagazineView.as_view(), name='create_cablemagazine'),
         path('moderator/create/violations/', CreateViolationsView.as_view(), name='create_violations'),
-        # path('moderator/create/visual/', CreateVisualView.as_view(), name='create_visual'),
+        path('moderator/create/visual/', CreateVisualView.as_view(), name='create_visual'),
+        path('moderator/create/equipment-installation/', CreateEquipmentInstallationView.as_view(),
+             name='create_equipment_installation'),
 ]

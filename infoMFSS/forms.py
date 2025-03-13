@@ -6,6 +6,8 @@ from infoMFSS.castom_widgets_form import CustomModelChoiceField
 from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, \
     EquipmentInstallation, CableMagazine, PointPhone, Violations, Visual
 from captcha.fields import CaptchaField
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field, HTML, Submit
 
 
 class InfoFormMixin(forms.Form):
@@ -476,9 +478,177 @@ class ViolationsCreateForm(forms.ModelForm):
             self.add_error('title', 'Опишите нарушение')
 
 
-# class VisualCreateNewForm(forms.ModelForm):
-#     class Meta:
-#         model = Visual
-#         fields = ('number_mines', 'subsystems', 'equipment', 'file_pdf',)
+class VisualCreateNewForm(forms.ModelForm):
+    class Meta:
+        model = Visual
+        fields = ('number_mine', 'subsystem', 'equipment', 'cable', 'file_pdf')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['number_mine'].queryset = NumberMine.objects.exclude(title="Все шахты")
+        self.fields['number_mine'].empty_label = "Выберите шахту"
+        self.fields['subsystem'].queryset = Subsystem.objects.exclude(title="Все подсистемы")
+        self.fields['subsystem'].empty_label = "Выберите подсистему"
+        self.fields['equipment'].queryset = Equipment.objects.exclude(title="Все оборудование")
+        self.fields['equipment'].empty_label = "Выберите оборудование"
+        self.fields['cable'].queryset = Cable.objects.exclude(title="Все кабели")
+        self.fields['cable'].empty_label = "Выберите кабель"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        number_mine = cleaned_data.get('number_mine')
+        subsystem = cleaned_data.get('subsystem')
+        equipment = cleaned_data.get('equipment')
+        cable = cleaned_data.get('cable')
+        file_pdf = cleaned_data.get('file_pdf')
+
+        if number_mine is None:
+            self.add_error('number_mine', 'Укажите нефтешахту')
+
+        if subsystem is None:
+            self.add_error('subsystem', 'Укажите подсистему')
+
+        if equipment and cable:
+            self.add_error('equipment', 'Укажите один из пунктов')
+            self.add_error('cable', 'Укажите один из пунктов')
+
+        if file_pdf is None:
+            self.add_error('file_pdf', 'Загрузите файл в формате PDF, JPEG или PNG')
 
 
+class CreateEquipmentInstallationForm(forms.ModelForm):
+
+    inclined_blocks = CustomModelChoiceField(
+            queryset=InclinedBlocks.objects.none(),  # Укажите правильный queryset
+            to_field_name="title",  # Указываем, что значение для отправки — это `title`
+            label='Уклонный блок',  # Укажите нужный label
+            required=False,  # Разрешаем пустое значение
+    )
+
+    class Meta:
+        model = EquipmentInstallation
+        fields = ('title', 'point_phone', 'branches_box', 'name', 'subsystem', 'number_mine', 'tunnel',
+                  'inclined_blocks', 'picket',)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Динамически устанавливаем queryset для поля inclined_blocks
+        if self.instance and self.instance.number_mine:
+            self.fields['inclined_blocks'].queryset = InclinedBlocks.objects.filter(
+                    number_mine=self.instance.number_mine
+            )
+        else:
+            self.fields['inclined_blocks'].queryset = InclinedBlocks.objects.all()
+
+        self.fields['point_phone'].empty_label = "Выберите точку телефонии"
+        self.fields['branches_box'].empty_label = "Выберите распределительную коробку"
+        self.fields['title'].empty_label = "Данное поле обязательно всегда"
+        self.fields['title'].queryset = Equipment.objects.exclude(title="Все оборудование")
+        self.fields['subsystem'].empty_label = "Выберите подсистему"
+        self.fields['subsystem'].queryset = Subsystem.objects.exclude(title="Все подсистемы")
+        self.fields['number_mine'].empty_label = "Выберите нефтешахту"
+        self.fields['number_mine'].queryset = NumberMine.objects.exclude(title="Все шахты")
+        self.fields['tunnel'].empty_label = "Выберите выработку"
+        self.fields['inclined_blocks'].empty_label = "Выберите уклонный блок"
+        self.fields['inclined_blocks'].queryset = InclinedBlocks.objects.exclude(title="Все уклонные блоки")
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(
+                Field('title'),
+                Field('point_phone'),
+                Field('branches_box'),
+                HTML('<p><u>Далее значения не обязательны если выбрана точка телефонии или распред.коробка</u></p>'),
+                Field('name'),
+                Field('subsystem'),
+                Field('number_mine'),
+                Field('tunnel'),
+                Field('inclined_blocks'),
+                Field('picket'),
+                # Submit('submit', 'Сохранить', css_class='btn btn-primary')
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        point_phone = cleaned_data.get('point_phone')
+        branches_box = cleaned_data.get('branches_box')
+        title = cleaned_data.get('title')
+        name = cleaned_data.get('name')
+        subsystem = cleaned_data.get('subsystem')
+        number_mine = cleaned_data.get('number_mine')
+        tunnel = cleaned_data.get('tunnel')
+        inclined_blocks = cleaned_data.get('inclined_blocks')
+        picket = cleaned_data.get('picket')
+
+        if point_phone and branches_box:
+            self.add_error('point_phone', 'Укажите одну позицию')
+            self.add_error('branches_box', 'Укажите одну позицию')
+
+        if point_phone and title is None:
+            self.add_error('title', 'Укажите наименование оборудования')
+
+        if branches_box and title is None:
+            self.add_error('title', 'Укажите наименование оборудования')
+
+        # if point_phone and name and number_mine and tunnel and inclined_blocks and picket:
+        #     self.add_error('name', 'При выборе точки телефонии данное поле не указывается')
+        #     self.add_error('number_mine', 'При выборе точки телефонии данное поле не указывается')
+        #     self.add_error('tunnel', 'При выборе точки телефонии данное поле не указывается')
+        #     self.add_error('inclined_blocks', 'При выборе точки телефонии данное поле не указывается')
+        #     self.add_error('picket', 'При выборе точки телефонии данное поле не указывается')
+
+        if point_phone is not None and (name or number_mine or tunnel or inclined_blocks or picket):
+            if branches_box is None:
+                if name:
+                    self.add_error('name', 'При выборе точки телефонии данное поле не указывается')
+                if number_mine:
+                    self.add_error('number_mine', 'При выборе точки телефонии данное поле не указывается')
+                if tunnel:
+                    self.add_error('tunnel', 'При выборе точки телефонии данное поле не указывается')
+                if inclined_blocks:
+                    self.add_error('inclined_blocks', 'При выборе точки телефонии данное поле не указывается')
+                if picket:
+                    self.add_error('picket', 'При выборе точки телефонии данное поле не указывается')
+
+        if branches_box is not None and (name or subsystem or number_mine or tunnel or inclined_blocks or picket):
+            if point_phone is None:
+                if name:
+                    self.add_error('name', 'При выборе распределительной коробки данное поле не указывается')
+                if subsystem:
+                    self.add_error('subsystem', 'При выборе распределительной коробки данное поле не указывается')
+                if number_mine:
+                    self.add_error('number_mine', 'При выборе распределительной коробки данное поле не указывается')
+                if tunnel:
+                    self.add_error('tunnel', 'При выборе распределительной коробки данное поле не указывается')
+                if inclined_blocks:
+                    self.add_error('inclined_blocks', 'При выборе распределительной коробки данное поле не указывается')
+                if picket:
+                    self.add_error('picket', 'При выборе распределительной коробки данное поле не указывается')
+
+        if title is None:
+            self.add_error('title', 'Укажите наименование оборудования')
+
+        if point_phone is None and branches_box is None and name is None:
+            self.add_error('name', 'Поле не должно быть пустым')
+
+        if point_phone is None and branches_box is None and subsystem is None:
+            self.add_error('subsystem', 'Поле не должно быть пустым')
+
+        if point_phone is None and branches_box is None and number_mine is None:
+            self.add_error('number_mine', 'Поле не должно быть пустым')
+
+        if point_phone is None and branches_box is None and tunnel is None:
+            self.add_error('tunnel', 'Поле не должно быть пустым')
+
+        if point_phone is None and branches_box is None and picket is None:
+            self.add_error('picket', 'Поле не должно быть пустым')
+
+        if point_phone and subsystem is None:
+            self.add_error('subsystem', 'Поле не должно быть пустым')
+
+        if tunnel is not None:
+            if tunnel.inclined_blocks is not None and inclined_blocks is None:
+                self.add_error('inclined_blocks', 'Выберите уклонный блок')
+            if tunnel.inclined_blocks.title != inclined_blocks.title:
+                self.add_error('inclined_blocks', 'Укажите уклонный блок верно')

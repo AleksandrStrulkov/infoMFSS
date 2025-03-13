@@ -7,6 +7,8 @@
 
 {% block content %}
 
+    {% include 'mfss/includes/add_table_css.html' %}
+
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -45,43 +47,57 @@
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5 table-responsive">
-                <table class="table table-hover table-bordered table-sm">
-                    <thead class="table-primary">
-                    <tr class="table-active box-table-th">
-                        <th class="align-middle">Нефтешахта</th>
-                        <th class="align-middle">Подсистема</th>
-                        <th class="align-middle">Оборудование</th>
-                        <th class="align-middle">Шахта</th>
-                        <th class="align-middle">Описание нарушения</th>
-                        <th class="align-middle text-center">Устранение нарушения</th>
-                        <th class="align-middle text-center">Акт</th>
-                        <th class="align-middle text-center">Уведомление об устранении</th>
+                <table
+                        id="Table"
+                        class="table table-hover table-bordered table-sm"
+                        data-toggle="table"
+                        data-pagination="true"
+                        data-search="true"
+                        data-show-pagination-switch="true"
+                        data-show-refresh="true"
+                        data-show-toggle="true"
+                        data-show-columns="true"
+                        data-show-fullscreen="true"
+                        data-buttons-prefix="btn-sm btn"
+                        data-buttons-attribute-title="data-hint"
+                        data-search-align="left"
+                        data-toolbar="#toolbar"
+                        data-loading-template="loadingTemplate"
+                        data-show-print="true"
+                >
+                    <thead>
+                    <tr class="box-table-th">
+                        <th class="align-middle" data-sortable="true">Нефтешахта</th>
+                        <th class="align-middle" data-sortable="true">Подсистема</th>
+                        <th class="align-middle" data-sortable="true">Оборудование</th>
+                        <th class="align-middle" data-sortable="true">Кабель</th>
+                        <th class="align-middle text-center">Файл</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for violations in violations_list %}
+                    {% for visual in visual_list %}
                         <tr class="box-table-td">
-                        <td class="align-middle">{{ violations.number_act }}</td>
-                        <td class="align-middle">{{ violations.date_act | date:"d.m.Y" }}</td>
-                        <td class="align-middle">{{ violations.issued_by_act }}</td>
-                        <td class="align-middle">{{ violations.number_mine }}</td>
-                        <td class="align-middle">{{ violations.title }}</td>
-                        {% if violations.execution_bool == True %}
-                        <td class="align-middle text-center">&#9989;</td>
+                        <td class="align-middle">{{ visual.number_mine }}</td>
+                        <td class="align-middle">{{ visual.subsystem }}</td>
+                        {% if visual.equipment %}
+                        <td class="align-middle">{{ visual.equipment }}</td>
                         {% else %}
-{#                        <td class="align-middle text-center">&#9940;</td>#}
-                            <td class="align-middle text-center">&#128500;</td>
-                      {% endif %}
-                        {% if violations.file_act %}
-                            <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff;
-                            font-size: 13px;" href="{{ violations.file_act.url }}">Просмотр</a></td>
-                        {% else %}
-                            <td class="text-center align-middle"><a>-</a></td>
+                        <td class="align-middle">-</td>
                         {% endif %}
-                        {% if violations.file_notification %}
-                            <td class="text-center align-middle"><a class="btn btn-link" Style="color:#6d37ff; font-size:
-                         13px;" href="{{ violations.file_notification.url }}">Просмотр</a>
-                                {% else %}
+                        {% if visual.cable %}
+                        <td class="align-middle">{{ visual.cable }}</td>
+                        {% else %}
+                        <td class="align-middle">-</td>
+                        {% endif %}
+                        {% if visual.file_pdf %}
+                            <td class="text-center align-middle">
+                                <a
+                                        class="btn!important btn-link!important"
+                                        Style="color:#6d37ff; font-size: 13px;"
+                                        href="{{ visual.file_pdf.url }}">Просмотр
+                                </a>
+                            </td>
+                        {% else %}
                             <td class="text-center align-middle"><a>-</a></td>
                         {% endif %}
                     {% endfor %}
@@ -90,6 +106,8 @@
             </div>
         </div>
     </div>
+
+    {% include 'mfss/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}

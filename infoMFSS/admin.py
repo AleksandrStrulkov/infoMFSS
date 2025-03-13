@@ -85,8 +85,8 @@ class CableAdmin(admin.ModelAdmin):
 
 # @admin.register(PointPhone)
 class PointPhoneAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'number_mine', 'subscriber_number',
-                    'description', 'slug')
+    list_display = ('id', 'title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number',
+                    'description', 'picket', 'slug')
     list_filter = ('title', 'number_mine', 'subscriber_number',)
     search_fields = ('title', 'number_mine', 'subscriber_number')
     prepopulated_fields = {'slug': ('title', 'number_mine')}

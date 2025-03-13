@@ -74,8 +74,8 @@
                 >
                     <thead>
                     <tr class="box-table-td">
-                        <th class="align-middle" data-field="cable" data-sortable="true">Кабель</th>
-                        <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                        <th class="align-middle" data-field="cable" data-sortable="true" data-width="250">Кабель</th>
+{#                        <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>#}
                         <th class="align-middle">Описание</th>
                         <th class="text-center text-danger align-middle" data-field="file_pdf"
                             data-width="110">Руководство</th>
@@ -90,7 +90,7 @@
                         {% if cable_file.title != 'Все кабели' %}
                             <tr class="box-table-td">
                             <td class="align-middle">{{ cable_file.title }}</td>
-                            <td class="align-middle">{{ cable_file.subsystem }}</td>
+{#                            <td class="align-middle">{{ cable_file.subsystem }}</td>#}
                             <td class="align-middle">{{ cable_file.description }}</td>
 
                             {% if cable_file.file_pdf %}
