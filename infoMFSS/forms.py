@@ -529,6 +529,18 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
         model = EquipmentInstallation
         fields = ('title', 'point_phone', 'branches_box', 'name', 'subsystem', 'number_mine', 'tunnel',
                   'inclined_blocks', 'picket',)
+        widgets = {
+                'name': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: TD101',
+                        }
+                ),
+                'picket': forms.TextInput(
+                        attrs={
+                                'placeholder': '175',
+                        }
+                ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -541,16 +553,16 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
         else:
             self.fields['inclined_blocks'].queryset = InclinedBlocks.objects.all()
 
-        self.fields['point_phone'].empty_label = "Выберите точку телефонии"
-        self.fields['branches_box'].empty_label = "Выберите распределительную коробку"
+        self.fields['point_phone'].empty_label = "Ничего не выбрано"
+        self.fields['branches_box'].empty_label = "Ничего не выбрано"
         self.fields['title'].empty_label = "Данное поле обязательно всегда"
         self.fields['title'].queryset = Equipment.objects.exclude(title="Все оборудование")
-        self.fields['subsystem'].empty_label = "Выберите подсистему"
+        self.fields['subsystem'].empty_label = "Ничего не выбрано"
         self.fields['subsystem'].queryset = Subsystem.objects.exclude(title="Все подсистемы")
-        self.fields['number_mine'].empty_label = "Выберите нефтешахту"
+        self.fields['number_mine'].empty_label = "Ничего не выбрано"
         self.fields['number_mine'].queryset = NumberMine.objects.exclude(title="Все шахты")
-        self.fields['tunnel'].empty_label = "Выберите выработку"
-        self.fields['inclined_blocks'].empty_label = "Выберите уклонный блок"
+        self.fields['tunnel'].empty_label = "Ничего не выбрано"
+        self.fields['inclined_blocks'].empty_label = "Ничего не выбрано"
         self.fields['inclined_blocks'].queryset = InclinedBlocks.objects.exclude(title="Все уклонные блоки")
 
         self.helper = FormHelper()
@@ -566,7 +578,6 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
                 Field('tunnel'),
                 Field('inclined_blocks'),
                 Field('picket'),
-                # Submit('submit', 'Сохранить', css_class='btn btn-primary')
         )
 
     def clean(self):
@@ -590,13 +601,6 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
 
         if branches_box and title is None:
             self.add_error('title', 'Укажите наименование оборудования')
-
-        # if point_phone and name and number_mine and tunnel and inclined_blocks and picket:
-        #     self.add_error('name', 'При выборе точки телефонии данное поле не указывается')
-        #     self.add_error('number_mine', 'При выборе точки телефонии данное поле не указывается')
-        #     self.add_error('tunnel', 'При выборе точки телефонии данное поле не указывается')
-        #     self.add_error('inclined_blocks', 'При выборе точки телефонии данное поле не указывается')
-        #     self.add_error('picket', 'При выборе точки телефонии данное поле не указывается')
 
         if point_phone is not None and (name or number_mine or tunnel or inclined_blocks or picket):
             if branches_box is None:
