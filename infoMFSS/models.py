@@ -349,7 +349,7 @@ class CableMagazine(models.Model):
     def __str__(self):
         if self.inclined_blocks:
             return f'{self.cable.title}-({self.name})-{self.subsystem}' \
-                   f' {self.inclined_blocks}'
+                   f' {self.inclined_blocks} (НШ-{self.number_mine.title[-1]})'
         else:
             return f'{self.cable.title}-({self.name})-{self.subsystem} (НШ-{self.number_mine.title[-1]})'
 
@@ -399,8 +399,7 @@ class EquipmentInstallation(models.Model):
     file_graphics = models.FileField(upload_to='pdf_graphics', **NULLABLE)
 
     def __str__(self):
-        return f'{self.title}-({self.name})/{self.subsystem}/{self.tunnel}/' \
-               f'ПК{self.picket}'
+        return f'{self.title}-({self.name})/{self.subsystem}/{self.tunnel}'
 
     def save(self, *args, **kwargs):
         if self.point_phone is not None:
