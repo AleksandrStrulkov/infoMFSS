@@ -678,12 +678,6 @@ $text-color: #000;
   opacity: 1
 }
 
-//.elem-button:disabled:hover, .elem-button:disabled:focus, .elem-button:disabled:active {
-//  background: #926aff;
-//  border: 1px solid #926aff;
-//  box-shadow: 0 0 0 4px #cbd6ee;
-//}
-
 .elem-button:hover {
   background: #4f11f8;
   border: 1px solid #4f11f8;
@@ -698,6 +692,56 @@ $text-color: #000;
 //  background: #4f11f8;
 //  border: 1px solid #4f11f8;
 //}
+
+.delete-button {
+  background: #f80909;
+  border: 1px solid #f80909;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  height: 42px;
+  font-size: 14px;
+  min-width: 130px;
+  outline: none;
+  padding: 12px 30px;
+  transition: .2s;
+  text-align: center;
+  display: inline-block;
+  box-sizing: border-box;
+  line-height: 1
+}
+
+.delete-button {
+  color: #fff !important;
+  //display: flex;
+  align-items: center;
+  justify-content: center
+}
+
+.delete-button--no-margin {
+  margin: 0
+}
+
+.delete-button--input {
+  padding: 16px 16px
+}
+
+.delete-button:disabled {
+  background: #ff6a6a;
+  border: 1px solid #ff6a6a;
+  //cursor: default;
+  opacity: 1
+}
+
+.delete-button:hover {
+  background: #fa8474;
+  border: 1px solid #fa8474;
+}
+
+.delete-button:focus {
+  outline: none;
+  box-shadow: none
+}
 
 .nsh-button {
   background: #6d37ff;

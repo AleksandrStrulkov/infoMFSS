@@ -1,13 +1,13 @@
-{% extends 'mfss/base.html' %}
+{% extends 'infoMFSS/base.html' %}
 {% load crispy_forms_tags %}
 
 {% block navbar %}
-    {% include 'mfss/includes/navbar_home.html' %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
 {% endblock %}
 
 {% block content %}
 
-    {% include 'mfss/includes/add_table_css.html' %}
+    {% include 'infoMFSS/includes/add_table_css.html' %}
 
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
@@ -67,38 +67,49 @@
                 >
                     <thead>
                     <tr class="box-table-th">
-                        <th class="align-middle" data-field="title" data-sortable="true">Точка телефонии</th>
-                        <th class="align-middle" >Номер</th>
-                        <th class="align-middle" data-field="number_mine" data-sortable="true">Нефтешахта</th>
-                        <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок</th>
-                        <th class="align-middle" data-field="tunnel" data-sortable="true">Выработка</th>
-                        <th class="align-middle">Пикет</th>
-                        <th class="align-middle">Описание</th>
+                        <th class="align-middle" data-sortable="true">Кабель</th>
+                        <th class="align-middle" data-sortable="true">Подсистема</th>
+                        <th class="align-middle" data-sortable="true">Нефтешахта</th>
+                        <th class="align-middle" >Уклонный блок</th>
+                        <th class="align-middle">От распред.коробки</th>
+                        <th class="align-middle">До распред.коробки</th>
+                        <th class="align-middle" >До точки телефонии</th>
+                        <th class="align-middle" data-sortable="true">Обозначение</th>
+                        <th class="align-middle">Расстояние</th>
+                        <th class="align-middle">Ед.изм.</th>
+                        <th class="align-middle" data-sortable="true">Кабель проложен</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for pointphone in pointphone_list %}
-{#                        {% if equipment_file.title != 'Все оборудование' %}#}
-                            <tr>
-                            <td class="align-middle">{{ pointphone.title }}</td>
-                            <td class="align-middle">{{ pointphone.subscriber_number }}</td>
-                            <td class="align-middle">{{ pointphone.number_mine }}</td>
-                        {% if pointphone.inclined_blocks %}
-                            <td class="align-middle">{{ pointphone.inclined_blocks }}</td>
+                    {% for cable_magazine in cable_magazine_list %}
+                            <tr class="box-table-td">
+                            <td class="align-middle">{{ cable_magazine.cable }}</td>
+                            <td class="align-middle">{{ cable_magazine.subsystem }}</td>
+                            <td class="align-middle">{{ cable_magazine.number_mine }}</td>
+                        {% if cable_magazine.inclined_blocks %}
+                            <td class="align-middle">{{ cable_magazine.inclined_blocks.title}}</td>
                         {% else %}
                         <td class="align-middle text-center">-</td>
                         {% endif %}
-                        {% if pointphone.tunnel %}
-                            <td class="align-middle">{{ pointphone.tunnel }}</td>
+                            <td class="align-middle text-center">{{ cable_magazine.track_from_box }}</td>
+                        {% if cable_magazine.track_to_box %}
+                            <td class="align-middle text-center">{{ cable_magazine.track_to_box }}</td>
                         {% else %}
                         <td class="align-middle text-center">-</td>
                         {% endif %}
-                        {% if pointphone.picket %}
-                            <td class="align-middle text-center">{{ pointphone.picket }}</td>
+                        {% if cable_magazine.track_to_phone %}
+                            <td class="align-middle text-center">{{ cable_magazine.track_to_phone.title }}</td>
                         {% else %}
                         <td class="align-middle text-center">-</td>
                         {% endif %}
-                            <td class="align-middle">{{ pointphone.description }}</td>
+                            <td class="align-middle text-center">{{ cable_magazine.name }}</td>
+                            <td class="align-middle text-center">{{ cable_magazine.distance }}</td>
+                            <td class="align-middle text-center">{{ cable_magazine.unit }}</td>
+                        {% if cable_magazine.cable_bool.execution_bool == True %}
+                        <td class="align-middle text-center">&#9989;</td>
+                        {% else %}
+                        <td class="align-middle text-center">&#128500;</td>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>
@@ -106,7 +117,7 @@
             </div>
             </div>
 
-    {% include 'mfss/includes/add_table_javascript.html' %}
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}

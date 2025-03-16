@@ -1,13 +1,13 @@
-{% extends 'mfss/base.html' %}
+{% extends 'infoMFSS/base.html' %}
 {% load crispy_forms_tags %}
 
 {% block navbar %}
-    {% include 'mfss/includes/navbar_home.html' %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
 {% endblock %}
 
 {% block content %}
 
-    {% include 'mfss/includes/add_table_css.html' %}
+    {% include 'infoMFSS/includes/add_table_css.html' %}
 
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
@@ -67,45 +67,28 @@
                 >
                     <thead>
                     <tr class="box-table-th">
-                        <th class="align-middle" data-field="cable" data-sortable="true" data-width="250">Кабель</th>
-                        <th class="align-middle" >Описание</th>
-                        <th class="text-center text-danger align-middle" data-width="110">Руководство</th>
-                        <th class="text-center text-danger align-middle" data-width="110">Паспорт</th>
-                        <th class="text-center text-danger align-middle" data-width="110">Сертификат</th>
+                        <th class="align-middle" data-sortable="true" data-width="470">Список оборудования</th>
+                         <th class="align-middle" data-sortable="true">Список трасс кабелей</th>
+{#                        <th class="align-middle text-center" data-width="110">Дата начала</th>#}
+                        <th class="align-middle text-center" data-width="110">Дата начала</th>
+                        <th class="align-middle text-center" data-width="110">Дата окончания</th>
+                        <th class="align-middle text-center" data-width="110">Выполнено</th>
+{#                        <th class="align-middle" data-sortable="true">Краткое описание</th>#}
                     </tr>
                     </thead>
                     <tbody>
-                    {% for cable in cable_list %}
-                        {#                        {% if equipment_file.title != 'Все оборудование' %}#}
-                        <tr>
-                        <td class="align-middle">{{ cable.title }}</td>
-                        {#                            <td class="align-middle">{{ cable.subsystem }}</td>#}
-                        <td class="align-middle">{{ cable.description }}</td>
-
-                        {% if cable.file_pdf %}
-                            <td class="text-center align-middle"><a class="btn!important btn-link!important"
-                                                                    Style="color:#6d37ff;"
-                                                                    href="{{ cable.file_pdf.url }}">Просмотр</a></td>
+                    {% for execution in execution_list %}
+                        <tr class="box-table-td">
+                        <td class="align-middle">{{ execution.equipment_install }}</td>
+                        <td class="align-middle">{{ execution.cable_magazine }}</td>
+                        <td class="align-middle">{{ execution.date_start|date:'d.m.Y' }}</td>
+                        <td class="align-middle">{{ execution.date_end|date:'d.m.Y' }}</td>
+                        {% if execution.execution_bool == True %}
+                          <td class="align-middle text-center">&#9989;</td>
                         {% else %}
-                            <td class="text-center align-middle"><a>-</a></td>
+                        <td class="align-middle text-center">&#10060;</td>
+{#                            <td class="align-middle text-center">&#128500;</td>#}
                         {% endif %}
-
-                        {% if cable.file_passport %}
-                            <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
-                                                                    href="{{ cable.file_passport.url }}">Просмотр</a>
-                            </td>
-                        {% else %}
-                            <td class="text-center align-middle"><a>-</a></td>
-                        {% endif %}
-
-                        {% if cable.file_certificate %}
-                            <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
-                                                                    href="{{ cable.file_certificate.url }}">Просмотр</a>
-                            </td>
-                        {% else %}
-                            <td class="text-center align-middle"><a>-</a></td>
-                        {% endif %}
-                        {#                        {% endif %}#}
                     {% endfor %}
                     </tbody>
                 </table>
@@ -113,7 +96,7 @@
         </div>
     </div>
 
-    {% include 'mfss/includes/add_table_javascript.html' %}
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}

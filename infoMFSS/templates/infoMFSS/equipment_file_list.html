@@ -1,13 +1,13 @@
-{% extends 'mfss/base.html' %}
+{% extends 'infoMFSS/base.html' %}
 {% load crispy_forms_tags %}
-
+{#{% load sass_tags %}#}
 {% block navbar %}
-    {% include 'mfss/includes/navbar_home.html' %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
 {% endblock %}
 
 {% block content %}
 
-    {% include 'mfss/includes/add_table_css.html' %}
+    {% include 'infoMFSS/includes/add_table_css.html' %}
 
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
@@ -19,6 +19,7 @@
             </div>
         </div>
     </div>
+
     <div class="row mb-5">
         <div class="col">
         </div>
@@ -72,49 +73,49 @@
                         data-loading-template="loadingTemplate"
                         data-show-print="true"
                 >
-                    <thead>
-                    <tr class="box-table-td">
-                        <th class="align-middle" data-field="cable" data-sortable="true" data-width="250">Кабель</th>
-{#                        <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>#}
-                        <th class="align-middle">Описание</th>
-                        <th class="text-center text-danger align-middle" data-field="file_pdf"
-                            data-width="110">Руководство</th>
-                        <th class="text-center text-danger align-middle" data-field="file_passport"
-                            data-width="110">Паспорт</th>
-                        <th class="text-center text-danger align-middle" data-field="file_certificate"
+                    <thead >
+                    <tr class="box-table-th">
+                        <th class="align-middle" data-field="equipment" data-sortable="true">Оборудование</th>
+                        <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                        <th class="align-middle" data-field="description">Описание</th>
+                        <th class="text-center text-danger data" data-field="file_pdf" data-width="110">Руководство</th>
+                        <th class="text-center text-danger" data-field="file_passport" data-width="110">Паспорт</th>
+                        <th class="text-center text-danger" data-field="file_certificate"
                             data-width="110">Сертификат</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for cable_file in cable_file_list %}
-                        {% if cable_file.title != 'Все кабели' %}
+                    {% for equipment_file in equipment_file_list %}
+                        {% if equipment_file.title != 'Все оборудование' %}
                             <tr class="box-table-td">
-                            <td class="align-middle">{{ cable_file.title }}</td>
-{#                            <td class="align-middle">{{ cable_file.subsystem }}</td>#}
-                            <td class="align-middle">{{ cable_file.description }}</td>
+                            <td class="align-middle">{{ equipment_file.title }}</td>
+                            <td class="align-middle">{{ equipment_file.subsystem }}</td>
+                            <td class="align-middle">{{ equipment_file.description }}</td>
 
-                            {% if cable_file.file_pdf %}
+                            {% if equipment_file.file_pdf %}
                                 <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
-                                                           href="{{ cable_file.file_pdf.url }}">Просмотр</a></td>
+                                                                        href="{{ equipment_file.file_pdf.url }}">Просмотр</a>
+                                </td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
 
-                            {% if cable_file.file_passport %}
+                            {% if equipment_file.file_passport %}
                                 <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
-                                                           href="{{ cable_file.file_passport.url }}">Просмотр</a></td>
+                                                                        href="{{ equipment_file.file_passport.url }}">Просмотр</a>
+                                </td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
 
-                            {% if cable_file.file_certificate %}
+                            {% if equipment_filefile_certificate %}
                                 <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
-                                                           href="{{ cable_file.file_certificate.url }}">Просмотр</a></td>
+                                                                        href="{{ equipment_file.file_certificate.url }}">Просмотр</a>
+                                </td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
                         {% endif %}
-
                     {% endfor %}
                     </tbody>
                 </table>
@@ -122,9 +123,10 @@
         </div>
     </div>
 
-    {% include 'mfss/includes/add_table_javascript.html' %}
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
 
 {% endblock %}
+
 {% block footer %}
     {% include 'users/includes/auth_footer.html' %}
 {% endblock %}

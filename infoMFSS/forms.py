@@ -656,3 +656,32 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
                 self.add_error('inclined_blocks', 'Выберите уклонный блок')
             if tunnel.inclined_blocks.title != inclined_blocks.title:
                 self.add_error('inclined_blocks', 'Укажите уклонный блок верно')
+
+
+class CreateExecutionForm(forms.ModelForm):
+    class Meta:
+        model = Execution
+        fields = ('equipment_install', 'cable_magazine', 'execution_bool', 'date_start', 'date_end')
+        widgets = {
+                'date_start': forms.TextInput(
+                        attrs={
+                                'placeholder': '11.01.2024',
+                        }
+                ),
+                'date_end': forms.TextInput(
+                        attrs={
+                                'placeholder': '12.01.2024',
+                        }
+                ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['equipment_install'].empty_label = "Выберите оборудование"
+        self.fields['cable_magazine'].empty_label = "Выберите кабель"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        equipment_install = cleaned_data.get('equipment_install')
+
+

@@ -437,6 +437,47 @@ hfy {
   outline: none;
   box-shadow: none; }
 
+.delete-button {
+  background: #f80909;
+  border: 1px solid #f80909;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  height: 42px;
+  font-size: 14px;
+  min-width: 130px;
+  outline: none;
+  padding: 12px 30px;
+  transition: .2s;
+  text-align: center;
+  display: inline-block;
+  box-sizing: border-box;
+  line-height: 1; }
+
+.delete-button {
+  color: #fff !important;
+  align-items: center;
+  justify-content: center; }
+
+.delete-button--no-margin {
+  margin: 0; }
+
+.delete-button--input {
+  padding: 16px 16px; }
+
+.delete-button:disabled {
+  background: #ff6a6a;
+  border: 1px solid #ff6a6a;
+  opacity: 1; }
+
+.delete-button:hover {
+  background: #fa8474;
+  border: 1px solid #fa8474; }
+
+.delete-button:focus {
+  outline: none;
+  box-shadow: none; }
+
 .nsh-button {
   background: #6d37ff;
   border: 1px solid #6d37ff;

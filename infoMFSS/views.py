@@ -10,7 +10,7 @@ from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, Inclin
 from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, ProjectEquipmentForm, \
     ProjectCableForm, ContactForm, QuantityEquipmentCableForm, EquipmentCreateForm, CableCreateForm, \
     PointPhoneCreateForm, BranchesBoxCreateForm, CableMagazineCreateForm, ViolationsCreateForm, VisualForm, \
-    VisualCreateNewForm, CreateEquipmentInstallationForm
+    VisualCreateNewForm, CreateEquipmentInstallationForm, CreateExecutionForm
 from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.conf import settings
@@ -25,7 +25,7 @@ from django.contrib import messages
 
 
 def sass_page_handler(request):
-    return render(request, 'mfss/base.html')
+    return render(request, 'infoMFSS/base.html')
 
 
 """Чтение и вывод данных по формам и фильтрам зарегистрированным пользователям"""
@@ -35,7 +35,7 @@ class MFSSPercentTemplateView(TemplateView):
     """"
     Вывод процентов выполнения по шахтам
     """
-    template_name = 'mfss/home.html'
+    template_name = 'infoMFSS/home.html'
     extra_context = {
             'title': "МФСС",
     }
@@ -71,7 +71,7 @@ class PercentView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод процентов выполнения c формой и фильтром
     """
-    template_name = 'mfss/percents.html'
+    template_name = 'infoMFSS/percents.html'
     form_class = PercentForm
     extra_context = {
             'title': "Процент выполнения",
@@ -140,13 +140,12 @@ class EquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     form_class = EquipmentForm
     model = Execution
-    template_name = 'mfss/equipment_list.html'
+    template_name = 'infoMFSS/equipment_list.html'
     context_object_name = 'equipment_list'
     success_url = reverse_lazy('mfss:equipment')
     extra_context = {
             'title': "Просмотр установленного оборудования",
     }
-    result = 0
 
     def form_valid(self, form):
         """
@@ -199,7 +198,7 @@ class CableListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     form_class = CableForm
     model = Execution
-    template_name = 'mfss/cable_list.html'
+    template_name = 'infoMFSS/cable_list.html'
     context_object_name = 'cable_list'
     success_url = reverse_lazy('mfss:cable')
     extra_context = {
@@ -260,7 +259,7 @@ class BoxListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     form_class = BoxForm
     model = BranchesBox
-    template_name = 'mfss/box_list.html'
+    template_name = 'infoMFSS/box_list.html'
     context_object_name = 'box_list'
     success_url = reverse_lazy('mfss:box')
     extra_context = {
@@ -317,7 +316,7 @@ class EquipmentFileListView(LoggingMixin, LoginRequiredMixin, ListView):
     Вывод списка файлов с документацией по оборудованию
     """
     model = Equipment
-    template_name = 'mfss/equipment_file_list.html'
+    template_name = 'infoMFSS/equipment_file_list.html'
     context_object_name = 'equipment_file_list'
     extra_context = {
             'title': "Документация (оборудование)",
@@ -329,7 +328,7 @@ class CableFileListView(LoggingMixin, LoginRequiredMixin, ListView):
     Вывод списка файлов с документацией по кабелям
     """
     model = Cable
-    template_name = 'mfss/cable_file_list.html'
+    template_name = 'infoMFSS/cable_file_list.html'
     context_object_name = 'cable_file_list'
     extra_context = {
             'title': "Документация (кабели)",
@@ -341,7 +340,7 @@ class ViolationsListView(LoggingMixin, LoginRequiredMixin, ListView):
     Вывод списка замечаний
     """
     model = Violations
-    template_name = 'mfss/violations_list.html'
+    template_name = 'infoMFSS/violations_list.html'
     context_object_name = 'violations_list'
     extra_context = {
             'title': "Обзор выданных замечаний",
@@ -405,7 +404,7 @@ class VisualView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     model = Visual
     form_class = VisualForm
-    template_name = 'mfss/visual_list.html'
+    template_name = 'infoMFSS/visual_list.html'
     context_object_name = 'visual_list'
     success_url = reverse_lazy('mfss:visual')
     extra_context = {
@@ -461,7 +460,7 @@ class ProjectEquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     model = EquipmentInstallation
     form_class = ProjectEquipmentForm
-    template_name = 'mfss/project_equipment_list.html'
+    template_name = 'infoMFSS/project_equipment_list.html'
     context_object_name = 'project_equipment_list'
     success_url = reverse_lazy('mfss:project_equipment')
     extra_context = {
@@ -516,7 +515,7 @@ class ProjectCableListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     model = CableMagazine
     form_class = ProjectCableForm
-    template_name = 'mfss/project_cable_list.html'
+    template_name = 'infoMFSS/project_cable_list.html'
     context_object_name = 'project_cable_list'
     success_url = reverse_lazy('mfss:project_cable')
     extra_context = {
@@ -568,7 +567,7 @@ class ContactFormView(LoggingMixin, FormView):
     """
     Форма для отправки сообщений администратору
     """
-    template_name = 'mfss/contact.html'  # Шаблон для отображения формы
+    template_name = 'infoMFSS/contact.html'  # Шаблон для отображения формы
     form_class = ContactForm  # Форма, которую мы будем использовать
     success_url = reverse_lazy('mfss:contact_success')  # URL для перенаправления после успешной отправки
 
@@ -627,7 +626,7 @@ class QuantityEquipmentCableView(LoggingMixin, LoginRequiredMixin, FormView):
     Вывод количества установленного оборудования и кабельной продукции
     """
     form_class = QuantityEquipmentCableForm
-    template_name = 'mfss/quantity_equipment_cable.html'
+    template_name = 'infoMFSS/quantity_equipment_cable.html'
     context_object_name = 'quantity_equipment_cable_list'
     success_url = reverse_lazy('mfss:quantity_equipment_cable')
     extra_context = {
@@ -676,7 +675,7 @@ class QuantityEquipmentCableView(LoggingMixin, LoginRequiredMixin, FormView):
         return self.render_to_response(context)
 
 
-"""Запись и изменение данных для модераторов"""
+"""Запись данных в БД для модераторов"""
 
 
 class CreateEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -687,7 +686,7 @@ class CreateEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMi
     form_class = EquipmentCreateForm
     permission_required = 'infoMFSS.add_equipment'
     success_url = reverse_lazy('mfss:create_equipment')
-    template_name = 'mfss/equipment_form.html'
+    template_name = 'infoMFSS/equipment_form.html'
     context_object_name = 'equipment_list'
     # success_message = 'Оборудование "%(title)s" успешно создано.'
     extra_context = {
@@ -708,7 +707,7 @@ class CreateCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin,
     form_class = CableCreateForm
     permission_required = 'infoMFSS.add_cable'
     success_url = reverse_lazy('mfss:create_cable')
-    template_name = 'mfss/cable_form.html'
+    template_name = 'infoMFSS/cable_form.html'
     context_object_name = 'cable_list'
     extra_context = {
             'title': "Добавить кабельную продукцию",
@@ -728,7 +727,7 @@ class CreatePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredM
     form_class = PointPhoneCreateForm
     permission_required = 'infoMFSS.add_pointphone'
     success_url = reverse_lazy('mfss:create_pointphone')
-    template_name = 'mfss/pointphone_form.html'
+    template_name = 'infoMFSS/pointphone_form.html'
     context_object_name = 'pointphone_list'
     extra_context = {
             'title': "Добавить точку телефонной связи",
@@ -748,7 +747,7 @@ class CreateBranchesBoxView(LoggingMixin, LoginRequiredMixin, PermissionRequired
     form_class = BranchesBoxCreateForm
     permission_required = 'infoMFSS.add_branchesbox'
     success_url = reverse_lazy('mfss:create_branchesbox')
-    template_name = 'mfss/branchesbox_form.html'
+    template_name = 'infoMFSS/branchesbox_form.html'
     context_object_name = 'branchesbox_list'
     extra_context = {
             'title': "Добавить распределительные коробки",
@@ -769,7 +768,7 @@ class CreateCableMagazineView(LoggingMixin, LoginRequiredMixin, PermissionRequir
     form_class = CableMagazineCreateForm
     permission_required = 'infoMFSS.add_cablemagazine'
     success_url = reverse_lazy('mfss:create_cablemagazine')
-    template_name = 'mfss/cable_magazine_form.html'
+    template_name = 'infoMFSS/cable_magazine_form.html'
     context_object_name = 'cable_magazine_list'
     extra_context = {
             'title': "Добавить кабель в кабельный журнал",
@@ -789,7 +788,7 @@ class CreateViolationsView(LoggingMixin, LoginRequiredMixin, PermissionRequiredM
     form_class = ViolationsCreateForm
     permission_required = 'infoMFSS.add_violations'
     success_url = reverse_lazy('mfss:create_violations')
-    template_name = 'mfss/violations_form.html'
+    template_name = 'infoMFSS/violations_form.html'
     context_object_name = 'violations_list'
     extra_context = {
             'title': "Добавить отчет по замечаниям",
@@ -809,7 +808,7 @@ class CreateVisualView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin
     form_class = VisualCreateNewForm
     permission_required = 'infoMFSS.add_visual'
     success_url = reverse_lazy('mfss:create_visual')
-    template_name = 'mfss/visual_form.html'
+    template_name = 'infoMFSS/visual_form.html'
     context_object_name = 'visual_list'
     extra_context = {
             'title': "Добавить визуальное представление выполненных работ",
@@ -823,13 +822,13 @@ class CreateVisualView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin
 
 class CreateEquipmentInstallationView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """
-    Добавить в базу данных визуальное представление выполненных работ
+    Добавить в базу данных места установки оборудования
     """
     model = EquipmentInstallation
     form_class = CreateEquipmentInstallationForm
     permission_required = 'infoMFSS.add_equipmentinstallation'
     success_url = reverse_lazy('mfss:create_equipment_installation')
-    template_name = 'mfss/create_equipment_installation_form.html'
+    template_name = 'infoMFSS/create_equipment_installation_form.html'
     context_object_name = 'equipment_installation_list'
     extra_context = {
             'title': "Добавить место установки оборудования",
@@ -839,3 +838,182 @@ class CreateEquipmentInstallationView(LoggingMixin, LoginRequiredMixin, Permissi
         context = super().get_context_data(**kwargs)
         context['equipment_installation_list'] = EquipmentInstallation.objects.all()
         return context
+
+
+class CreateExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Добавить в базу данных отчет о выполненных работах
+    """
+    model = Execution
+    form_class = CreateExecutionForm
+    permission_required = 'infoMFSS.add_execution'
+    success_url = reverse_lazy('mfss:create_execution')
+    template_name = 'infoMFSS/create_execution_form.html'
+    context_object_name = 'execution_list'
+    extra_context = {
+            'title': "Добавить в отчет выполненные работы",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['execution_list'] = Execution.objects.all()
+        return context
+
+
+"""Изменение данных в БД для модераторов"""
+
+
+class EquipmentView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка оборудования для последующего изменения в БД
+    """
+    model = Equipment
+    template_name = 'infoMFSS/equipment.html'
+    context_object_name = 'equipment_list'
+    extra_context = {
+            'title': "Список оборудования",
+    }
+    success_url = reverse_lazy('mfss:equipment_list')
+
+
+class UpdateEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Изменить оборудование в БД
+    """
+    model = Equipment
+    form_class = EquipmentCreateForm
+    permission_required = 'infoMFSS.change_equipment'
+    template_name = 'infoMFSS/equipment_update_form.html'
+    success_url = reverse_lazy('mfss:equipment_list')
+    extra_context = {
+            'title': "Редактирование списка оборудования",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
+
+
+class UpdateCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Изменить в БД кабельную продукцию
+    """
+    pass
+
+
+class UpdatePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Изменить в БД точку телефонной связи
+    """
+    pass
+
+
+class UpdateBranchesBoxView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Изменить в БД распределительные коробки
+    """
+    pass
+
+
+class UpdateCableMagazineView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Изменить в БД значения в кабельном журнале
+    """
+    pass
+
+
+class UpdateViolationsView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Изменить в БД нарушения
+    """
+    pass
+
+
+class UpdateVisualView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Добавить в БД визуальное представление выполненных работ
+    """
+    pass
+
+
+class UpdateEquipmentInstallationView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Изменить в БД места установки оборудования
+    """
+    pass
+
+
+class UpdateExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Добавить в базу данных отчет о выполненных работах
+    """
+    pass
+
+
+"""Удаление данных в БД для модераторов"""
+
+
+class DeleteEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Изменить оборудование в БД
+    """
+    model = Equipment
+    permission_required = 'infoMFSS.delete_equipment'
+    success_url = reverse_lazy('mfss:equipment_list')
+
+
+class DeleteCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Изменить в БД кабельную продукцию
+    """
+    pass
+
+
+class DeletePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Изменить в БД точку телефонной связи
+    """
+    pass
+
+
+class DeleteBranchesBoxView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Изменить в БД распределительные коробки
+    """
+    pass
+
+
+class DeleteCableMagazineView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Изменить в БД значения в кабельном журнале
+    """
+    pass
+
+
+class DeleteViolationsView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Изменить в БД нарушения
+    """
+    pass
+
+
+class DeleteVisualView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Добавить в БД визуальное представление выполненных работ
+    """
+    pass
+
+
+class DeleteEquipmentInstallationView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Изменить в БД места установки оборудования
+    """
+    pass
+
+
+class DeleteExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Добавить в базу данных отчет о выполненных работах
+    """
+    pass

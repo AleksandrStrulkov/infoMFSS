@@ -1,13 +1,13 @@
-{% extends 'mfss/base.html' %}
+{% extends 'infoMFSS/base.html' %}
 {% load crispy_forms_tags %}
 
 {% block navbar %}
-    {% include 'mfss/includes/navbar_home.html' %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
 {% endblock %}
 
 {% block content %}
 
-    {% include 'mfss/includes/add_table_css.html' %}
+    {% include 'infoMFSS/includes/add_table_css.html' %}
 
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
@@ -67,40 +67,47 @@
                 >
                     <thead>
                     <tr class="box-table-th">
-                        <th class="align-middle" data-sortable="true">Оборудование</th>
-                         <th class="align-middle">Подсистема</th>
-                        <th class="align-middle text-center" data-sortable="true">Нефтешахта</th>
-                        <th class="align-middle text-center" data-width="110">Выработка</th>
-                        <th class="align-middle text-center" data-width="110">Укл.блок</th>
-                        <th class="align-middle" data-sortable="true">Обозн.в проекте</th>
-                        <th class="align-middle" data-sortable="true">Точка телефонии</th>
-                        <th class="align-middle" data-sortable="true" data-width="110">Распред.коробка</th>
-{#                        <th class="align-middle text-center" data-width="110">Описание</th>#}
-                        <th class="align-middle text-center" data-width="110">Пикет</th>
-{#                        <th class="align-middle text-center" data-width="110">Граф.файл</th>#}
+                        <th class="align-middle" data-sortable="true">Номер акта</th>
+                        <th class="align-middle" data-sortable="true">Дата проверки</th>
+                        <th class="align-middle" data-sortable="true">Кем выдано</th>
+                        <th class="align-middle" data-sortable="true" data-width="110">Шахта</th>
+                        <th class="align-middle">Описание нарушения</th>
+                        <th class="align-middle text-center" data-sortable="true">Устранено</th>
+                        <th class="align-middle text-center" data-width="110">Акт</th>
+                        <th class="align-middle text-center" data-width="110">Уведомление</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for equipment_installation in equipment_installation_list %}
+                    {% for violations in violations_list %}
                         <tr class="box-table-td">
-                        <td class="align-middle">{{ equipment_installation.title }}</td>
-                        <td class="align-middle">{{ equipment_installation.subsystem }}</td>
-                        <td class="align-middle">{{ equipment_installation.number_mine }}</td>
-                        <td class="align-middle">{{ equipment_installation.tunnel }}</td>
-                        <td class="align-middle">{{ equipment_installation.inclined_blocks }}</td>
-                        <td class="align-middle">{{ equipment_installation.name }}</td>
-                        {% if equipment_installation.point_phone %}
-                        <td class="align-middle">{{ equipment_installation.point_phone }}</td>
+                        <td class="align-middle">{{ violations.number_act }}</td>
+                        <td class="align-middle">{{ violations.date_act | date:"d.m.Y" }}</td>
+                        <td class="align-middle">{{ violations.issued_by_act }}</td>
+                        <td class="align-middle">{{ violations.number_mine }}</td>
+                        <td class="align-middle">{{ violations.title }}</td>
+                        {% if violations.execution_bool == True %}
+                            <td class="align-middle text-center">&#9989;</td>
                         {% else %}
-                        <td class="align-middle text-center">-</td>
+                            {#                        <td class="align-middle text-center">&#9940;</td>#}
+                            <td class="align-middle text-center">&#128500;</td>
                         {% endif %}
-                        {% if equipment_installation.branches_box %}
-                        <td class="align-middle">{{ equipment_installation.branches_box }}</td>
+                        {% if violations.file_act %}
+                            <td class="text-center align-middle">
+                                <a
+                                        class="btn!important btn-link!important"
+                                        Style="color:#6d37ff; font-size: 13px;"
+                                        href="{{ violations.file_act.url }}">Просмотр
+                                </a>
+                            </td>
                         {% else %}
-                        <td class="align-middle text-center">-</td>
+                            <td class="text-center align-middle"><a>-</a></td>
                         {% endif %}
-{#                        <td class="align-middle">{{ equipment_installation.description }}</td>#}
-                        <td class="align-middle">{{ equipment_installation.picket }}</td>
+                        {% if violations.file_notification %}
+                            <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff; font-size:
+                         13px;" href="{{ violations.file_notification.url }}">Просмотр</a>
+                                {% else %}
+                            <td class="text-center align-middle"><a>-</a></td>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>
@@ -108,7 +115,7 @@
         </div>
     </div>
 
-    {% include 'mfss/includes/add_table_javascript.html' %}
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}
