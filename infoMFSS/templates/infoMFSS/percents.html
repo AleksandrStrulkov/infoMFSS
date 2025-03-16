@@ -1,8 +1,9 @@
-{% extends 'mfss/base.html' %}
+{% extends 'infoMFSS/base.html' %}
 {% load crispy_forms_tags %}
+{#{% load sass_tags %}#}
 
 {% block navbar %}
-    {% include 'mfss/includes/navbar_home.html' %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
 {% endblock %}
 
 {% block content %}
@@ -17,8 +18,8 @@
         </div>
     </div>
     <div class="container margin-auth-block">
-        <form method="post" action="{% url 'mfss:quantity_equipment_cable' %}">
-            <div class="row text-center mx-auto mt-4 mb-sm-1">
+        <form method="post" action="">
+            <div class="row text-center mx-auto mt-4 mb-sm-5">
                 <div class="col-sm-4">
                 </div>
                 <div class="col-sm-4 card mb-3 box-shadow card-imad-auth border-none">
@@ -28,7 +29,7 @@
                         </h4>
                     </div>
                     <div class="card-body text-start">
-                        {% load crispy_forms_tags %}
+                        {#                        {% load crispy_forms_tags %}#}
                         {% csrf_token %}
                         {% crispy form %}
                         <button type="submit" class="btn elem-button btn-md">
@@ -39,30 +40,28 @@
                 <div class="col-sm-4">
                 </div>
             </div>
+            <div class="container text-center mt-5 mb-5">
+                <div class="mt-sm-5 mb-sm-5">
+                    <div class="container mt-5 mb-5">
+                        {% if percent %}
+                            <h8>Выполнение: {{ percent }}%</h8>
+                            <br>
+                            <br>
+                            <h14>На дату: {{ update }}</h14>
+                            <br>
+                            <br>
+                        {% elif percent == 0 %}
+                            <h8>Данные отсутствуют</h8>
+                        {% else %}
+                            <h8>{{ error_message }}</h8>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </form>
-    </div>
-
-    <div class="container ">
-        <div class="row mx-auto">
-            <div class="col-sm-4">
-            </div>
-            <div class="col-sm-4 mx-5">
-                {% if mine is not None %}
-                    <h9>Нефтешахта: {{ mine }}</h9><br>
-                    {% if equipment %}
-                        <h9>Оборудование: {{ equipment }}</h9><br>
-                    {% elif cable %}
-                        <h9>Кабель: {{ cable }}</h9><br>
-                    {% endif %}
-                    {% if equipment %}
-                        <h9>Количество: {{ quantity }} шт.</h9>
-                    {% elif cable %}
-                        <h9>Количество: {{ total_length }} м.</h9>
-                    {% endif %}
-                {% endif %}
-            </div>
-            <div class="col-sm-4">
-            </div>
+        <div class="container">
+        </div>
+        <div class="container">
         </div>
     </div>
 {% endblock %}

@@ -1,13 +1,13 @@
-{% extends 'mfss/base.html' %}
+{% extends 'infoMFSS/base.html' %}
 {% load crispy_forms_tags %}
 
 {% block navbar %}
-    {% include 'mfss/includes/navbar_home.html' %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
 {% endblock %}
 
 {% block content %}
 
-    {% include 'mfss/includes/add_table_css.html' %}
+    {% include 'infoMFSS/includes/add_table_css.html' %}
 
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
@@ -20,7 +20,7 @@
         </div>
     </div>
     <div class="container margin-auth-block">
-        <form method="post" action="" class="">
+        <form method="post" action="" class="" enctype="multipart/form-data">
             <div class="row text-center mx-auto mt-4 mb-sm-5">
                 <div class="col-sm-3">
                 </div>
@@ -67,38 +67,43 @@
                 >
                     <thead>
                     <tr class="box-table-th">
-                        <th class="align-middle" data-field="title" data-sortable="true">Точка телефонии</th>
-                        <th class="align-middle" >Номер</th>
-                        <th class="align-middle" data-field="number_mine" data-sortable="true">Нефтешахта</th>
-                        <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок</th>
-                        <th class="align-middle" data-field="tunnel" data-sortable="true">Выработка</th>
-                        <th class="align-middle">Пикет</th>
-                        <th class="align-middle">Описание</th>
+                        <th class="align-middle" data-field="equipment" data-sortable="true" data-width="250">Оборудование</th>
+                        <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                        <th class="align-middle" data-field="description">Описание</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Руководство</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Паспорт</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Сертификат</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for pointphone in pointphone_list %}
+                    {% for equipment in equipment_list %}
 {#                        {% if equipment_file.title != 'Все оборудование' %}#}
                             <tr>
-                            <td class="align-middle">{{ pointphone.title }}</td>
-                            <td class="align-middle">{{ pointphone.subscriber_number }}</td>
-                            <td class="align-middle">{{ pointphone.number_mine }}</td>
-                        {% if pointphone.inclined_blocks %}
-                            <td class="align-middle">{{ pointphone.inclined_blocks }}</td>
-                        {% else %}
-                        <td class="align-middle text-center">-</td>
-                        {% endif %}
-                        {% if pointphone.tunnel %}
-                            <td class="align-middle">{{ pointphone.tunnel }}</td>
-                        {% else %}
-                        <td class="align-middle text-center">-</td>
-                        {% endif %}
-                        {% if pointphone.picket %}
-                            <td class="align-middle text-center">{{ pointphone.picket }}</td>
-                        {% else %}
-                        <td class="align-middle text-center">-</td>
-                        {% endif %}
-                            <td class="align-middle">{{ pointphone.description }}</td>
+                            <td class="align-middle">{{ equipment.title }}</td>
+                            <td class="align-middle">{{ equipment.subsystem }}</td>
+                            <td class="align-middle">{{ equipment.description }}</td>
+
+                            {% if equipment.file_pdf %}
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
+                                                           href="{{ equipment.file_pdf.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center align-middle"><a>-</a></td>
+                            {% endif %}
+
+                            {% if equipment.file_passport %}
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
+                                                           href="{{ equipment.file_passport.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center align-middle"><a>-</a></td>
+                            {% endif %}
+
+                            {% if equipment.file_certificate %}
+                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
+                                                           href="{{ equipment.file_certificate.url }}">Просмотр</a></td>
+                            {% else %}
+                                <td class="text-center align-middle"><a>-</a></td>
+                            {% endif %}
+{#                        {% endif %}#}
                     {% endfor %}
                     </tbody>
                 </table>
@@ -106,7 +111,7 @@
             </div>
             </div>
 
-    {% include 'mfss/includes/add_table_javascript.html' %}
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
 
 {% endblock %}
 {% block footer %}
