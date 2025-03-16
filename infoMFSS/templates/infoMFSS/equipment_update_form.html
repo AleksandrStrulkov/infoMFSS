@@ -1,0 +1,53 @@
+{% extends 'infoMFSS/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block navbar %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+
+    {% include 'infoMFSS/includes/add_table_css.html' %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container margin-auth-block">
+        <form method="post" action="" class="" enctype="multipart/form-data">
+            <div class="row text-center mx-auto mt-4 mb-sm-5">
+                <div class="col-sm-3">
+                </div>
+                <div class="col-sm-6 card mb-3 box-shadow border-none">
+                    <div class="card-body mt-2 text-center">
+                        <h4 class="my-0 font-weight-normal">
+
+                        </h4>
+                    </div>
+                    <div class="card-body text-start">
+                        {% load crispy_forms_tags %}
+                        {% csrf_token %}
+                        {% crispy form %}
+                        <button type="submit" class="btn elem-button btn-md">
+                            Применить
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
+
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}
