@@ -873,7 +873,7 @@ class EquipmentView(LoggingMixin, LoginRequiredMixin, ListView):
     extra_context = {
             'title': "Список оборудования",
     }
-    success_url = reverse_lazy('mfss:equipment_list')
+    # success_url = reverse_lazy('mfss:equipment_list')
 
 
 class UpdateEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -895,18 +895,66 @@ class UpdateEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMi
         return queryset
 
 
+class CableView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка оборудования для последующего изменения в БД
+    """
+    model = Cable
+    template_name = 'infoMFSS/cable.html'
+    context_object_name = 'cable_list'
+    extra_context = {
+            'title': "Список трасс кабелей",
+    }
+
+
 class UpdateCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Изменить в БД кабельную продукцию
     """
-    pass
+    model = Cable
+    form_class = CableCreateForm
+    permission_required = 'infoMFSS.change_cable'
+    template_name = 'infoMFSS/cable_update_form.html'
+    success_url = reverse_lazy('mfss:cable_list')
+    extra_context = {
+            'title': "Редактирование трассы кабеля",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
+
+
+class PointPhoneView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка оборудования для последующего изменения в БД
+    """
+    model = PointPhone
+    template_name = 'infoMFSS/point_phone.html'
+    context_object_name = 'point_phone_list'
+    extra_context = {
+            'title': "Список точек телефонии",
+    }
 
 
 class UpdatePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Изменить в БД точку телефонной связи
     """
-    pass
+    model = PointPhone
+    form_class = PointPhoneCreateForm
+    permission_required = 'infoMFSS.change_pointphone'
+    template_name = 'infoMFSS/point_phone_update_form.html'
+    success_url = reverse_lazy('mfss:point_phone_list')
+    extra_context = {
+            'title': "Редактирование точки телефонной связи",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 class UpdateBranchesBoxView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -967,14 +1015,18 @@ class DeleteCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin,
     """
     Изменить в БД кабельную продукцию
     """
-    pass
+    model = Cable
+    permission_required = 'infoMFSS.delete_cable'
+    success_url = reverse_lazy('mfss:cable_list')
 
 
 class DeletePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
     Изменить в БД точку телефонной связи
     """
-    pass
+    model = PointPhone
+    permission_required = 'infoMFSS.delete_pointphone'
+    success_url = reverse_lazy('mfss:point_phone_list')
 
 
 class DeleteBranchesBoxView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
