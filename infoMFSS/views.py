@@ -860,7 +860,7 @@ class CreateExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMi
         return context
 
 
-"""Изменение данных в БД для модераторов"""
+"""Отображение данных для модераторов для выбора изменения или удаления"""
 
 
 class EquipmentView(LoggingMixin, LoginRequiredMixin, ListView):
@@ -873,7 +873,103 @@ class EquipmentView(LoggingMixin, LoginRequiredMixin, ListView):
     extra_context = {
             'title': "Список оборудования",
     }
-    success_url = reverse_lazy('mfss:equipment_list')
+    # success_url = reverse_lazy('mfss:equipment_list')
+
+
+class CableView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка кабельных трасс для последующего изменения в БД
+    """
+    model = Cable
+    template_name = 'infoMFSS/cable.html'
+    context_object_name = 'cable_list'
+    extra_context = {
+            'title': "Список трасс кабелей",
+    }
+
+
+class PointPhoneView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка точек телефонии для последующего изменения в БД
+    """
+    model = PointPhone
+    template_name = 'infoMFSS/point_phone.html'
+    context_object_name = 'point_phone_list'
+    extra_context = {
+            'title': "Список точек телефонии",
+    }
+
+
+class BranchesBoxView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка точек телефонии для последующего изменения в БД
+    """
+    model = BranchesBox
+    template_name = 'infoMFSS/branches_box.html'
+    context_object_name = 'branches_box_list'
+    extra_context = {
+            'title': "Список распределительных коробок",
+    }
+
+
+class CableMagazineView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод данных из кабельного журнала для последующего изменения в БД
+    """
+    model = CableMagazine
+    template_name = 'infoMFSS/cable_magazine.html'
+    context_object_name = 'cable_magazine_list'
+    extra_context = {
+            'title': "Кабельный журнал",
+    }
+
+
+class ViolationsView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка нарушений для последующего изменения в БД
+    """
+    model = Violations
+    template_name = 'infoMFSS/violations.html'
+    context_object_name = 'violations_list'
+    extra_context = {
+            'title': "Список нарушений",
+    }
+
+
+class VisualistView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка данных визуального представления выполненных работ для последующего изменения в БД
+    """
+    model = Visual
+    template_name = 'infoMFSS/visual.html'
+    context_object_name = 'visual_list'
+    extra_context = {
+            'title': "Список визуального представления выполненных работ",
+    }
+
+
+class EquipmentInstallationView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка мест установки оборудования для последующего изменения в БД
+    """
+    model = EquipmentInstallation
+    template_name = 'infoMFSS/equipment_installation.html'
+    context_object_name = 'equipment_installation_list'
+    extra_context = {
+            'title': "Список мест установки оборудования",
+    }
+
+
+class ExecutionView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка выполненных работ для последующего изменения в БД
+    """
+    model = Execution
+    template_name = 'infoMFSS/execution.html'
+    context_object_name = 'execution_list'
+    extra_context = {
+            'title': "Список выполненных работ",
+    }
 
 
 class UpdateEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
@@ -899,56 +995,152 @@ class UpdateCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin,
     """
     Изменить в БД кабельную продукцию
     """
-    pass
+    model = Cable
+    form_class = CableCreateForm
+    permission_required = 'infoMFSS.change_cable'
+    template_name = 'infoMFSS/cable_update_form.html'
+    success_url = reverse_lazy('mfss:cable_list')
+    extra_context = {
+            'title': "Редактирование трассы кабеля",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 class UpdatePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Изменить в БД точку телефонной связи
     """
-    pass
+    model = PointPhone
+    form_class = PointPhoneCreateForm
+    permission_required = 'infoMFSS.change_pointphone'
+    template_name = 'infoMFSS/point_phone_update_form.html'
+    success_url = reverse_lazy('mfss:point_phone_list')
+    extra_context = {
+            'title': "Редактирование точки телефонной связи",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 class UpdateBranchesBoxView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Изменить в БД распределительные коробки
     """
-    pass
+    model = BranchesBox
+    form_class = BranchesBoxCreateForm
+    permission_required = 'infoMFSS.change_branchesbox'
+    template_name = 'infoMFSS/branches_box_update_form.html'
+    success_url = reverse_lazy('mfss:branches_box_list')
+    extra_context = {
+            'title': "Редактирование распределительных коробок",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 class UpdateCableMagazineView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Изменить в БД значения в кабельном журнале
     """
-    pass
+    model = CableMagazine
+    form_class = CableMagazineCreateForm
+    permission_required = 'infoMFSS.change_cablemagazine'
+    template_name = 'infoMFSS/cable_magazine_update_form.html'
+    success_url = reverse_lazy('mfss:cable_magazine_list')
+    extra_context = {
+            'title': "Редактирование данных в кабельном журнале",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 class UpdateViolationsView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Изменить в БД нарушения
     """
-    pass
+    model = Violations
+    form_class = ViolationsCreateForm
+    permission_required = 'infoMFSS.change_violations'
+    template_name = 'infoMFSS/violations_update_form.html'
+    success_url = reverse_lazy('mfss:violations_list')
+    extra_context = {
+            'title': "Редактирование списка нарушений",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 class UpdateVisualView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Добавить в БД визуальное представление выполненных работ
     """
-    pass
+    model = Visual
+    form_class = VisualCreateNewForm
+    permission_required = 'infoMFSS.change_visual'
+    template_name = 'infoMFSS/visual_update_form.html'
+    success_url = reverse_lazy('mfss:visual_list')
+    extra_context = {
+            'title': "Редактирование визуального представления выполненных работ",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 class UpdateEquipmentInstallationView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Изменить в БД места установки оборудования
     """
-    pass
+    model = EquipmentInstallation
+    form_class = CreateEquipmentInstallationForm
+    permission_required = 'infoMFSS.change_equipmentinstallation'
+    template_name = 'infoMFSS/equipment_installation_update_form.html'
+    success_url = reverse_lazy('mfss:equipment_installation_list')
+    extra_context = {
+            'title': "Редактирование мест установки оборудования",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 class UpdateExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Добавить в базу данных отчет о выполненных работах
     """
-    pass
+    model = Execution
+    form_class = CreateExecutionForm
+    permission_required = 'infoMFSS.change_execution'
+    template_name = 'infoMFSS/execution_update_form.html'
+    success_url = reverse_lazy('mfss:execution_list')
+    extra_context = {
+            'title': "Редактировать отчет о выполненных работах",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
 
 
 """Удаление данных в БД для модераторов"""
@@ -967,53 +1159,69 @@ class DeleteCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin,
     """
     Изменить в БД кабельную продукцию
     """
-    pass
+    model = Cable
+    permission_required = 'infoMFSS.delete_cable'
+    success_url = reverse_lazy('mfss:cable_list')
 
 
 class DeletePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
     Изменить в БД точку телефонной связи
     """
-    pass
+    model = PointPhone
+    permission_required = 'infoMFSS.delete_pointphone'
+    success_url = reverse_lazy('mfss:point_phone_list')
 
 
 class DeleteBranchesBoxView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
     Изменить в БД распределительные коробки
     """
-    pass
+    model = BranchesBox
+    permission_required = 'infoMFSS.delete_branchesbox'
+    success_url = reverse_lazy('mfss:branches_box_list')
 
 
 class DeleteCableMagazineView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
     Изменить в БД значения в кабельном журнале
     """
-    pass
+    model = CableMagazine
+    permission_required = 'infoMFSS.delete_cablemagazine'
+    success_url = reverse_lazy('mfss:cable_magazine_list')
 
 
 class DeleteViolationsView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
     Изменить в БД нарушения
     """
-    pass
+    model = Violations
+    permission_required = 'infoMFSS.delete_violations'
+    success_url = reverse_lazy('mfss:violations_list')
 
 
 class DeleteVisualView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
     Добавить в БД визуальное представление выполненных работ
     """
-    pass
+    model = Visual
+    permission_required = 'infoMFSS.delete_visual'
+    success_url = reverse_lazy('mfss:visual_list')
 
 
 class DeleteEquipmentInstallationView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
     Изменить в БД места установки оборудования
     """
-    pass
+    model = EquipmentInstallation
+    permission_required = 'infoMFSS.delete_equipmentinstallation'
+    success_url = reverse_lazy('mfss:equipment_installation_list')
 
 
 class DeleteExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
     Добавить в базу данных отчет о выполненных работах
     """
-    pass
+    model = Execution
+    permission_required = 'infoMFSS.delete_execution'
+    success_url = reverse_lazy('mfss:execution_list')

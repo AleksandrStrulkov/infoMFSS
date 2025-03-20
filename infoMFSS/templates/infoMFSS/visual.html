@@ -19,31 +19,6 @@
             </div>
         </div>
     </div>
-    <div class="container margin-auth-block">
-        <form method="post" action="" class="" enctype="multipart/form-data">
-            <div class="row text-center mx-auto mt-4 mb-sm-5">
-                <div class="col-sm-3">
-                </div>
-                <div class="col-sm-6 card mb-3 box-shadow border-none">
-                    <div class="card-body mt-2 text-center">
-                        <h4 class="my-0 font-weight-normal">
-
-                        </h4>
-                    </div>
-                    <div class="card-body text-start">
-                        {% load crispy_forms_tags %}
-                        {% csrf_token %}
-                        {% crispy form %}
-                        <button type="submit" class="btn elem-button btn-md">
-                            Применить
-                        </button>
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                </div>
-            </div>
-        </form>
-    </div>
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5 table-responsive">
@@ -69,9 +44,11 @@
                     <tr class="box-table-th">
                         <th class="align-middle" data-sortable="true">Нефтешахта</th>
                         <th class="align-middle" data-sortable="true">Подсистема</th>
-                        <th class="align-middle" data-sortable="true" data-width="400">Оборудование</th>
-                        <th class="align-middle" data-sortable="true" data-width="400">Кабель</th>
+                        <th class="align-middle" data-sortable="true">Оборудование</th>
+                        <th class="align-middle" data-sortable="true">Кабель</th>
                         <th class="align-middle text-center">Файл</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Редактировать</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Удалить</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -80,14 +57,14 @@
                         <td class="align-middle">{{ visual.number_mine }}</td>
                         <td class="align-middle">{{ visual.subsystem }}</td>
                         {% if visual.equipment %}
-                        <td class="align-middle">{{ visual.equipment }}</td>
+                            <td class="align-middle">{{ visual.equipment }}</td>
                         {% else %}
-                        <td class="align-middle">-</td>
+                            <td class="align-middle">-</td>
                         {% endif %}
                         {% if visual.cable %}
-                        <td class="align-middle">{{ visual.cable }}</td>
+                            <td class="align-middle">{{ visual.cable }}</td>
                         {% else %}
-                        <td class="align-middle">-</td>
+                            <td class="align-middle">-</td>
                         {% endif %}
                         {% if visual.file_pdf %}
                             <td class="text-center align-middle">
@@ -100,6 +77,12 @@
                         {% else %}
                             <td class="text-center align-middle"><a>-</a></td>
                         {% endif %}
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                href="{% url 'mfss:visual_update' visual.pk %}">🛠️</a>
+                        </td>
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                href="{% url 'mfss:visual_delete' visual.pk %}">🗑️</a>
+                        </td>
                     {% endfor %}
                     </tbody>
                 </table>

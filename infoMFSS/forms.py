@@ -654,7 +654,7 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
         if tunnel is not None:
             if tunnel.inclined_blocks is not None and inclined_blocks is None:
                 self.add_error('inclined_blocks', 'Выберите уклонный блок')
-            if tunnel.inclined_blocks.title != inclined_blocks.title:
+            if tunnel.inclined_blocks != inclined_blocks:
                 self.add_error('inclined_blocks', 'Укажите уклонный блок верно')
 
 
@@ -680,8 +680,19 @@ class CreateExecutionForm(forms.ModelForm):
         self.fields['equipment_install'].empty_label = "Выберите оборудование"
         self.fields['cable_magazine'].empty_label = "Выберите кабель"
 
+        if self.instance and self.instance.date_start:
+            self.initial['date_start'] = self.instance.date_start.strftime('%d.%m.%Y')
+
+        if self.instance and self.instance.date_end:
+            self.initial['date_end'] = self.instance.date_end.strftime('%d.%m.%Y')
+
     def clean(self):
         cleaned_data = super().clean()
         equipment_install = cleaned_data.get('equipment_install')
+        date_start = cleaned_data.get('date_start')
+        date_end = cleaned_data.get('date_end')
+
+        if date_start > date_end:
+            self.add_error('date_end', 'Дата завершения не может быть раньше даты начала')
 
 

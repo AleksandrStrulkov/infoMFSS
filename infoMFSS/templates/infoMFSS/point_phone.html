@@ -1,0 +1,98 @@
+{% extends 'infoMFSS/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block navbar %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+
+    {% include 'infoMFSS/includes/add_table_css.html' %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5 table-responsive">
+                <table
+                        id="Table"
+                        class="table table-hover table-bordered table-sm"
+                        data-toggle="table"
+                        data-pagination="true"
+                        data-search="true"
+                        data-show-pagination-switch="true"
+                        data-show-refresh="true"
+                        data-show-toggle="true"
+                        data-show-columns="true"
+                        data-show-fullscreen="true"
+                        data-buttons-prefix="btn-sm btn"
+                        data-buttons-attribute-title="data-hint"
+                        data-search-align="left"
+                        data-toolbar="#toolbar"
+                        data-loading-template="loadingTemplate"
+                        data-show-print="true"
+                >
+                    <thead>
+                    <tr class="box-table-th">
+                        <th class="align-middle" data-field="title" data-sortable="true">Точка телефонии</th>
+                        <th class="align-middle" >Номер</th>
+                        <th class="align-middle" data-field="number_mine" data-sortable="true">Нефтешахта</th>
+                        <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок</th>
+                        <th class="align-middle" data-field="tunnel" data-sortable="true">Выработка</th>
+                        <th class="align-middle">Пикет</th>
+{#                        <th class="align-middle">Описание</th>#}
+                        <th class="text-center text-danger align-middle" data-width="110">Редактировать</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Удалить</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for point_phone in point_phone_list %}
+{#                        {% if equipment_file.title != 'Все оборудование' %}#}
+                            <tr>
+                            <td class="align-middle">{{ point_phone.title }}</td>
+                            <td class="align-middle">{{ point_phone.subscriber_number }}</td>
+                            <td class="align-middle">{{ point_phone.number_mine }}</td>
+                        {% if point_phone.inclined_blocks %}
+                            <td class="align-middle">{{ point_phone.inclined_blocks }}</td>
+                        {% else %}
+                        <td class="align-middle text-center">-</td>
+                        {% endif %}
+                        {% if point_phone.tunnel %}
+                            <td class="align-middle">{{ point_phone.tunnel }}</td>
+                        {% else %}
+                        <td class="align-middle text-center">-</td>
+                        {% endif %}
+                        {% if point_phone.picket %}
+                            <td class="align-middle text-center">{{ point_phone.picket }}</td>
+                        {% else %}
+                        <td class="align-middle text-center">-</td>
+                        {% endif %}
+                            <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+{#                                                                Style="color:#26bc33;"#}
+                                                                href="{% url 'mfss:point_phone_update' point_phone.pk %}">🛠️</a>
+                        </td>
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+{#                                                                Style="color:#f80606;"#}
+                                                                href="{% url 'mfss:point_phone_delete' point_phone.pk %}">🗑️</a>
+                        </td>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            </div>
+            </div>
+
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
+
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}

@@ -19,31 +19,6 @@
             </div>
         </div>
     </div>
-    <div class="container margin-auth-block">
-        <form method="post" action="" class="" enctype="multipart/form-data">
-            <div class="row text-center mx-auto mt-4 mb-sm-5">
-                <div class="col-sm-3">
-                </div>
-                <div class="col-sm-6 card mb-3 box-shadow border-none">
-                    <div class="card-body mt-2 text-center">
-                        <h4 class="my-0 font-weight-normal">
-
-                        </h4>
-                    </div>
-                    <div class="card-body text-start">
-                        {% load crispy_forms_tags %}
-                        {% csrf_token %}
-                        {% crispy form %}
-                        <button type="submit" class="btn elem-button btn-md">
-                            Применить
-                        </button>
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                </div>
-            </div>
-        </form>
-    </div>
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5 table-responsive">
@@ -67,11 +42,16 @@
                 >
                     <thead>
                     <tr class="box-table-th">
-                        <th class="align-middle" data-field="cable" data-sortable="true" data-width="250">Кабель</th>
-                        <th class="align-middle" >Описание</th>
+                        <th class="align-middle" data-field="equipment" data-sortable="true" data-width="250">
+                            Кабель
+                        </th>
+{#                        <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>#}
+                        <th class="align-middle" data-field="description">Описание</th>
                         <th class="text-center text-danger align-middle" data-width="110">Руководство</th>
                         <th class="text-center text-danger align-middle" data-width="110">Паспорт</th>
                         <th class="text-center text-danger align-middle" data-width="110">Сертификат</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Редактировать</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Удалить</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -79,19 +59,21 @@
                         {#                        {% if equipment_file.title != 'Все оборудование' %}#}
                         <tr>
                         <td class="align-middle">{{ cable.title }}</td>
-                        {#                            <td class="align-middle">{{ cable.subsystem }}</td>#}
+{#                        <td class="align-middle">{{ cable.subsystem }}</td>#}
                         <td class="align-middle">{{ cable.description }}</td>
 
                         {% if cable.file_pdf %}
                             <td class="text-center align-middle"><a class="btn!important text-decoration-none"
                                                                     Style="color:#6d37ff;"
-                                                                    href="{{ cable.file_pdf.url }}">📤</a></td>
+                                                                    href="{{ cable.file_pdf.url }}">📤</a>
+                            </td>
                         {% else %}
                             <td class="text-center align-middle"><a>-</a></td>
                         {% endif %}
 
                         {% if cable.file_passport %}
-                            <td class="text-center align-middle"><a class="btn!important text-decoration-none" Style="color:#6d37ff;"
+                            <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                    Style="color:#6d37ff;"
                                                                     href="{{ cable.file_passport.url }}">📤</a>
                             </td>
                         {% else %}
@@ -99,13 +81,21 @@
                         {% endif %}
 
                         {% if cable.file_certificate %}
-                            <td class="text-center align-middle"><a class="btn!important text-decoration-none" Style="color:#6d37ff;"
+                            <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                    Style="color:#6d37ff;"
                                                                     href="{{ cable.file_certificate.url }}">📤</a>
                             </td>
                         {% else %}
                             <td class="text-center align-middle"><a>-</a></td>
                         {% endif %}
-                        {#                        {% endif %}#}
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+{#                                                                Style="color:#26bc33;"#}
+                                                                href="{% url 'mfss:cable_update' cable.pk %}">🛠️</a>
+                        </td>
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+{#                                                                Style="color:#f80606;"#}
+                                                                href="{% url 'mfss:cable_delete' cable.pk %}">🗑️</a>
+                        </td>
                     {% endfor %}
                     </tbody>
                 </table>

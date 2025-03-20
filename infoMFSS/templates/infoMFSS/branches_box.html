@@ -19,31 +19,6 @@
             </div>
         </div>
     </div>
-    <div class="container margin-auth-block">
-        <form method="post" action="" class="">
-            <div class="row text-center mx-auto mt-4 mb-sm-5">
-                <div class="col-sm-3">
-                </div>
-                <div class="col-sm-6 card mb-3 box-shadow border-none">
-                    <div class="card-body mt-2 text-center">
-                        <h4 class="my-0 font-weight-normal">
-
-                        </h4>
-                    </div>
-                    <div class="card-body text-start">
-                        {% load crispy_forms_tags %}
-                        {% csrf_token %}
-                        {% crispy form %}
-                        <button type="submit" class="btn elem-button btn-md">
-                            Применить
-                        </button>
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                </div>
-            </div>
-        </form>
-    </div>
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5 table-responsive">
@@ -73,46 +48,54 @@
                         <th class="align-middle" data-sortable="true">Уклонный блок</th>
                         <th class="align-middle" data-sortable="true">Выработка</th>
                         <th class="align-middle text-center">Пикет</th>
-                        <th class="align-middle">Описание</th>
+                        {#                        <th class="align-middle">Описание</th>#}
                         <th class="align-middle" data-sortable="true">Связанное оборудование</th>
-                        <th class="align-middle text-center" data-sortable="true">Оборудование подключено</th>
+                        <th class="align-middle text-center" data-sortable="true">Подключено</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Редактировать</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Удалить</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for branchesbox in branchesbox_list %}
-{#                        {% if equipment_file.title != 'Все оборудование' %}#}
-                            <tr class="box-table-td">
-                            <td class="align-middle">{{ branchesbox.title }}</td>
-                            <td class="align-middle">{{ branchesbox.subsystem }}</td>
-                            <td class="align-middle">{{ branchesbox.number_mine }}</td>
+                    {% for branchesbox in branches_box_list %}
+                        {#                        {% if equipment_file.title != 'Все оборудование' %}#}
+                        <tr class="box-table-td">
+                        <td class="align-middle">{{ branchesbox.title }}</td>
+                        <td class="align-middle">{{ branchesbox.subsystem }}</td>
+                        <td class="align-middle">{{ branchesbox.number_mine }}</td>
                         {% if branchesbox.inclined_blocks != None %}
                             <td class="align-middle">{{ branchesbox.inclined_blocks }}</td>
                         {% else %}
-                        <td class="align-middle text-center">-</td>
+                            <td class="align-middle text-center">-</td>
                         {% endif %}
-                            <td class="align-middle">{{ branchesbox.tunnel }}</td>
+                        <td class="align-middle">{{ branchesbox.tunnel }}</td>
                         {% if branchesbox.picket != None %}
                             <td class="align-middle">{{ branchesbox.picket }}</td>
                         {% else %}
-                        <td class="align-middle text-center">-</td>
+                            <td class="align-middle text-center">-</td>
                         {% endif %}
-                            <td class="align-middle">{{ branchesbox.description }}</td>
+                        {#                            <td class="align-middle">{{ branchesbox.description }}</td>#}
                         {% if branchesbox.equipment != None %}
                             <td class="align-middle">{{ branchesbox.equipment }}</td>
                         {% else %}
-                        <td class="align-middle text-center">-</td>
+                            <td class="align-middle text-center">-</td>
                         {% endif %}
                         {% if branchesbox.equipment.equipment_bool.execution_bool == True %}
                             <td class="align-middle text-center">&#9989;</td>
                         {% else %}
-                        <td class="align-middle text-center">&#10060;</td>
+                            <td class="align-middle text-center">&#10060;</td>
                         {% endif %}
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                href="{% url 'mfss:branchesbox_update' branchesbox.pk %}">🛠️</a>
+                        </td>
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                href="{% url 'mfss:branchesbox_delete' branchesbox.pk %}">🗑️</a>
+                        </td>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
-            </div>
-            </div>
+        </div>
+    </div>
 
     {% include 'infoMFSS/includes/add_table_javascript.html' %}
 

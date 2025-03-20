@@ -94,22 +94,22 @@
                             <td class="align-middle">{{ cable_file.description }}</td>
 
                             {% if cable_file.file_pdf %}
-                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
-                                                           href="{{ cable_file.file_pdf.url }}">Просмотр</a></td>
+                                <td class="text-center align-middle"><a class="btn!important text-decoration-none" Style="color:#6d37ff;"
+                                                           href="{{ cable_file.file_pdf.url }}">📤</a></td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
 
                             {% if cable_file.file_passport %}
-                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
-                                                           href="{{ cable_file.file_passport.url }}">Просмотр</a></td>
+                                <td class="text-center align-middle"><a class="btn!important text-decoration-none" Style="color:#6d37ff;"
+                                                           href="{{ cable_file.file_passport.url }}">📤</a></td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}
 
                             {% if cable_file.file_certificate %}
-                                <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff;"
-                                                           href="{{ cable_file.file_certificate.url }}">Просмотр</a></td>
+                                <td class="text-center align-middle"><a class="btn!important text-decoration-none" Style="color:#6d37ff;"
+                                                           href="{{ cable_file.file_certificate.url }}">📤</a></td>
                             {% else %}
                                 <td class="text-center align-middle"><a>-</a></td>
                             {% endif %}

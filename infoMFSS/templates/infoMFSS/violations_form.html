@@ -89,22 +89,27 @@
                             <td class="align-middle text-center">&#9989;</td>
                         {% else %}
                             {#                        <td class="align-middle text-center">&#9940;</td>#}
-                            <td class="align-middle text-center">&#128500;</td>
+                            <td class="align-middle text-center">&#10060;</td>
                         {% endif %}
                         {% if violations.file_act %}
                             <td class="text-center align-middle">
                                 <a
-                                        class="btn!important btn-link!important"
+                                        class="btn!important text-decoration-none"
                                         Style="color:#6d37ff; font-size: 13px;"
-                                        href="{{ violations.file_act.url }}">Просмотр
+                                        href="{{ violations.file_act.url }}">📤
                                 </a>
                             </td>
                         {% else %}
                             <td class="text-center align-middle"><a>-</a></td>
                         {% endif %}
                         {% if violations.file_notification %}
-                            <td class="text-center align-middle"><a class="btn!important btn-link!important" Style="color:#6d37ff; font-size:
-                         13px;" href="{{ violations.file_notification.url }}">Просмотр</a>
+                            <td class="text-center align-middle">
+                                <a
+                                    class="btn!important text-decoration-none"
+                                    Style="color:#6d37ff; font-size:
+                         13px;"
+                                    href="{{ violations.file_notification.url }}">📤
+                                </a>
                                 {% else %}
                             <td class="text-center align-middle"><a>-</a></td>
                         {% endif %}
