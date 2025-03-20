@@ -1,0 +1,110 @@
+{% extends 'infoMFSS/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block navbar %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+
+    {% include 'infoMFSS/includes/add_table_css.html' %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container text-center mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5 table-responsive">
+                <table
+                        id="Table"
+                        class="table table-hover table-bordered table-sm"
+                        data-toggle="table"
+                        data-pagination="true"
+                        data-search="true"
+                        data-show-pagination-switch="true"
+                        data-show-refresh="true"
+                        data-show-toggle="true"
+                        data-show-columns="true"
+                        data-show-fullscreen="true"
+                        data-buttons-prefix="btn-sm btn"
+                        data-buttons-attribute-title="data-hint"
+                        data-search-align="left"
+                        data-toolbar="#toolbar"
+                        data-loading-template="loadingTemplate"
+                        data-show-print="true"
+                >
+                    <thead class="table-primary">
+                    <tr class="box-table-th">
+                        <th class="align-middle" data-field="date_act" data-sortable="true">Дата выдачи</th>
+                        <th class="align-middle" data-field="number_act" data-sortable="true">Номер акта</th>
+                        <th class="align-middle" data-field="mine" data-sortable="true" data-width="110">Шахта</th>
+                        <th class="align-middle" data-field="issued_by_act" data-sortable="true">Кем выдано</th>
+                        <th class="align-middle">Описание нарушения</th>
+                        <th class="text-center align-middle" data-field="execution_bool" data-sortable="true"
+                            data-width="110"
+                        >Устранение
+                        </th>
+                        <th class="text-center text-danger align-middle" data-width="110">Акт</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Уведомление</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Редактировать</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Удалить</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for violation in violations_list %}
+                        <tr class="box-table-td">
+                        <td class="align-middle">{{ violation.date_act|date:'d.m.Y' }}</td>
+                        <td class="align-middle">{{ violation.number_act }}</td>
+                        <td class="align-middle">{{ violation.number_mine }}</td>
+                        <td class="align-middle">{{ violation.issued_by_act }}</td>
+                        <td class="align-middle">{{ violation.title }}</td>
+
+                        {% if violation.execution_bool %}
+                            <td class="text-center align-middle">&#9989;</td>
+                        {% else %}
+                            <td class="text-center align-middle">&#10060;</td>
+                        {% endif %}
+
+                        {% if violation.file_act %}
+                            <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                    Style="color:#6d37ff; font-size: 13px;"
+                                                                    href="{{ violation.file_act.url }}">📤</a>
+                            </td>
+                        {% else %}
+                            <td class="text-center align-middle"><a>-</a></td>
+                        {% endif %}
+
+                        {% if violation.file_notification %}
+                            <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                    Style="color:#6d37ff; font-size: 13px;"
+                                                                    href="{{ violation.file_notification.url }}">📤</a>
+                            </td>
+                        {% else %}
+                            <td class="text-center align-middle"><a>-</a></td>
+                        {% endif %}
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                href="{% url 'mfss:violations_update' violation.pk %}">🛠️</a>
+                        </td>
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                href="{% url 'mfss:violations_delete' violation.pk %}">🗑️</a>
+                        </td>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
+
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}
