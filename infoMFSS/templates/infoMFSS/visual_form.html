@@ -69,8 +69,8 @@
                     <tr class="box-table-th">
                         <th class="align-middle" data-sortable="true">Нефтешахта</th>
                         <th class="align-middle" data-sortable="true">Подсистема</th>
-                        <th class="align-middle" data-sortable="true">Оборудование</th>
-                        <th class="align-middle" data-sortable="true">Кабель</th>
+                        <th class="align-middle" data-sortable="true" data-width="400">Оборудование</th>
+                        <th class="align-middle" data-sortable="true" data-width="400">Кабель</th>
                         <th class="align-middle text-center">Файл</th>
                     </tr>
                     </thead>
@@ -92,9 +92,9 @@
                         {% if visual.file_pdf %}
                             <td class="text-center align-middle">
                                 <a
-                                        class="btn!important btn-link!important"
+                                        class="btn!important text-decoration-none"
                                         Style="color:#6d37ff; font-size: 13px;"
-                                        href="{{ visual.file_pdf.url }}">Просмотр
+                                        href="{{ visual.file_pdf.url }}">📤
                                 </a>
                             </td>
                         {% else %}
