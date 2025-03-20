@@ -1,0 +1,108 @@
+{% extends 'infoMFSS/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block navbar %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+
+    {% include 'infoMFSS/includes/add_table_css.html' %}
+
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5 table-responsive">
+                <table
+                        id="Table"
+                        class="table table-hover table-bordered table-sm"
+                        data-toggle="table"
+                        data-pagination="true"
+                        data-search="true"
+                        data-show-pagination-switch="true"
+                        data-show-refresh="true"
+                        data-show-toggle="true"
+                        data-show-columns="true"
+                        data-show-fullscreen="true"
+                        data-buttons-prefix="btn-sm btn"
+                        data-buttons-attribute-title="data-hint"
+                        data-search-align="left"
+                        data-toolbar="#toolbar"
+                        data-loading-template="loadingTemplate"
+                        data-show-print="true"
+                >
+                    <thead>
+                    <tr class="box-table-th">
+                        <th class="align-middle" data-sortable="true">Кабель</th>
+                        <th class="align-middle" data-sortable="true">Подсистема</th>
+                        <th class="align-middle" data-sortable="true">Нефтешахта</th>
+                        <th class="align-middle">Уклонный блок</th>
+                        <th class="align-middle">От расп.коробки</th>
+                        <th class="align-middle">До расп.коробки</th>
+                        <th class="align-middle">До т. телефонии</th>
+                        <th class="align-middle" data-sortable="true">Обозначение</th>
+                        <th class="align-middle">Расстояние</th>
+                        <th class="align-middle">Ед.изм.</th>
+                        <th class="align-middle" data-sortable="true">Кабель проложен</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Редактировать</th>
+                        <th class="text-center text-danger align-middle" data-width="110">Удалить</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for cable_magazine in cable_magazine_list %}
+                        <tr class="box-table-td">
+                        <td class="align-middle">{{ cable_magazine.cable }}</td>
+                        <td class="align-middle">{{ cable_magazine.subsystem }}</td>
+                        <td class="align-middle">{{ cable_magazine.number_mine }}</td>
+                        {% if cable_magazine.inclined_blocks %}
+                            <td class="align-middle">{{ cable_magazine.inclined_blocks.title }}</td>
+                        {% else %}
+                            <td class="align-middle text-center">-</td>
+                        {% endif %}
+                        <td class="align-middle text-center">{{ cable_magazine.track_from_box }}</td>
+                        {% if cable_magazine.track_to_box %}
+                            <td class="align-middle text-center">{{ cable_magazine.track_to_box }}</td>
+                        {% else %}
+                            <td class="align-middle text-center">-</td>
+                        {% endif %}
+                        {% if cable_magazine.track_to_phone %}
+                            <td class="align-middle text-center">{{ cable_magazine.track_to_phone.title }}</td>
+                        {% else %}
+                            <td class="align-middle text-center">-</td>
+                        {% endif %}
+                        <td class="align-middle text-center">{{ cable_magazine.name }}</td>
+                        <td class="align-middle text-center">{{ cable_magazine.distance }}</td>
+                        <td class="align-middle text-center">{{ cable_magazine.unit }}</td>
+                        {% if cable_magazine.cable_bool.execution_bool == True %}
+                            <td class="align-middle text-center">&#9989;</td>
+                        {% else %}
+                            <td class="align-middle text-center">&#10060;</td>
+                        {% endif %}
+                        <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                    href="{% url 'mfss:cablemagazine_update' cable_magazine.pk %}">🛠️</a>
+                            </td>
+                            <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                    href="{% url 'mfss:cablemagazine_delete' cable_magazine.pk %}">🗑️</a>
+                            </td>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% include 'infoMFSS/includes/add_table_javascript.html' %}
+
+{% endblock %}
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}
