@@ -1,0 +1,26 @@
+{% extends 'users/base_verifi_sms.html' %}
+
+{% block content %}
+    <div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+        <form method="post">
+            <div class="row mx-auto">
+                <div class="col-sm-12 card mb-4 box-shadow card-imad-auth border-none">
+                    <h4 class="text-center mb-3 ">Введите код</h4>
+                    <p class="text-center mb-4">Отправили код подтверждения на номер {{ user_phone }}</p>
+                    <div class="card-body mb-3 mt-1">
+                        {% load crispy_forms_tags %}
+                        {% csrf_token %}
+                        {% crispy form %}
+                        <div class="row justify-content-center">
+                            <div class="col text-center">
+                                <button type="submit" class="btn elem-button btn-md mx-2 mt-3">
+                                    Подтвердить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
