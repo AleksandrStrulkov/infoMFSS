@@ -99,3 +99,17 @@ class RegisterForm(StyleFormMixin, UserCreationForm):
             user.save()
         post_register.send(RegisterForm, instance=user)
         return user
+
+
+class SMSVerificationForm(forms.Form):
+    code = forms.CharField(
+        label=False,
+        max_length=4,
+        min_length=4,
+        widget=forms.TextInput(attrs={
+                'autocomplete': 'off',
+                'style': 'width: 200px; height: 50px;',
+                'class': 'mx-auto d-block',
+                'placeholder': 'Введите 4-х значный код',
+        }),
+    )
