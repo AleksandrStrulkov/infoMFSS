@@ -90,7 +90,7 @@ DATABASES = {
                 'USER': os.getenv('POSTGRES_USER'),
                 'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
                 'PORT': os.getenv('POSTGRES_PORT'),
-                # 'HOST': os.getenv('POSTGRES_HOST'),
+                'HOST': os.getenv('POSTGRES_HOST'),
         }
 }
 # end
@@ -255,7 +255,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
-
 # Настройка django-smart-select
 JQUERY_URL = True
 # end
@@ -318,7 +317,17 @@ LOGGING = {
                         'handlers': ['console_dev', 'file', 'mail', 'console_prod'],
                         'level': 'INFO',
                         'propagate': True,
-                }
+                },
+                'django.security': {
+                        'handlers': ['file'],
+                        'level': 'INFO',
+                },
         }
 }
+# end
+
+# Настройки для смс отправки (API сервиса smsc.ru) подтверждения авторизации пользователя
+SMSC_LOGIN = os.getenv('SMSC_LOGIN')  # Email или ID из ЛК
+SMSC_PASSWORD = os.getenv('SMSC_PASSWORD')  # Пароль или API-ключ
+SMSC_SENDER = os.getenv('SMSC_SENDER')  # Например, "MyApp"
 # end
