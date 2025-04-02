@@ -202,7 +202,15 @@ hfy {
   /* Цвет текста при наведении */ }
 
 .box-table-th {
-  font-size: 13px; }
+  font-size: 0.8rem;
+  font-family: 'Roboto', sans-serif;
+  color: #6d37ff;
+  font-weight: 400 !important;
+  text-decoration: underline;
+  text-decoration-color: #6d37ff;
+  letter-spacing: 0.5px;
+  text-align: center;
+  vertical-align: middle; }
 
 .box-table-td {
   font-size: 13px; }
