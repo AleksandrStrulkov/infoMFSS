@@ -1,0 +1,5 @@
+--- a/smart_selects/db_fields.py
++++ b/smart_selects/db_fields.py
+@@ -62,XX +XX,XX @@
+-        choices = property(_get_choices, ChoiceField._set_choices)
++        choices = property(_get_choices, ChoiceField.choices)

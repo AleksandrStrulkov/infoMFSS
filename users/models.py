@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 import logging
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 NULLABLE = {'null': True, 'blank': True}
 
@@ -77,3 +79,13 @@ class AllowedPerson(models.Model):
         verbose_name = 'Разрешенный пользователь'
         verbose_name_plural = 'Разрешенные пользователи'
         ordering = ['last_name']
+
+
+class SMSDevice(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def is_valid(self):
+        return (timezone.now() - self.created_at).seconds < 300  # 5 минут

@@ -1,3 +1,5 @@
+from random import random, randint
+
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404, redirect
@@ -7,10 +9,17 @@ from django.views.generic import CreateView, UpdateView
 from django.views.generic.base import TemplateView
 from users.models import User
 from django.urls import reverse_lazy, reverse
-from users.forms import RegisterForm, UserProfileForm
+from users.forms import RegisterForm, UserProfileForm, SMSVerificationForm
 from django.core.signing import BadSignature
 from .utilities import signer
 from infoMFSS.services_logger import *
+from django.contrib.auth import authenticate, login
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.generic import FormView
+from .sms_utils import send_sms_via_smsc  # Утилита из предыдущего шага
+from .models import SMSDevice  # Модель для хранения кодов
+
 
 logger = logging.getLogger(__name__)
 
@@ -23,12 +32,76 @@ class LoginView(LoggingMixin, BaseLoginView):
 
     def form_valid(self, form):
         username = form.cleaned_data.get('username')
+        user = authenticate(
+                username=username,
+                password=form.cleaned_data.get('password')
+        )
+        if user:
+            # Генерация и отправка кода
+            code = str(randint(1000, 9999))
+            response = send_sms_via_smsc(user.phone, code)
 
-        # Логирование успешной авторизации
-        logger.info(f'Пользователь {username} успешно авторизовался',
-                    extra={'classname': self.__class__.__name__})
+            if response.get('error'):
+                logger.error(f'Ошибка отправки СМС на номер телефона: {user.phone}: {response["error"]}')
+                form.add_error(None, "Ошибка отправки SMS. Попробуйте позже.")
+                return self.form_invalid(form)
 
-        return super().form_valid(form)
+            # Сохранение кода в БД
+            SMSDevice.objects.create(user=user, code=code)
+            self.request.session['sms_user_id'] = user.id  # Сохраняем ID для верификации
+            self.request.session['sms_user_phone'] = user.phone  # Сохраняем номер телефона для верификации
+
+            logger.info(f"Код отправлен пользователю {username}")
+            return redirect('users:verify_sms')  # Перенаправляем на страницу ввода кода
+
+        # # Логирование успешной авторизации
+        # logger.info(f'Пользователь {username} успешно авторизовался',
+        #             extra={'classname': self.__class__.__name__})
+
+        logger.warning(f"Неудачная попытка входа для {username}")
+        return super().form_invalid(form)
+
+
+class SMSVerificationView(FormView):
+    template_name = 'users/verify_sms.html'
+    form_class = SMSVerificationForm  # Форма с полем code
+    success_url = reverse_lazy('infoMFSS:home')  # URL после успешной верификации
+
+    def form_valid(self, form):
+        # if self.request.session.get('sms_attempts', 0) >= 3:
+        #     form.add_error(None, 'Превышено количество попыток. Попробуйте позже.')
+        #     return self.form_invalid(form)
+
+        # self.request.session['sms_attempts'] = self.request.session.get('sms_attempts', 0) + 1
+
+        user_id = self.request.session.get('sms_user_id')
+        code = form.cleaned_data['code']
+
+        if user_id:
+            try:
+                device = SMSDevice.objects.get(
+                        user_id=user_id,
+                        code=code,
+                        is_verified=False
+                )
+                device.is_verified = True
+                device.save()
+
+                user = device.user
+                login(self.request, user)  # Финализируем вход
+                logger.info(f"Пользователь {user.username} успешно верифицирован")
+                return super().form_valid(form)
+
+            except SMSDevice.DoesNotExist:
+                logger.warning(f"Неверный код для пользователя ID {user_id}")
+                form.add_error('code', 'Неверный код или срок действия истёк')
+
+        return self.form_invalid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user_phone'] = self.request.session.get('sms_user_phone')
+        return context
 
 
 class LogoutView(BaseLogoutView):
