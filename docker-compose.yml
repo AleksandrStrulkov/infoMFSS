@@ -11,6 +11,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
       - '5432:5432'
     healthcheck:
@@ -24,7 +25,11 @@ services:
   app:
     build: .
     tty: true
-    command: bash -c 'python manage.py migrate && python manage.py runserver 0.0.0.0:8000'
+    command: >
+      bash -c '
+      python manage.py migrate && 
+      python manage.py create_users &&
+      python manage.py runserver 0.0.0.0:8000'
     volumes:
       - .:/app
     ports:

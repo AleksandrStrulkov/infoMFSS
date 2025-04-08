@@ -12,6 +12,10 @@ RUN apt-get update && \
 # 2. Установка setuptools и обновление pip
 RUN pip install --upgrade pip setuptools wheel
 
+## Создаем структуру папок и файлов
+#RUN mkdir -p /logs && touch /logs/infoMFSS.log \
+#    && chmod 666 /logs/infoMFSS.log  # Делаем файл доступным для записи
+
 # Создаем и переходим в рабочую директорию
 WORKDIR /app
 COPY requirements.txt .
@@ -23,13 +27,14 @@ COPY . .
 # Собираем статику (для production)
 RUN python manage.py collectstatic --noinput --clear
 
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 # Настройки окружения
 ENV PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=config.settings
 
 # Команда запуска (для development)
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+#CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
-# Для production замените CMD на:
-# CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Для production CMD:
+ CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
 

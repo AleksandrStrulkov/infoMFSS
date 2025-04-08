@@ -1,3 +1,5 @@
+gunicorn==21.2.0
+uwsgi=2.0.20
 Django==5.1.2
 pillow==11.0.0
 psycopg2-binary==2.9.10
@@ -13,7 +15,7 @@ django-compressor==4.5.1
 django-sass-processor==1.4.1
 django-crispy-forms==2.3
 crispy-bootstrap5==2024.10
-django-smart-selects==1.6.0
+django-smart-selects==1.7.2
 django-filter==24.3
 django-simple-captcha==0.6.1
 python-json-logger==3.2.1
