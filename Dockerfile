@@ -16,7 +16,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Устанавливаем зависимости
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt django-sass-processor
 
 # ===== Финальный образ =====
 FROM python:3.12-slim
@@ -47,8 +47,12 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONPYCACHEPREFIX=/tmp/.pycache \
     DJANGO_SETTINGS_MODULE=config.settings
 
+# Создаем отдельные директории
+RUN mkdir -p /app/staticfiles /app/compiled_static
+
 # Собираем статику
-RUN python manage.py collectstatic --noinput --clear
+RUN python manage.py compilescss && \
+    python manage.py collectstatic --noinput
 
 # Переключаемся на непривилегированного пользователя
 USER appuser
