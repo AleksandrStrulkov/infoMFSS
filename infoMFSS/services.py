@@ -82,8 +82,12 @@ class PercentService:
 
     @staticmethod
     def get_latest_update():
-        """Получает последнее обновление данных."""
-        return DateUpdate.objects.latest('update')
+        """Получает или создает начальную запись обновления."""
+        try:
+            return DateUpdate.objects.latest('update')
+        except DateUpdate.DoesNotExist:
+            from django.utils import timezone
+            return DateUpdate.objects.create(update=timezone.now())
 
 
 class EquipmentFilterService(BaseFilterService):
