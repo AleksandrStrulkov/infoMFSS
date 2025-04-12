@@ -26,7 +26,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -129,21 +129,29 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
-# STATIC_URL = '/static/' # возможно придется сделать так
+# Базовые настройки статики
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_collected')  # Для collectstatic
 
-# STATIC_DIRS = os.path.join(BASE_DIR, 'static/') # это пока не нужно
-# STATICFILES_DIRS = [(os.path.join(BASE_DIR, 'static'))] # это пока не нужно
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-SASS_PROCESSOR_ROOT = STATIC_ROOT
-
-STATICFILES_FINDERS = [
-        'django.contrib.staticfiles.finders.FileSystemFinder',
-        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-        'sass_processor.finders.CssFinder',
+# Исходные файлы (SCSS/JS/изображения)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
 ]
 
-MEDIA_URL = 'media/'  # это пока не нужно
+# Настройки Sass Processor
+SASS_PROCESSOR_ROOT = STATIC_ROOT
+SASS_PROCESSOR_ENABLED = True
+SASS_PROCESSOR_INCLUDE_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Где искать SCSS-файлы
+]
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
+
+MEDIA_URL = '/media/'  # это пока не нужно
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # это пока не нужно
 # end
 
@@ -193,41 +201,6 @@ CORS_ALLOW_ALL_ORIGINS = False
 #         'https://your-domain.com',
 # ]
 
-# CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOW_CREDENTIALS = True
-# CORS_EXPOSE_HEADERS = ['X-Custom-Header']
-# CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'DELETE']
-# CORS_PREFLIGHT_MAX_AGE = 86400
-# CORS_REPLACE_HTTPS_REFERER = True
-# end
-
-# Конфигурация для Celery
-# Установка в локальной среде
-# CELERY_BROKER_URL = 'redis://localhost:6379'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-
-# Установка при связи с docker и на продакшн
-# CELERY_BROKER_URL = 'redis://redis:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
-#
-# CELERY_TIMEZONE = "Europe/Moscow"
-# CELERY_TASK_TRACK_STARTED = True
-# CELERY_TASK_TIME_LIMIT = 30 * 60
-# CELERY_SCHEDULER = 'celery.schedulers.DatabaseScheduler'
-# CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
-# CELERY_ACCEPT_CONTENT = ['application/json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_SERIALIZER = 'json'
-# end
-
-# Конфигурация для Swagger
-# SWAGGER_SETTINGS = {
-#         'DEFAULT_API_VERSION': '1.0',
-#         'DEFAULT_TITLE': 'API МФСС',
-#         'DEFAULT_DESCRIPTION': 'API для работы с МФСС',
-# }
-# end
-
 # Settings telegram
 TELEGRAM_URL = 'https://api.telegram.org/bot'
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
@@ -266,7 +239,7 @@ LOGGING = {
 
         'formatters': {
                 'simple': {
-                        'format': '{asctime} - {levelname} - {classname} - {funcName} - {lineno} - {'
+                        'format': '{asctime} - {levelname} - {name} - {funcName} - {lineno} - {'
                                   'message}',
                         'style': '{',
                         'datefmt': '%d.%m.%Y %H:%M:%S',
@@ -331,3 +304,5 @@ SMSC_LOGIN = os.getenv('SMSC_LOGIN')  # Email или ID из ЛК
 SMSC_PASSWORD = os.getenv('SMSC_PASSWORD')  # Пароль или API-ключ
 SMSC_SENDER = os.getenv('SMSC_SENDER')  # Например, "MyApp"
 # end
+
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
