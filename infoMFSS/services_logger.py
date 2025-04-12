@@ -8,7 +8,8 @@ class LoggingMixin:
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             logger.info(
-                f'Запрос: {request.method} {request.path}Пользователь: {request.user.last_name}',
+                f'Запрос: {request.method} {request.path} Пользователь: {request.user.last_name} '
+                f'{request.user.first_name[0]}.{request.user.middle_name[0]}.',
                 extra={'classname': self.__class__.__name__}
                 )
             return super().dispatch(request, *args, **kwargs)
@@ -42,7 +43,8 @@ def logger_context_info(self):
     user = self.request.user
     if user.is_authenticated:
         return logger.info(
-            f'Контекст обработан и выведен в шаблон. Пользователь: {user.last_name}',
+            f'Контекст обработан и выведен в шаблон. Пользователь: {user.last_name} {user.first_name[0]}'
+            f'.{user.middle_name[0]}.',
             extra={'classname': self.__class__.__name__}
             )
     return logger.info(
@@ -55,7 +57,8 @@ def logger_context_warning(self, e):
     user = self.request.user
     if user.is_authenticated:
         return logger.error(
-            f'Ошибка обработки контекста {str(e)}. Пользователь: {user.last_name}',
+            f'Ошибка обработки контекста {str(e)}. Пользователь: {user.last_name} {user.first_name[0]}'
+            f'.{user.middle_name[0]}.',
             extra={'classname': self.__class__.__name__}
             )
     return logger.error(
@@ -68,7 +71,7 @@ def logger_form_valid(self):
     user = self.request.user
     if user.is_authenticated:
         return logger.info(
-            f'Форма успешно обработана. Пользователь: {user.last_name}',
+            f'Форма успешно обработана. Пользователь: {user.last_name} {user.first_name[0]}.{user.middle_name[0]}.',
             extra={'classname': self.__class__.__name__}
             )
     return logger.error(
