@@ -87,16 +87,18 @@
                         >
                         <thead>
                         <tr class="box-table-th">
-                            <th class="align-middle" data-field="mine" data-sortable="true">Шахта</th>
+                            <th class="align-middle" data-field="cable" data-sortable="true">Кабель
+                            </th>
+                            <th class="align-middle" data-field="device_type" data-sortable="true">Тип</th>
                             <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                            <th class="align-middle" data-field="mine" data-sortable="true">Шахта</th>
                             <th class="align-middle" data-field="track_from" data-sortable="true">Начало трассы</th>
                             <th class="align-middle" data-field="track_to" data-sortable="true">Конец трассы</th>
                             <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок
                             </th>
-                            <th class="align-middle" data-field="distance" data-sortable="true">Протяженность, м</th>
-                            <th class="align-middle" data-field="cable" data-sortable="true">Кабель</th>
+                            <th class="align-middle" data-field="distance" data-sortable="true" data-width="50">L, м</th>
                             <th class="text-center align-middle" data-field="project_name" data-sortable="true">
-                                Обозначение в проекте
+                                Обозначение трассы
                             </th>
                         </tr>
                     {% endif %}
@@ -105,23 +107,42 @@
                     {% for cable in cable_list %}
                         {% if cable.cable_magazine %}
                             <tr class="box-table-td">
+                                <td class="align-middle">{{ cable.cable_magazine.cable.title }}</td>
+                            {% if cable.cable_magazine.cable.device_type is not None %}
+                                <td class="align-middle">{{ cable.cable_magazine.cable.device_type }}</td>
+                                {% else %}
+                                <td class="align-middle">-</td>
+                                {% endif %}
+                                <td data-field="subsystem" class="text-start">
+                                    {% if cable.cable_magazine.subsystem %}
+                                        <span
+                                                data-bs-toggle="tooltip"
+                                                data-bs-custom-class="tooltip-card"
+                                                title="{{ cable.cable_magazine.subsystem.description|default:'Нет описания'|escape }}">
+                                                {{ cable.cable_magazine.subsystem.title }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">Без подсистемы</span>
+                                    {% endif %}
+                                </td>
+                                {% include 'infoMFSS/includes/include_tooltip_subsystem.html' %}
                                 <td class="align-middle">{{ cable.cable_magazine.number_mine.title }}</td>
-                                <td class="align-middle">{{ cable.cable_magazine.subsystem.title }}</td>
-                                <td class="align-middle">{{ cable.cable_magazine.track_from_box.title }}
-                                    ({{ cable.cable_magazine.track_from_box.tunnel.title }})
+
+                                <td class="align-middle">
+                                    {{ cable.cable_magazine.track_from_box.tunnel.title }}
                                 </td>
                                 {% if cable.cable_magazine.track_to_box.title %}
-                                    <td class="align-middle">{{ cable.cable_magazine.track_to_box.title }}
-                                        ({{ cable.cable_magazine.track_to_box.tunnel.title }})
+                                    <td class="align-middle">
+                                        {{ cable.cable_magazine.track_to_box.tunnel.title }}
                                     </td>
                                 {% else %}
-                                    <td class="align-middle">{{ cable.cable_magazine.track_to_phone.title }}
-                                        ({{ cable.cable_magazine.track_to_phone.tunnel.title }})
+                                    <td class="align-middle">
+                                        {{ cable.cable_magazine.track_to_phone.tunnel.title }}
                                     </td>
                                 {% endif %}
                                 <td class="align-middle">{{ cable.cable_magazine.inclined_blocks.title }}</td>
                                 <td class="align-middle">{{ cable.cable_magazine.distance }}</td>
-                                <td class="align-middle">{{ cable.cable_magazine.cable.title }}</td>
+
                                 <td class="text-center align-middle">{{ cable.cable_magazine.name }}</td>
                             </tr>
                         {% endif %}

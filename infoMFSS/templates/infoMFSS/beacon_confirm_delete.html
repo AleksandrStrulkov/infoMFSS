@@ -1,0 +1,16 @@
+{% extends 'infoMFSS/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block navbar %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+
+    {% include 'infoMFSS/includes/include_delete_beacon.html' %}
+
+{% endblock %}
+
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}

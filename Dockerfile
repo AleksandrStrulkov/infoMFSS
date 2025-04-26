@@ -1,8 +1,8 @@
 FROM python:3.12.7-slim
 
-# Проверка и создание пользователя только при необходимости
-RUN getent group www-data || addgroup --system www-data && \
-    id -u www-data || adduser --system --ingroup www-data www-data
+# Проверка и создание пользователя
+RUN getent group info-mfss || addgroup --system info-mfss && \
+    id -u info-mfss || adduser --system --ingroup info-mfss info-mfss
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -23,10 +23,10 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . .
 
 # Назначаем права
-RUN chown -R www-data:www-data /app
+RUN chown -R info-mfss:info-mfss /app
 
 # Переключаем пользователя
-USER www-data
+USER info-mfss
 
 RUN chmod +x ./entrypoint.sh
 

@@ -12,7 +12,8 @@ from infoMFSS.views import EquipmentListView, CableListView, BoxListView, \
     VisualistView, EquipmentInstallationView, ExecutionView, UpdateBranchesBoxView, UpdateCableMagazineView, \
     DeleteBranchesBoxView, DeleteCableMagazineView, UpdateViolationsView, DeleteViolationsView, UpdateVisualView, \
     DeleteVisualView, UpdateEquipmentInstallationView, DeleteEquipmentInstallationView, UpdateExecutionView, \
-    DeleteExecutionView
+    DeleteExecutionView, BeaconListView, CreateBeaconView, BeaconView, UpdateBeaconView, DeleteBeaconView, \
+    CreateDateView
 
 # from mfss.views import SubsystemTemplateView
 # from infoMFSS.views import index
@@ -40,9 +41,11 @@ urlpatterns = [
                 'quantity/', QuantityEquipmentCableView.as_view(template_name='infoMFSS/quantity_equipment_cable.html'),
                 name='quantity_equipment_cable'
         ),
+        path('beacon_list/', BeaconListView.as_view(), name='beacon'),
         # Создание (только для модератора)
         path('moderator/create/equipment/', CreateEquipmentView.as_view(), name='create_equipment'),
         path('moderator/create/cable/', CreateCableView.as_view(), name='create_cable'),
+        path('moderator/create/beacon/', CreateBeaconView.as_view(), name='create_beacon'),
         path('moderator/create/pointphone/', CreatePointPhoneView.as_view(), name='create_pointphone'),
         path('moderator/create/branchesbox/', CreateBranchesBoxView.as_view(), name='create_branchesbox'),
         path('moderator/create/cablemagazine/', CreateCableMagazineView.as_view(), name='create_cablemagazine'),
@@ -53,9 +56,11 @@ urlpatterns = [
                 name='create_equipment_installation'
         ),
         path('moderator/create/execution/', CreateExecutionView.as_view(), name='create_execution'),
+        path('moderator/create/date/', CreateDateView.as_view(), name='create_date'),
         # Просмотр и выбор для редактирования и удаления (только для модератора)
         path('moderator/list/equipment/', EquipmentView.as_view(), name='equipment_list'),
         path('moderator/list/cable/', CableView.as_view(), name='cable_list'),
+        path('moderator/list/beacon/', BeaconView.as_view(), name='beacon_list'),
         path('moderator/list/point_phone/', PointPhoneView.as_view(), name='point_phone_list'),
         path('moderator/list/branches_box/', BranchesBoxView.as_view(), name='branches_box_list'),
         path('moderator/list/cable_magazine/', CableMagazineView.as_view(), name='cable_magazine_list'),
@@ -69,6 +74,7 @@ urlpatterns = [
         # Редактирование (только для модератора)
         path('moderator/update/equipment/<int:pk>', UpdateEquipmentView.as_view(), name='equipment_update'),
         path('moderator/update/cable/<int:pk>', UpdateCableView.as_view(), name='cable_update'),
+        path('moderator/update/beacon/<int:pk>', UpdateBeaconView.as_view(), name='beacon_update'),
         path('moderator/update/point_phone/<int:pk>', UpdatePointPhoneView.as_view(), name='point_phone_update'),
         path('moderator/update/branchesbox/<int:pk>', UpdateBranchesBoxView.as_view(), name='branchesbox_update'),
         path('moderator/update/cablemagazine/<int:pk>', UpdateCableMagazineView.as_view(), name='cablemagazine_update'),
@@ -82,6 +88,7 @@ urlpatterns = [
         # Удаление (только для модератора)
         path('moderator/delete/equipment/<int:pk>', DeleteEquipmentView.as_view(), name='equipment_delete'),
         path('moderator/delete/cable/<int:pk>', DeleteCableView.as_view(), name='cable_delete'),
+        path('moderator/delete/beacon/<int:pk>', DeleteBeaconView.as_view(), name='beacon_delete'),
         path('moderator/delete/point_phone/<int:pk>', DeletePointPhoneView.as_view(), name='point_phone_delete'),
         path('moderator/delete/branchesbox/<int:pk>', DeleteBranchesBoxView.as_view(), name='branchesbox_delete'),
         path('moderator/delete/cablemagazine/<int:pk>', DeleteCableMagazineView.as_view(), name='cablemagazine_delete'),

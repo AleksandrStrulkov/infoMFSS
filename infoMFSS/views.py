@@ -6,11 +6,12 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView, FormView
 from django.urls import reverse
 from infoMFSS.models import Execution, DateUpdate, NumberMine, Subsystem, InclinedBlocks, PointPhone, BranchesBox, \
-    Equipment, Cable, Violations, EquipmentInstallation, CableMagazine, Visual
+    Equipment, Cable, Violations, EquipmentInstallation, CableMagazine, Visual, Beacon
 from infoMFSS.forms import PercentForm, EquipmentForm, CableForm, BoxForm, ProjectEquipmentForm, \
     ProjectCableForm, ContactForm, QuantityEquipmentCableForm, EquipmentCreateForm, CableCreateForm, \
     PointPhoneCreateForm, BranchesBoxCreateForm, CableMagazineCreateForm, ViolationsCreateForm, VisualForm, \
-    VisualCreateNewForm, CreateEquipmentInstallationForm, CreateExecutionForm
+    VisualCreateNewForm, CreateEquipmentInstallationForm, CreateExecutionForm, BeaconForm, BeaconCreateForm, \
+    CreateDateUpdateForm
 from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.conf import settings
@@ -18,7 +19,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin, 
     PermissionRequiredMixin
 from .services import EquipmentFilterService, CableFilterService, BoxFilterService, \
     ProjectEquipmentFilterService, ProjectCableFilterService, PercentService, QuantityEqCabFilterService, \
-    VisualFilterService
+    VisualFilterService, BeaconFilterService
 from .params import FilterParams
 from infoMFSS.services_logger import *
 from django.contrib import messages
@@ -398,6 +399,62 @@ class ViolationsListView(LoggingMixin, LoginRequiredMixin, ListView):
         return context
 
 
+class BeaconListView(LoggingMixin, LoginRequiredMixin, FormView):
+    """
+    Вывод списка подключенных устройств
+    """
+    form_class = BeaconForm
+    model = Beacon
+    template_name = 'infoMFSS/beacon_list.html'
+    context_object_name = 'beacon_list'
+    success_url = reverse_lazy('mfss:beacon')
+    extra_context = {
+            'title': "Просмотр списка биконов",
+    }
+    result = 0
+
+    def form_valid(self, form):
+        """
+        Метод вызывается, если форма прошла валидацию.
+        """
+
+        params = {
+                "mine": form.cleaned_data.get("number_mines", ),
+                "incl_blocks": form.cleaned_data.get("incl_blocks", ),
+        }
+
+        url = f"{reverse('mfss:beacon')}?{'&'.join(f'{key}={value}' for key, value in params.items())}"
+
+        logger_form_valid(self)
+        return HttpResponseRedirect(url)
+
+    def get_context_data(self, **kwargs):
+        """
+        Метод для добавления дополнительного контекста в шаблон.
+        Здесь выполняется фильтрация данных из базы.
+        """
+        context = super().get_context_data(**kwargs)
+        filter_params = FilterParams(self.request)
+
+        try:
+            context["beacon_list"] = BeaconFilterService.get_filtered_queryset(filter_params)
+
+            # Добавляем параметры в контекст для отображения в шаблоне
+            context.update(
+                    {
+                            "mine": filter_params.get("mine", ),
+                            "incl_blocks": filter_params.get("incl_blocks", ),
+                    }
+            )
+
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context['error_message'] = f"Произошла ошибка в формировании данных"
+
+        return context
+
+
 class VisualView(LoggingMixin, LoginRequiredMixin, FormView):
     """
     Вывод файла pdf для визуализации установленного оборудования
@@ -574,7 +631,7 @@ class ContactFormView(LoggingMixin, FormView):
     def form_valid(self, form):
         """
         Этот метод вызывается, если форма прошла валидацию.
-        Здесь мы отправляем письма администратору и пользователю.
+        Здесь мы отправляем письма администратору.
         """
         # Получаем данные из формы
         name = form.cleaned_data['name']
@@ -719,6 +776,27 @@ class CreateCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin,
         return context
 
 
+class CreateBeaconView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Добавить в базу данных биконы (маячки)
+    """
+    model = Beacon
+    form_class = BeaconCreateForm
+    permission_required = 'infoMFSS.add_beacon'
+    success_url = reverse_lazy('mfss:create_beacon')
+    template_name = 'infoMFSS/beacon_form.html'
+    context_object_name = 'beacon_list'
+    # success_message = 'Оборудование "%(title)s" успешно создано.'
+    extra_context = {
+            'title': "Добавить биконы (маячки)",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['beacon_list'] = Beacon.objects.all()
+        return context
+
+
 class CreatePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """
     Добавить в базу данных точку телефонной связи
@@ -860,6 +938,26 @@ class CreateExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMi
         return context
 
 
+class CreateDateView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    """
+    Добавить в базу данных отчет о выполненных работах
+    """
+    model = DateUpdate
+    form_class = CreateDateUpdateForm
+    permission_required = 'infoMFSS.add_dateupdate'
+    success_url = reverse_lazy('mfss:home')
+    template_name = 'infoMFSS/create_dateupdate_form.html'
+    context_object_name = 'dateupdate_list'
+    extra_context = {
+            'title': "Добавить в отчет дату последнего обновления",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['dateupdate_list'] = Execution.objects.all()
+        return context
+
+
 """Отображение данных для модераторов для выбора изменения или удаления"""
 
 
@@ -885,6 +983,18 @@ class CableView(LoggingMixin, LoginRequiredMixin, ListView):
     context_object_name = 'cable_list'
     extra_context = {
             'title': "Список трасс кабелей",
+    }
+
+
+class BeaconView(LoggingMixin, LoginRequiredMixin, ListView):
+    """
+    Вывод списка оборудования для последующего изменения в БД
+    """
+    model = Beacon
+    template_name = 'infoMFSS/beacon.html'
+    context_object_name = 'beacon_list'
+    extra_context = {
+            'title': "Список биконов (маячков)",
     }
 
 
@@ -1010,6 +1120,25 @@ class UpdateCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin,
         return queryset
 
 
+class UpdateBeaconView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    """
+    Изменить биконы в БД
+    """
+    model = Beacon
+    form_class = BeaconCreateForm
+    permission_required = 'infoMFSS.change_beacon'
+    template_name = 'infoMFSS/beacon_update_form.html'
+    success_url = reverse_lazy('mfss:beacon_list')
+    extra_context = {
+            'title': "Редактирование списка оборудования",
+    }
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        queryset = queryset.filter(id=self.kwargs.get('pk'))
+        return queryset
+
+
 class UpdatePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Изменить в БД точку телефонной связи
@@ -1124,6 +1253,25 @@ class UpdateEquipmentInstallationView(LoggingMixin, LoginRequiredMixin, Permissi
         return queryset
 
 
+# class UpdateDateView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+#     """
+#     Изменить в БД дату последнего обновления данных
+#     """
+#     model = DateUpdate
+#     form_class = CreateEquipmentInstallationForm
+#     permission_required = 'infoMFSS.change_equipmentinstallation'
+#     template_name = 'infoMFSS/equipment_installation_update_form.html'
+#     success_url = reverse_lazy('mfss:equipment_installation_list')
+#     extra_context = {
+#             'title': "Редактирование мест установки оборудования",
+#     }
+#
+#     def get_queryset(self, *args, **kwargs):
+#         queryset = super().get_queryset(*args, **kwargs)
+#         queryset = queryset.filter(id=self.kwargs.get('pk'))
+#         return queryset
+
+
 class UpdateExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     """
     Добавить в базу данных отчет о выполненных работах
@@ -1148,7 +1296,7 @@ class UpdateExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMi
 
 class DeleteEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
-    Изменить оборудование в БД
+    Удалить из БД оборудование
     """
     model = Equipment
     permission_required = 'infoMFSS.delete_equipment'
@@ -1157,11 +1305,20 @@ class DeleteEquipmentView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMi
 
 class DeleteCableView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     """
-    Изменить в БД кабельную продукцию
+    Удалить из БД кабельную продукцию
     """
     model = Cable
     permission_required = 'infoMFSS.delete_cable'
     success_url = reverse_lazy('mfss:cable_list')
+
+
+class DeleteBeaconView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    """
+    Удалить из БД бикон
+    """
+    model = Beacon
+    permission_required = 'infoMFSS.delete_beacon'
+    success_url = reverse_lazy('mfss:beacon_list')
 
 
 class DeletePointPhoneView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMixin, DeleteView):

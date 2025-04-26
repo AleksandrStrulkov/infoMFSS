@@ -1,0 +1,29 @@
+{% load crispy_forms_tags %}
+    <div class="container margin-auth-block">
+        <form method="post">
+            <div class="row text-center mx-auto mt-4 mb-sm-5">
+                <div class="col-sm-4">
+                </div>
+                <div class="col-sm-4 card mb-3 box-shadow card-imad-auth border-none">
+                    <div class="card-body mt-2 text-center">
+                        <h9 class="my-0 font-weight-normal">Хотите удалить?</h9><br>
+                        <h9 class="my-0 font-weight-normal">"Акт {{ object.number_act }}"</h9>
+                    </div>
+                    <div class="card-body text-center">
+                        {% csrf_token %}
+                        {% crispy form %}
+{#                        <button type="submit" class="btn elem-button btn-md">#}
+                        <button type="submit" class="btn btn-danger">
+                            Удалить
+                        </button>
+                        <a href="{% url 'mfss:violations_list' %}"
+                           class="btn btn-warning ms-2">Отмена
+                        </a>
+
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                </div>
+            </div>
+        </form>
+    </div>

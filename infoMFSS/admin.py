@@ -1,6 +1,6 @@
 from django.contrib import admin
 from infoMFSS.models import NumberMine, Unit, Subsystem, Equipment, InclinedBlocks, CableMagazine, Tunnel, \
-    EquipmentInstallation, Execution, BranchesBox, Cable, PointPhone, DateUpdate, Violations, Visual
+    EquipmentInstallation, Execution, BranchesBox, Cable, PointPhone, DateUpdate, Violations, Visual, Beacon
 from django.contrib.admin import AdminSite
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
@@ -15,12 +15,8 @@ class MyAdminSite(AdminSite):
         """
         app_dict = self._build_app_dict(request, app_label)
 
-        # Sort the apps alphabetically.
+        # Сортируем список в алфавитном порядке.
         app_list = sorted(app_dict.values(), key=lambda x: x["name"].lower())
-
-        # Sort the models alphabetically within each app.
-        # for app in app_list:
-        #     app["models"].sort(key=lambda x: x["name"])
 
         return app_list
 
@@ -30,7 +26,7 @@ admin.site = MyAdminSite()
 
 # @admin.register(NumberMine)
 class NumberMineAdmin(admin.ModelAdmin):
-    list_display = ('title', 'address_mine', 'slug')
+    list_display = ('id', 'title', 'address_mine', 'slug')
     prepopulated_fields = {'slug': ('title',)}
     list_filter = ('title',)
     search_fields = ('title',)
@@ -54,7 +50,6 @@ class SubsystemAdmin(admin.ModelAdmin):
 # @admin.register(Tunnel)
 class TunnelAdmin(admin.ModelAdmin):
     list_display = ('number_mine', 'title', 'inclined_blocks', 'tuf_bool', 'inclined_bool', 'description',)
-    # prepopulated_fields = {'slug': ('title', 'name_slag',)}
     list_filter = ('title', 'number_mine', 'inclined_blocks', 'tuf_bool', 'inclined_bool',)
     search_fields = ('title', 'number_mine', 'inclined_blocks', 'tuf_bool', 'inclined_bool',)
 
@@ -69,8 +64,7 @@ class InclinedBlocksAdmin(admin.ModelAdmin):
 
 # @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    list_display = ('title', 'description', 'subsystem', 'slug', 'file_pdf', 'file_passport', 'file_certificate')
-    prepopulated_fields = {'slug': ('title',)}
+    list_display = ('title', 'description', 'subsystem', 'file_pdf', 'file_passport', 'file_certificate')
     list_filter = ('title',)
     search_fields = ('title',)
 
@@ -80,25 +74,29 @@ class CableAdmin(admin.ModelAdmin):
     list_display = ('title', 'description', 'file_pdf', 'file_passport', 'file_certificate')
     list_filter = ('title',)
     search_fields = ('title',)
-    # prepopulated_fields = {'slug': ('title',)}
 
 
 # @admin.register(PointPhone)
 class PointPhoneAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number',
-                    'description', 'picket', 'slug')
+    list_display = ('id', 'title', 'device_type', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number',
+                    'description', 'picket', 'serial_number',)
     list_filter = ('title', 'number_mine', 'subscriber_number',)
     search_fields = ('title', 'number_mine', 'subscriber_number')
-    prepopulated_fields = {'slug': ('title', 'number_mine')}
 
 
 # @admin.register(BranchesBox)
 class BranchesBoxAdmin(admin.ModelAdmin):
-    list_display = ('title', 'number_mine', 'tunnel', 'inclined_blocks',  'subsystem', 'equipment', 'picket', 'description',
-                    'name_slag',)
-    list_filter = ('title', 'number_mine', 'subsystem', 'description', 'name_slag',)
-    search_fields = ('title', 'number_mine', 'subsystem', 'description', 'name_slag',)
-    # prepopulated_fields = {'slug': ('title', 'number_mine')}
+    list_display = ('title', 'device_type', 'number_mine', 'tunnel', 'inclined_blocks',  'subsystem', 'equipment',
+                    'picket', 'description', 'ip_address', 'serial_number',)
+    list_filter = ('title', 'number_mine', 'subsystem', 'description',)
+    search_fields = ('title', 'number_mine', 'subsystem', 'description',)
+
+
+class BeaconAdmin(admin.ModelAdmin):
+    list_display = ('designation', 'number_mine', 'tunnel', 'inclined_blocks', 'picket',  'mac_address', 'serial_number',
+                    'minor', 'execution_bool',)
+    list_filter = ('designation', 'number_mine', 'tunnel', 'inclined_blocks', 'serial_number', 'minor')
+    search_fields = ('designation', 'number_mine', 'tunnel', 'inclined_blocks', 'serial_number', 'minor')
 
 
 @admin.register(Visual)
@@ -137,7 +135,7 @@ class EquipmentInstallationAdmin(admin.ModelAdmin):
             'title', 'name', 'point_phone', 'point_phone__subscriber_number', 'branches_box', 'number_mine', 'tunnel',
             'inclined_blocks',
             'subsystem', 'picket',
-            'description')
+            'description', 'ip_address', 'serial_number', 'device_type')
     list_filter = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'point_phone')
     search_fields = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'point_phone')
 
@@ -165,6 +163,7 @@ admin.site.register(Tunnel, TunnelAdmin)
 admin.site.register(InclinedBlocks, InclinedBlocksAdmin)
 admin.site.register(Equipment, EquipmentAdmin)
 admin.site.register(Cable, CableAdmin)
+admin.site.register(Beacon, BeaconAdmin)
 admin.site.register(PointPhone, PointPhoneAdmin)
 admin.site.register(BranchesBox, BranchesBoxAdmin)
 admin.site.register(Visual, VisualAdmin)

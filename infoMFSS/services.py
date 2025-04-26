@@ -1,6 +1,6 @@
 from django.db.models import Q, Sum
 from .models import DateUpdate, Execution, BranchesBox, EquipmentInstallation, CableMagazine, NumberMine, \
-    Subsystem, InclinedBlocks, Equipment, Cable, Visual
+    Subsystem, InclinedBlocks, Equipment, Cable, Visual, Beacon
 
 
 class BaseFilterService:
@@ -123,6 +123,16 @@ class BoxFilterService(BaseFilterService):
     filter_config = {
             "mine": ("number_mine__title", "Все шахты"),
             "subsystem": ("subsystem__title", "Все подсистемы"),
+            "incl_blocks": ("inclined_blocks__title", "Все уклонные блоки"),
+    }
+
+
+class BeaconFilterService(BaseFilterService):
+    model = Beacon
+    default_order = "number_mine"
+
+    filter_config = {
+            "mine": ("number_mine__title", "Все шахты"),
             "incl_blocks": ("inclined_blocks__title", "Все уклонные блоки"),
     }
 

@@ -1,5 +1,7 @@
 from django.db import models
 import logging
+from django.utils import timezone
+from django.db import connection
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +18,7 @@ class NumberMine(models.Model):
     )
 
     title = models.CharField(max_length=15, verbose_name='Шахта', choices=NAME)
-    address_mine = models.CharField(max_length=250, verbose_name='Адрес шахты')
+    address_mine = models.CharField(max_length=250, verbose_name='Адрес шахты', **NULLABLE)
     slug = models.SlugField(max_length=15, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
@@ -26,6 +28,11 @@ class NumberMine(models.Model):
         verbose_name = 'нефтешахта'
         verbose_name_plural = 'нефтешахты'
         ordering = ['title']
+
+    @classmethod
+    def truncate_table_restart_id(cls):
+        with connection.cursor() as cursor:
+            cursor.execute(f'ALTER SEQUENCE infomfss_numbermine_id_seq RESTART WITH 1;')
 
 
 class InclinedBlocks(models.Model):
@@ -134,6 +141,7 @@ class Equipment(models.Model):
     """Перечень оборудования"""
 
     title = models.CharField(max_length=150, verbose_name='Оборудование')
+    device_type = models.CharField(max_length=50, verbose_name='Тип', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
     subsystem = models.ForeignKey(
             Subsystem, related_name='subsystem_equipment', on_delete=models.CASCADE,
@@ -170,6 +178,7 @@ class Cable(models.Model):
     #         Subsystem, related_name='subsystem_cable', on_delete=models.CASCADE,
     #         verbose_name='Подсистема', **NULLABLE
     # )
+    device_type = models.CharField(max_length=50, verbose_name='Тип', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
     # slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
     file_pdf = models.FileField(upload_to='pdf', **NULLABLE, verbose_name='Руководство по эксплуатации')
@@ -177,7 +186,10 @@ class Cable(models.Model):
     file_certificate = models.FileField(upload_to='pdf_certificate', **NULLABLE, verbose_name='Сертификат')
 
     def __str__(self):
-        return f'{self.title}'
+        if self.device_type is not None:
+            return f'{self.title}-{self.device_type}'
+        else:
+            return f'{self.title}'
 
     def save(self, *args, **kwargs):
         is_new = self._state.adding  # Проверяем, что объект новый
@@ -196,7 +208,7 @@ class Cable(models.Model):
 
 class PointPhone(models.Model):
     """Точка телефонии"""
-    title = models.CharField(max_length=100, verbose_name='Точка телефонии')
+    title = models.CharField(max_length=100, verbose_name='Обозначение в проекте')
     number_mine = models.ForeignKey(
             NumberMine, verbose_name='Шахта', related_name='mine_phones',
             on_delete=models.CASCADE
@@ -213,6 +225,8 @@ class PointPhone(models.Model):
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
+    serial_number = models.CharField(max_length=50, verbose_name='Зав. №', **NULLABLE)
+    device_type = models.CharField(max_length=50, verbose_name='Тип', **NULLABLE)
 
     def __str__(self):
         return f'{self.title}/{self.subscriber_number} (НШ-{self.number_mine.title[-1]})'
@@ -260,8 +274,9 @@ class BranchesBox(models.Model):
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
     boolean_block = models.BooleanField(verbose_name='Признак уклонного блока', default=False)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
-
-    # slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
+    ip_address = models.CharField(max_length=13, verbose_name='IP адрес', **NULLABLE)
+    serial_number = models.CharField(max_length=50, verbose_name='Зав. №', **NULLABLE)
+    device_type = models.CharField(max_length=50, verbose_name='Тип', **NULLABLE)
 
     def save(self, *args, **kwargs):
         # Генерируем name перед сохранением
@@ -328,10 +343,6 @@ class CableMagazine(models.Model):
             verbose_name='Выполнение', **NULLABLE, )
     slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
-    # @property
-    # def get_name(self):
-    #     return f'{self.track_from} - {self.track_to}'
-
     def save(self, *args, **kwargs):
         # Генерируем name перед сохранением
         if self.track_to_box is not None:
@@ -395,6 +406,9 @@ class EquipmentInstallation(models.Model):
             'Execution', related_name='exe_bool', on_delete=models.SET_NULL,
             verbose_name='Выполнение', **NULLABLE, )
     picket = models.CharField(max_length=100, verbose_name='Пикет', **NULLABLE)
+    ip_address = models.CharField(max_length=13, verbose_name='IP адрес', **NULLABLE)
+    serial_number = models.CharField(max_length=50, verbose_name='Зав. №', **NULLABLE)
+    device_type = models.CharField(max_length=50, verbose_name='Тип', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
     file_graphics = models.FileField(upload_to='pdf_graphics', **NULLABLE)
 
@@ -407,6 +421,8 @@ class EquipmentInstallation(models.Model):
             self.number_mine = self.point_phone.number_mine
             self.tunnel = self.point_phone.tunnel
             self.picket = self.point_phone.picket
+            self.serial_number = self.point_phone.serial_number
+            self.device_type = self.point_phone.device_type
             if self.point_phone.inclined_blocks is not None:
                 self.inclined_blocks = self.point_phone.inclined_blocks
         if self.branches_box is not None:
@@ -415,6 +431,9 @@ class EquipmentInstallation(models.Model):
             self.tunnel = self.branches_box.tunnel
             self.subsystem = self.branches_box.subsystem
             self.picket = self.branches_box.picket
+            self.ip_address = self.branches_box.ip_address
+            self.serial_number = self.branches_box.serial_number
+            self.device_type = self.branches_box.device_type
             if self.branches_box.inclined_blocks is not None:
                 self.inclined_blocks = self.branches_box.inclined_blocks
         is_new = self._state.adding  # Проверяем, что объект новый
@@ -424,7 +443,6 @@ class EquipmentInstallation(models.Model):
                     f'Добавлено новое место установки оборудования: {self.name} (ID: {self.id})',
                     extra={'classname': self.__class__.__name__}
             )
-
 
     class Meta:
         verbose_name = 'место установки оборудования'
@@ -443,38 +461,13 @@ class Execution(models.Model):
             CableMagazine, related_name='cable_executions', verbose_name='Список трасс кабелей',
             on_delete=models.CASCADE, **NULLABLE
     )
-    # subsystem = models.ForeignKey(
-    #         Subsystem, related_name='sub_executions', on_delete=models.CASCADE,
-    #         verbose_name='Подсистема', **NULLABLE
-    # )
-    # number_mine = models.ForeignKey(
-    #         NumberMine, related_name='mine_executions', on_delete=models.CASCADE,
-    #         verbose_name='Шахта', **NULLABLE
-    # )
-    # tunnel = models.ForeignKey(
-    #         Tunnel, related_name='tunnel_executions', on_delete=models.CASCADE,
-    #         verbose_name='Выработка'
-    # )
-    # inclined_blocks = models.ForeignKey(
-    #         InclinedBlocks, related_name='incl_execution', on_delete=models.CASCADE, verbose_name='Уклонный блок',
-    #         **NULLABLE, default='Туффит',
-    # )
-    # volume_total = models.PositiveIntegerField(verbose_name='Общий объем')
-    # volume_used = models.PositiveIntegerField(verbose_name='Всего установлено', default=0)
-    # volume_remaining = models.PositiveIntegerField(verbose_name='Остаток', default=0)
     execution_bool = models.BooleanField(
             verbose_name='Установка выполнена',
             default=False
     )
-    # unit = models.ForeignKey(
-    #         Unit, related_name='execution', on_delete=models.CASCADE, verbose_name='Единица '
-    #                                                                                'измерения'
-    # )
     date_start = models.DateField(verbose_name='Дата начала', **NULLABLE)
     date_end = models.DateField(verbose_name='Дата завершения', **NULLABLE)
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
-
-    # slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
 
     def __str__(self):
         if self.equipment_install:
@@ -507,7 +500,7 @@ class DateUpdate(models.Model):
     """Дата последнего изменения"""
     # update = models.DateField(default=timezone.now)
     update = models.DateTimeField(
-            verbose_name='Дата обновления данных', auto_now=False, auto_now_add=False,
+            verbose_name='Дата обновления данных', auto_now=False, auto_now_add=False, default=timezone.now,
             **NULLABLE
     )
     description = models.TextField(verbose_name='Краткое описание', **NULLABLE)
@@ -516,7 +509,8 @@ class DateUpdate(models.Model):
     #     return formats.date_format(self.update, "H:M:s D, d/M/Y")
 
     def __str__(self) -> str:
-        return self.update.strftime('%d.%m.%Y %H:%M', )
+        local_time = timezone.localtime(self.update)
+        return local_time.strftime('%d.%m.%Y %H:%M')
 
     class Meta:
         verbose_name = 'дата последнего изменения'
@@ -556,35 +550,6 @@ class Violations(models.Model):
 
 
 class Visual(models.Model):
-    # MINE = (
-    #         (None, 'Выберите один из пунктов списка'),
-    #         ('Нефтешахта №1', 'Нефтешахта №1'),
-    #         ('Нефтешахта №2', 'Нефтешахта №2'),
-    #         ('Нефтешахта №3', 'Нефтешахта №3'),
-    # )
-    #
-    # SUBSYSTEM = (
-    #         (None, 'Выберите один из пунктов списка'),
-    #         ('АТС', 'АТС'),
-    #         ('АГК', 'АГК'),
-    #         ('Позиционирование', 'Позиционирование'),
-    #         ('Видеонаблюдение', 'Видеонаблюдение'),
-    # )
-    #
-    # EQUIPMENT = (
-    #         (None, 'Выберите один из пунктов списка'),
-    #         ('Телефоны', 'Телефоны'),
-    #         ('Респред.коробки', 'Распред.коробки'),
-    #         ('Датчики ПДК', 'Датчики ПДК'),
-    #         ('Станции связи', 'Станции связи'),
-    #         ('Точки доступа wi-fi', 'Точки доступа wi-fi'),
-    #         ('Видеокамеры', 'Видеокамеры'),
-    # )
-
-    # number_mines = models.CharField(max_length=15, verbose_name='Шахта', choices=MINE)
-    # subsystems = models.CharField(max_length=20, verbose_name='Подсистема', choices=SUBSYSTEM)
-    # equipment = models.CharField(max_length=50, verbose_name='Оборудование', choices=EQUIPMENT)
-    # cable = models.CharField(max_length=50, verbose_name='Оборудование', choices=EQUIPMENT)
     number_mine = models.ForeignKey(
             NumberMine, verbose_name='Шахта', related_name='mine_visual',
             on_delete=models.CASCADE, **NULLABLE
@@ -619,4 +584,36 @@ class Visual(models.Model):
     class Meta:
         verbose_name = 'визуализация'
         verbose_name_plural = 'визуализации'
+        ordering = ['number_mine']
+
+
+class Beacon(models.Model):
+    """Маячки"""
+
+    designation = models.CharField(max_length=50, verbose_name='Обозн. в проекте', unique=True)
+    subsystem = models.CharField(max_length=20, verbose_name='Подсистема', default='Позиционирование')
+    number_mine = models.ForeignKey(
+            NumberMine, verbose_name='Шахта', related_name='mine_beacons',
+            on_delete=models.CASCADE,
+    )
+    tunnel = models.ForeignKey(
+            Tunnel, verbose_name='Выработка', related_name='tunnel_beacons',
+            on_delete=models.CASCADE, **NULLABLE,
+    )
+    inclined_blocks = models.ForeignKey(
+            InclinedBlocks, verbose_name='Уклонный блок', related_name='incl_beacons',
+            on_delete=models.CASCADE, default="Туффит", **NULLABLE,
+    )
+    picket = models.CharField(max_length=10, verbose_name='Пикет', **NULLABLE)
+    mac_address = models.CharField(max_length=17, verbose_name='MAC-адрес', unique=True, default='')
+    serial_number = models.CharField(max_length=10, verbose_name='Зав. №', unique=True, default='')
+    minor = models.CharField(max_length=10, verbose_name='МИНОР', unique=True, default='')
+    execution_bool = models.BooleanField(verbose_name='Установлен', default=False)
+
+    def __str__(self):
+        return f'{self.designation} ({self.number_mine.title})'
+
+    class Meta:
+        verbose_name = 'бикон'
+        verbose_name_plural = 'биконы'
         ordering = ['number_mine']

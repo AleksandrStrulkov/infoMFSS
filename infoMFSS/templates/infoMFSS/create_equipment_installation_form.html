@@ -24,7 +24,7 @@
             <div class="row text-center mx-auto mt-4 mb-sm-5">
                 <div class="col-sm-3">
                 </div>
-                <div class="col-sm-6 card mb-3 box-shadow border-none">
+                <div class="col-sm-6 card mb-3 box-shadow border-none card-imad-auth">
                     <div class="card-body mt-2 text-center">
                         <h4 class="my-0 font-weight-normal">
 
@@ -68,39 +68,43 @@
                     <thead>
                     <tr class="box-table-th">
                         <th class="align-middle" data-sortable="true">Оборудование</th>
-                         <th class="align-middle">Подсистема</th>
+                        <th class="align-middle" data-sortable="true">Тип</th>
+                        <th class="align-middle">Подсистема</th>
                         <th class="align-middle text-center" data-sortable="true">Нефтешахта</th>
-                        <th class="align-middle text-center" data-width="110">Выработка</th>
-                        <th class="align-middle text-center" data-width="110">Укл.блок</th>
+                        <th class="align-middle text-center">Выработка</th>
+                        <th class="align-middle text-center">Укл.блок</th>
+                        <th class="align-middle text-center">Пикет</th>
                         <th class="align-middle" data-sortable="true">Обозн.в проекте</th>
-                        <th class="align-middle" data-sortable="true">Точка телефонии</th>
-                        <th class="align-middle" data-sortable="true" data-width="110">Распред.коробка</th>
-{#                        <th class="align-middle text-center" data-width="110">Описание</th>#}
-                        <th class="align-middle text-center" data-width="110">Пикет</th>
-{#                        <th class="align-middle text-center" data-width="110">Граф.файл</th>#}
+{#                        <th class="align-middle" data-sortable="true">Точка телефонии</th>#}
+{#                        <th class="align-middle" data-sortable="true" data-width="110">Распред.коробка</th>#}
+                        {#                        <th class="align-middle text-center" data-width="110">Описание</th>#}
+{#                        <th class="align-middle text-center" data-width="110">Пикет</th>#}
+                        {#                        <th class="align-middle text-center" data-width="110">Граф.файл</th>#}
                     </tr>
                     </thead>
                     <tbody>
                     {% for equipment_installation in equipment_installation_list %}
                         <tr class="box-table-td">
-                        <td class="align-middle">{{ equipment_installation.title }}</td>
+                        <td class="align-middle">{{ equipment_installation.title.title }}</td>
+                        <td class="align-middle">{{ equipment_installation.title.device_type }}</td>
                         <td class="align-middle">{{ equipment_installation.subsystem }}</td>
                         <td class="align-middle">{{ equipment_installation.number_mine }}</td>
                         <td class="align-middle">{{ equipment_installation.tunnel }}</td>
                         <td class="align-middle">{{ equipment_installation.inclined_blocks }}</td>
-                        <td class="align-middle">{{ equipment_installation.name }}</td>
-                        {% if equipment_installation.point_phone %}
-                        <td class="align-middle">{{ equipment_installation.point_phone }}</td>
-                        {% else %}
-                        <td class="align-middle text-center">-</td>
-                        {% endif %}
-                        {% if equipment_installation.branches_box %}
-                        <td class="align-middle">{{ equipment_installation.branches_box }}</td>
-                        {% else %}
-                        <td class="align-middle text-center">-</td>
-                        {% endif %}
-{#                        <td class="align-middle">{{ equipment_installation.description }}</td>#}
                         <td class="align-middle">{{ equipment_installation.picket }}</td>
+                        <td class="align-middle">{{ equipment_installation.name }}</td>
+{#                        {% if equipment_installation.point_phone %}#}
+{#                            <td class="align-middle">{{ equipment_installation.point_phone }}</td>#}
+{#                        {% else %}#}
+{#                            <td class="align-middle text-center">-</td>#}
+{#                        {% endif %}#}
+{#                        {% if equipment_installation.branches_box %}#}
+{#                            <td class="align-middle">{{ equipment_installation.branches_box }}</td>#}
+{#                        {% else %}#}
+{#                            <td class="align-middle text-center">-</td>#}
+{#                        {% endif %}#}
+                        {#                        <td class="align-middle">{{ equipment_installation.description }}</td>#}
+
                     {% endfor %}
                     </tbody>
                 </table>
@@ -110,7 +114,38 @@
 
     {% include 'infoMFSS/includes/add_table_javascript.html' %}
 
+    <script>
+        function formatIP(input) {
+            // Удаляем все лишние точки (если пользователь вводит их вручную)
+            let value = input.value.replace(/[^0-9]/g, ''); // Оставляем только цифры
+
+            // Форматируем по шаблону XX.XX.XXX.XXX
+            let formattedValue = '';
+
+            if (value.length > 0) {
+                formattedValue = value.slice(0, 2); // Первые 2 цифры (1-й октет)
+            }
+            if (value.length > 2) {
+                formattedValue += '.' + value.slice(2, 4); // Вторые 2 цифры (2-й октет)
+            }
+            if (value.length > 4) {
+                formattedValue += '.' + value.slice(4, 7); // Третьи 3 цифры (3-й октет)
+            }
+            if (value.length > 7) {
+                formattedValue += '.' + value.slice(7, 10); // Четвёртые 3 цифры (4-й октет)
+            }
+
+            // Обрезаем лишнее (максимум 2+2+3+3 = 10 цифр)
+            input.value = formattedValue;
+        }
+
+        // Применяем обработчик
+        document.querySelector('.ip-input').addEventListener('input', function (e) {
+            formatIP(e.target);
+        });
+    </script>
 {% endblock %}
 {% block footer %}
     {% include 'users/includes/auth_footer.html' %}
 {% endblock %}
+

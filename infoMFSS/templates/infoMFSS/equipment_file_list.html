@@ -73,7 +73,7 @@
                         data-loading-template="loadingTemplate"
                         data-show-print="true"
                 >
-                    <thead >
+                    <thead>
                     <tr class="box-table-th">
                         <th class="align-middle" data-field="equipment" data-sortable="true">Оборудование</th>
                         <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
@@ -81,7 +81,8 @@
                         <th class="text-center text-danger data" data-field="file_pdf" data-width="110">Руководство</th>
                         <th class="text-center text-danger" data-field="file_passport" data-width="110">Паспорт</th>
                         <th class="text-center text-danger" data-field="file_certificate"
-                            data-width="110">Сертификат</th>
+                            data-width="110">Сертификат
+                        </th>
                     </tr>
                     </thead>
                     <tbody>
@@ -89,11 +90,25 @@
                         {% if equipment_file.title != 'Все оборудование' %}
                             <tr class="box-table-td">
                             <td class="align-middle">{{ equipment_file.title }}</td>
-                            <td class="align-middle">{{ equipment_file.subsystem }}</td>
+                            {#                            <td class="align-middle">{{ equipment_file.subsystem }}</td>#}
+                            <td data-field="subsystem" class="text-start">
+                                {% if equipment_file.subsystem %}
+                                    <span
+                                            data-bs-toggle="tooltip"
+                                            data-bs-custom-class="tooltip-card"
+                                            title="{{ equipment_file.subsystem.description|default:'Нет описания'|escape }}">
+                                                {{ equipment_file.subsystem.title }}
+                                        </span>
+                                {% else %}
+                                    <span class="text-muted">Без подсистемы</span>
+                                {% endif %}
+                            </td>
+                            {% include 'infoMFSS/includes/include_tooltip_subsystem.html' %}
                             <td class="align-middle">{{ equipment_file.description }}</td>
 
                             {% if equipment_file.file_pdf %}
-                                <td class="text-center align-middle"><a class="btn!important text-decoration-none" Style="color:#6d37ff;"
+                                <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                        Style="color:#6d37ff;"
                                                                         href="{{ equipment_file.file_pdf.url }}">📤</a>
                                 </td>
                             {% else %}
@@ -101,7 +116,8 @@
                             {% endif %}
 
                             {% if equipment_file.file_passport %}
-                                <td class="text-center align-middle"><a class="btn!important text-decoration-none" Style="color:#6d37ff;"
+                                <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                        Style="color:#6d37ff;"
                                                                         href="{{ equipment_file.file_passport.url }}">📤</a>
                                 </td>
                             {% else %}
@@ -109,7 +125,8 @@
                             {% endif %}
 
                             {% if equipment_filefile_certificate %}
-                                <td class="text-center align-middle"><a class="btn!important text-decoration-none" Style="color:#6d37ff;"
+                                <td class="text-center align-middle"><a class="btn!important text-decoration-none"
+                                                                        Style="color:#6d37ff;"
                                                                         href="{{ equipment_file.file_certificate.url }}">📤</a>
                                 </td>
                             {% else %}

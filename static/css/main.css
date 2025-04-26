@@ -180,6 +180,61 @@ hfy {
   cursor: default;
   font-weight: 200; }
 
+/* Синий цвет для ссылки */
+.subsystem-link {
+  color: #6d37ff;
+  /* Синий (как у Bootstrap) */
+  text-decoration: none;
+  /* Убираем подчёркивание */ }
+
+/* Изменение цвета при наведении */
+.subsystem-link:hover {
+  color: #0056b3;
+  /* Тёмно-синий */ }
+
+.tooltip {
+  opacity: 1 !important; }
+
+.tooltip-card .tooltip-inner {
+  background-color: #ffffff;
+  color: #6d37ff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 12px rgba(109, 55, 255, 0.15);
+  max-width: 300px;
+  text-align: left; }
+
+/* Стрелки для всех направлений */
+.tooltip-card.bs-tooltip-top .tooltip-arrow::before,
+.tooltip-card.bs-tooltip-bottom .tooltip-arrow::before,
+.tooltip-card.bs-tooltip-start .tooltip-arrow::before,
+.tooltip-card.bs-tooltip-end .tooltip-arrow::before {
+  border-color: #ffffff; }
+
+.custom-tooltip {
+  position: relative;
+  cursor: pointer; }
+  .custom-tooltip .tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s; }
+  .custom-tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1; }
+
 .arrow {
   display: inline-block;
   width: 0;

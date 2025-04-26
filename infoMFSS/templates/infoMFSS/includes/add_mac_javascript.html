@@ -1,0 +1,37 @@
+<script>
+    function formatMAC(input) {
+        // Получаем текущее значение и позицию курсора
+        let cursorPos = input.selectionStart;
+        let value = input.value;
+
+        // Удаляем все двоеточия для корректной обработки
+        let cleanValue = value.replace(/:/g, '');
+
+        // Оставляем только hex-символы (0-9, A-F, a-f) и обрезаем до 12 символов
+        cleanValue = cleanValue.replace(/[^0-9a-fA-F]/g, '').slice(0, 12).toUpperCase();
+
+        // Восстанавливаем двоеточия каждые 2 символа
+        let formattedValue = '';
+        for (let i = 0; i < cleanValue.length; i += 2) {
+            if (i > 0) formattedValue += ':';
+            formattedValue += cleanValue.slice(i, i + 2);
+        }
+
+        // Обновляем значение в поле ввода
+        input.value = formattedValue;
+
+        // Корректируем позицию курсора, чтобы он не прыгал
+        let diff = formattedValue.length - value.length;
+        if (cursorPos > 0 && diff !== 0) {
+            // Если курсор был после двоеточия, двигаем его правильно
+            let newCursorPos = cursorPos + diff;
+            if (newCursorPos > formattedValue.length) newCursorPos = formattedValue.length;
+            input.setSelectionRange(newCursorPos, newCursorPos);
+        }
+    }
+
+    // Применяем обработчик
+    document.querySelector('.mac-input').addEventListener('input', function (e) {
+        formatMAC(e.target);
+    });
+</script>

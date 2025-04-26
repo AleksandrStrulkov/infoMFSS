@@ -24,7 +24,7 @@
             <div class="row text-center mx-auto mt-4 mb-sm-5">
                 <div class="col-sm-3">
                 </div>
-                <div class="col-sm-6 card mb-3 box-shadow border-none">
+                <div class="col-sm-6 card mb-3 box-shadow border-none card-imad-auth">
                     <div class="card-body mt-2 text-center">
                         <h4 class="my-0 font-weight-normal">
 
@@ -68,6 +68,7 @@
                     <thead>
                     <tr class="box-table-th">
                         <th class="align-middle" data-sortable="true">Кабель</th>
+                        <th class="align-middle" data-sortable="true">Тип</th>
                         <th class="align-middle" data-sortable="true">Подсистема</th>
                         <th class="align-middle" data-sortable="true">Нефтешахта</th>
                         <th class="align-middle" >Уклонный блок</th>
@@ -83,7 +84,8 @@
                     <tbody>
                     {% for cable_magazine in cable_magazine_list %}
                             <tr class="box-table-td">
-                            <td class="align-middle">{{ cable_magazine.cable }}</td>
+                            <td class="align-middle">{{ cable_magazine.cable.title }}</td>
+                            <td class="align-middle">{{ cable_magazine.cable.device_type }}</td>
                             <td class="align-middle">{{ cable_magazine.subsystem }}</td>
                             <td class="align-middle">{{ cable_magazine.number_mine }}</td>
                         {% if cable_magazine.inclined_blocks %}

@@ -1,0 +1,30 @@
+<script>
+    function formatIP(input) {
+        // Удаляем все лишние точки (если пользователь вводит их вручную)
+        let value = input.value.replace(/[^0-9]/g, ''); // Оставляем только цифры
+
+        // Форматируем по шаблону XX.XX.XXX.XXX
+        let formattedValue = '';
+
+        if (value.length > 0) {
+            formattedValue = value.slice(0, 2); // Первые 2 цифры (1-й октет)
+        }
+        if (value.length > 2) {
+            formattedValue += '.' + value.slice(2, 4); // Вторые 2 цифры (2-й октет)
+        }
+        if (value.length > 4) {
+            formattedValue += '.' + value.slice(4, 7); // Третьи 3 цифры (3-й октет)
+        }
+        if (value.length > 7) {
+            formattedValue += '.' + value.slice(7, 10); // Четвёртые 3 цифры (4-й октет)
+        }
+
+        // Обрезаем лишнее (максимум 2+2+3+3 = 10 цифр)
+        input.value = formattedValue;
+    }
+
+    // Применяем обработчик
+    document.querySelector('.ip-input').addEventListener('input', function (e) {
+        formatIP(e.target);
+    });
+</script>
