@@ -1,0 +1,19 @@
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Инициализация tooltip при первой загрузке
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Повторная инициализация tooltip после обновления таблицы
+        $('#Table').on('post-body.bs.table', function () {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    });
+</script>
+{#<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>#}
+

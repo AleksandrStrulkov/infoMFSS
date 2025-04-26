@@ -1,10 +1,11 @@
 from itertools import chain
 from django.db.models import Case, When, Value, IntegerField
 from django import forms
+from django.utils import timezone
 
 from infoMFSS.castom_widgets_form import CustomModelChoiceField
 from infoMFSS.models import Execution, NumberMine, Subsystem, InclinedBlocks, Equipment, Cable, BranchesBox, \
-    EquipmentInstallation, CableMagazine, PointPhone, Violations, Visual
+    EquipmentInstallation, CableMagazine, PointPhone, Violations, Visual, Tunnel, Beacon, DateUpdate
 from captcha.fields import CaptchaField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, HTML, Submit
@@ -31,48 +32,43 @@ class InfoFormMixin(forms.Form):
             # widget=CustomSelect(),
     )
 
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     number_mines = cleaned_data.get('number_mines').title
-    #     subsystems = cleaned_data.get('subsystems')
-    #     incl_blocks = cleaned_data.get('incl_blocks')
-    #     incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
-    #     incl_all_blocks = InclinedBlocks.objects.all()
-    #
-    #     if number_mines != 'Все шахты':
-    #         if incl_blocks not in incl_in_mines:
-
-
     def clean(self):
         cleaned_data = super().clean()
         number_mines = cleaned_data.get('number_mines').title
-        subsystems = cleaned_data.get('subsystems').title
         incl_blocks = cleaned_data.get('incl_blocks').title
-        incl_in_mines = InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines)
-        incl_all_blocks = InclinedBlocks.objects.all()
-        subsystems_all = Subsystem.objects.all()
-        incl_list = []
-        incl_all_list = []
-        subsystems_list = []
+        subsystems = None
+        if 'subsystems' in cleaned_data:
+            subsystems = cleaned_data.get('subsystems').title
+        # incl_blocks = cleaned_data.get('incl_blocks').title
 
-        for incl_in_mine in incl_in_mines:
-            incl_list.append(incl_in_mine.title)
-            incl_list.append('Все уклонные блоки')
+        # Получаем списки значений из базы данных
+        incl_list = list(
+                InclinedBlocks.objects
+                .filter(number_mine__title__icontains=number_mines)
+                .values_list('title', flat=True)
+        )
+        incl_list.append('Все уклонные блоки')
 
-        for incl_all_block in incl_all_blocks:
-            incl_all_list.append(incl_all_block.title)
+        incl_all_list = list(
+                InclinedBlocks.objects
+                .exclude(title='Все уклонные блоки')
+                .values_list('title', flat=True)
+        )
 
-        for subsystem_all in subsystems_all:
-            subsystems_list.append(subsystem_all.title)
+        subsystems_list = list(
+                Subsystem.objects
+                .values_list('title', flat=True)
+        )
 
-        incl_all_list.remove('Все уклонные блоки')
+        if incl_list and incl_blocks not in incl_list:
+            self.add_error('incl_blocks', 'Не верно указан уклонный блок')
 
-        if incl_in_mines:
-            if incl_blocks not in incl_list:
-                self.add_error('incl_blocks', 'Не верно указан уклонный блок')
-
-        if number_mines == 'Все шахты' and subsystems in subsystems_list and incl_blocks in incl_all_list:
+        if (number_mines == 'Все шахты' and
+                subsystems in subsystems_list and
+                incl_blocks in incl_all_list):
             self.add_error('number_mines', 'Нефтешахта не выбрана')
+
+        return cleaned_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -186,6 +182,44 @@ class ProjectCableForm(InfoProjectFormMixin):
     pass
 
 
+class BeaconForm(InfoFormMixin, forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'subsystems' in self.fields:
+            del self.fields['subsystems']
+
+    def clean(self):
+        cleaned_data = super(InfoFormMixin, self).clean()
+
+        number_mines = cleaned_data.get('number_mines')
+        incl_blocks = cleaned_data.get('incl_blocks')
+
+        number_mines = number_mines.title
+        incl_blocks = incl_blocks.title
+
+        # Получаем списки значений из базы данных
+        incl_list = list(
+                InclinedBlocks.objects
+                .filter(number_mine__title__icontains=number_mines)
+                .values_list('title', flat=True)
+        )
+        incl_list.append('Все уклонные блоки')
+
+        incl_all_list = list(
+                InclinedBlocks.objects
+                .exclude(title='Все уклонные блоки')
+                .values_list('title', flat=True)
+        )
+
+        if incl_list and incl_blocks not in incl_list:
+            self.add_error('incl_blocks', 'Не верно указан уклонный блок')
+
+        if number_mines == 'Все шахты' and incl_blocks != 'Все уклонные блоки':
+            self.add_error('number_mines', 'Нефтешахта не выбрана')
+
+        return cleaned_data
+
+
 class VisualForm(forms.ModelForm):
     class Meta:
         model = Visual
@@ -221,8 +255,8 @@ class ContactForm(forms.Form):
     email = forms.EmailField(label="Ваш email")
     message = forms.CharField(widget=forms.Textarea, label="Сообщение")
     captcha = CaptchaField(
-        label='Введите ответ', generator='captcha.helpers.math_challenge',
-        error_messages={'invalid': 'Неправильный ответ'}, )
+            label='Введите ответ', generator='captcha.helpers.math_challenge',
+            error_messages={'invalid': 'Неправильный ответ'}, )
 
 
 class QuantityEquipmentCableForm(forms.Form):
@@ -259,7 +293,14 @@ class QuantityEquipmentCableForm(forms.Form):
 class EquipmentCreateForm(forms.ModelForm):
     class Meta:
         model = Equipment
-        fields = ('title', 'description', 'subsystem', 'file_pdf', 'file_passport', 'file_certificate',)
+        fields = ('title', 'device_type', 'description', 'subsystem', 'file_pdf', 'file_passport', 'file_certificate',)
+        widgets = {
+                'device_type': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: Эльтон-Ex231',
+                        }
+                ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -280,36 +321,117 @@ class EquipmentCreateForm(forms.ModelForm):
 class CableCreateForm(forms.ModelForm):
     class Meta:
         model = Cable
-        fields = ('title', 'description', 'file_pdf', 'file_passport', 'file_certificate',)
+        fields = ('title', 'device_type', 'description', 'file_pdf', 'file_passport', 'file_certificate',)
+
+
+class BeaconCreateForm(forms.ModelForm):
+    class Meta:
+        model = Beacon
+        fields = ('designation', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'picket', 'mac_address',
+                  'serial_number', 'minor', 'execution_bool')
+        widgets = {
+                'designation': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: 1TD205',
+                        }
+                ),
+                'picket': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: 55 или 55+4',
+                        }
+                ),
+                'mac_address': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например D9:0A:15:56:D5:3B',
+                                'class': 'mac-input',  # для JS-обработки
+                        }
+                ),
+                'serial_number': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: 254',
+                        }
+                ),
+                'minor': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: 8888',
+                        }
+                )
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['number_mine'].queryset = NumberMine.objects.exclude(title="Все шахты")
+        # self.fields['tunnel'].queryset = Tunnel.objects.exclude(title="Все туннели")
+        self.fields['inclined_blocks'].queryset = InclinedBlocks.objects.exclude(title="Все уклонные блоки")
+
+        for field_name, field in self.fields.items():
+            if isinstance(field, forms.ModelChoiceField):
+                field.empty_label = "Выберите значение"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        number_mine = cleaned_data.get('number_mine')
+        tunnel = cleaned_data.get('tunnel')
+        inclined_blocks = cleaned_data.get('inclined_blocks')
+
+        # Получаем списки значений из базы данных
+        incl_list = list(
+                InclinedBlocks.objects
+                .filter(number_mine__title__icontains=number_mine)
+                .values_list('title', flat=True)
+        )
+        incl_list.append('Все уклонные блоки')
+
+        incl_all_list = list(
+                InclinedBlocks.objects
+                .exclude(title='Все уклонные блоки')
+                .values_list('title', flat=True)
+        )
+
+        if tunnel is not None:
+            if tunnel.inclined_blocks is not None and inclined_blocks is None:
+                self.add_error('inclined_blocks', f'Выберите уклонный блок {tunnel.inclined_blocks.title}')
+            if tunnel.inclined_blocks != inclined_blocks and inclined_blocks is not None:
+                self.add_error('inclined_blocks', 'Укажите уклонный блок верно')
+
+        return cleaned_data
 
 
 class PointPhoneCreateForm(forms.ModelForm):
     class Meta:
         model = PointPhone
-        fields = ('title', 'number_mine', 'tunnel', 'inclined_blocks', 'subscriber_number', 'picket', 'description')
+        fields = ('title', 'device_type', 'serial_number', 'number_mine', 'tunnel', 'inclined_blocks',
+                  'subscriber_number', 'picket', 'description')
         # required = True
         widgets = {
                 'title': forms.TextInput(
                         attrs={
-                                'placeholder': 'T1-65',
+                                'placeholder': 'Например: T1-65',
                         }
                 ),
                 'subscriber_number': forms.TextInput(
                         attrs={
-                                'placeholder': '8777',
+                                'placeholder': 'Например: 8777',
                         }
                 ),
                 'picket': forms.TextInput(
                         attrs={
-                                'placeholder': '12',
+                                'placeholder': 'Например 55 или 55+7',
                         }
                 ),
+                'device_type': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: Эльтон-Ex231',
+                        }
+                )
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['number_mine'].queryset = NumberMine.objects.exclude(title="Все шахты")
         self.fields['inclined_blocks'].queryset = InclinedBlocks.objects.exclude(title="Все уклонные блоки")
+        self.fields['device_type'].initial = 'Эльтон-Ex231'
 
         for field_name, field in self.fields.items():
             if isinstance(field, forms.ModelChoiceField):
@@ -322,6 +444,7 @@ class PointPhoneCreateForm(forms.ModelForm):
         inclined_blocks = cleaned_data.get('inclined_blocks')
         title = cleaned_data.get('title')
         subscriber_number = cleaned_data.get('subscriber_number')
+        serial_number = cleaned_data.get('serial_number')
 
         if title is None:
             self.add_error('title', 'Укажите обозначение точки телефонии')
@@ -335,26 +458,54 @@ class PointPhoneCreateForm(forms.ModelForm):
         if subscriber_number is None:
             self.add_error('subscriber_number', 'Укажите абонентский номер')
 
-        if tunnel.inclined_blocks is not None and inclined_blocks is None:
-            self.add_error('inclined_blocks', f'Уклонный блок {tunnel.inclined_blocks.title} не выбран')
+        if serial_number is not None:
+            for item in serial_number:
+                if not item.isdigit():
+                    self.add_error('serial_number', f'Заводской номер должен быть числом')
+
+        for item in subscriber_number:
+            if not item.isdigit():
+                self.add_error('subscriber_number', 'Абонентский номер должен содержать только цифры')
+
+        if tunnel is not None:
+            if tunnel.inclined_blocks is not None and inclined_blocks is None:
+                self.add_error('inclined_blocks', f'Выберите уклонный блок {tunnel.inclined_blocks.title}')
+            if tunnel.inclined_blocks != inclined_blocks and inclined_blocks is not None:
+                self.add_error('inclined_blocks', 'Укажите уклонный блок верно')
 
 
 class BranchesBoxCreateForm(forms.ModelForm):
     class Meta:
         model = BranchesBox
-        fields = ('title', 'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'picket',
-                  'description', 'equipment', 'boolean_block')
+        fields = ('title', 'device_type', 'serial_number', 'ip_address', 'subsystem', 'number_mine', 'tunnel',
+                  'inclined_blocks', 'picket', 'description', 'equipment', 'boolean_block')
         widgets = {
                 'title': forms.TextInput(
                         attrs={
-                                'placeholder': '50#01 или 1ССП01',
+                                'placeholder': 'Например: 50#01 или 1ССП01',
+                        }
+                ),
+                'device_type': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: МС12.18-34',
                         }
                 ),
                 'picket': forms.TextInput(
                         attrs={
-                                'placeholder': '12',
+                                'placeholder': 'Например 12 или 12+5',
                         }
                 ),
+                'serial_number': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: 123 или 123+5',
+                        }
+                ),
+                'ip_address': forms.TextInput(
+                        attrs={
+                                'placeholder': '10.10.110.110',
+                                'class': 'ip-input',  # для JS-обработки
+                        }
+                )
         }
 
     def __init__(self, *args, **kwargs):
@@ -375,6 +526,19 @@ class BranchesBoxCreateForm(forms.ModelForm):
         subsystem = cleaned_data.get('subsystem')
         equipment = cleaned_data.get('equipment')
         boolean_block = cleaned_data.get('boolean_block')
+        ip_address = cleaned_data.get('ip_address')
+        serial_number = cleaned_data.get('serial_number')
+
+        if serial_number is None:
+            self.add_error('serial_number', 'Укажите заводской номер')
+
+        if ip_address is None:
+            self.add_error('ip_address', 'Укажите IP-адрес')
+
+        if serial_number:
+            for item in serial_number:
+                if not item.isdigit():
+                    self.add_error('serial_number', f'Заводской номер должен быть числом')
 
         if tunnel is None:
             self.add_error('tunnel', 'Выработка не выбрана')
@@ -382,12 +546,17 @@ class BranchesBoxCreateForm(forms.ModelForm):
         if subsystem is None:
             self.add_error('subsystem', 'Подсистема не выбрана')
 
-        if tunnel.inclined_blocks is not None and inclined_blocks is None:
-            self.add_error('inclined_blocks', f'Уклонный блок {tunnel.inclined_blocks.title} не выбран')
+        if tunnel is not None:
+            if tunnel.inclined_blocks is not None and inclined_blocks is None:
+                self.add_error('inclined_blocks', f'Выберите уклонный блок {tunnel.inclined_blocks.title}')
+            if tunnel.inclined_blocks != inclined_blocks and inclined_blocks is not None:
+                self.add_error('inclined_blocks', 'Укажите уклонный блок верно')
 
         if inclined_blocks and boolean_block is False:
-            self.add_error('boolean_block', f'Установите галочку, т.к. уклонный блок '
-                                            f'{tunnel.inclined_blocks.title} выбран')
+            self.add_error(
+                    'boolean_block', f'Установите галочку, т.к. уклонный блок '
+                                     f'{tunnel.inclined_blocks.title} выбран'
+            )
 
 
 class CableMagazineCreateForm(forms.ModelForm):
@@ -527,8 +696,8 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
 
     class Meta:
         model = EquipmentInstallation
-        fields = ('title', 'point_phone', 'branches_box', 'name', 'subsystem', 'number_mine', 'tunnel',
-                  'inclined_blocks', 'picket',)
+        fields = ('title', 'point_phone', 'branches_box', 'name', 'serial_number', 'ip_address',
+                  'subsystem', 'number_mine', 'tunnel', 'inclined_blocks', 'picket',)
         widgets = {
                 'name': forms.TextInput(
                         attrs={
@@ -537,7 +706,23 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
                 ),
                 'picket': forms.TextInput(
                         attrs={
-                                'placeholder': '175',
+                                'placeholder': 'Например: 175 или 175+3',
+                        }
+                ),
+                'ip_address': forms.TextInput(
+                        attrs={
+                                'placeholder': '10.10.110.110',
+                                'class': 'ip-input',  # для JS-обработки
+                        }
+                ),
+                'serial_number': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: 777',
+                        }
+                ),
+                'device_type': forms.TextInput(
+                        attrs={
+                                'placeholder': 'Например: Эльтон-Ex231',
                         }
                 ),
         }
@@ -571,8 +756,14 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
                 Field('title'),
                 Field('point_phone'),
                 Field('branches_box'),
-                HTML('<p><u>Далее значения не обязательны если выбрана точка телефонии или распред.коробка</u></p>'),
+                HTML(
+                    '<p><u><font color="#6d37ff">Далее значения не обязательны если выбрана точка телефонии или '
+                    'распред.коробка</font></u></p>'
+                    ),
                 Field('name'),
+                Field('device_type'),
+                Field('serial_number'),
+                Field('ip_address'),
                 Field('subsystem'),
                 Field('number_mine'),
                 Field('tunnel'),
@@ -591,6 +782,7 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
         tunnel = cleaned_data.get('tunnel')
         inclined_blocks = cleaned_data.get('inclined_blocks')
         picket = cleaned_data.get('picket')
+        serial_number = cleaned_data.get('serial_number')
 
         if point_phone and branches_box:
             self.add_error('point_phone', 'Укажите одну позицию')
@@ -601,6 +793,14 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
 
         if branches_box and title is None:
             self.add_error('title', 'Укажите наименование оборудования')
+
+        if serial_number is None:
+            self.add_error('serial_number', 'Укажите заводской номер')
+
+        if serial_number:
+            for item in serial_number:
+                if not item.isdigit():
+                    self.add_error('serial_number', f'Заводской номер должен быть числом')
 
         if point_phone is not None and (name or number_mine or tunnel or inclined_blocks or picket):
             if branches_box is None:
@@ -645,16 +845,16 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
         if point_phone is None and branches_box is None and tunnel is None:
             self.add_error('tunnel', 'Поле не должно быть пустым')
 
-        if point_phone is None and branches_box is None and picket is None:
-            self.add_error('picket', 'Поле не должно быть пустым')
+        # if point_phone is None and branches_box is None and picket is None:
+        #     self.add_error('picket', 'Поле не должно быть пустым')
 
         if point_phone and subsystem is None:
             self.add_error('subsystem', 'Поле не должно быть пустым')
 
         if tunnel is not None:
             if tunnel.inclined_blocks is not None and inclined_blocks is None:
-                self.add_error('inclined_blocks', 'Выберите уклонный блок')
-            if tunnel.inclined_blocks != inclined_blocks:
+                self.add_error('inclined_blocks', f'Выберите уклонный блок {tunnel.inclined_blocks.title}')
+            if tunnel.inclined_blocks != inclined_blocks and inclined_blocks is not None:
                 self.add_error('inclined_blocks', 'Укажите уклонный блок верно')
 
 
@@ -692,7 +892,26 @@ class CreateExecutionForm(forms.ModelForm):
         date_start = cleaned_data.get('date_start')
         date_end = cleaned_data.get('date_end')
 
-        if date_start > date_end:
-            self.add_error('date_end', 'Дата завершения не может быть раньше даты начала')
+        if date_start and date_end:
+            if date_start > date_end:
+                self.add_error('date_end', 'Дата завершения не может быть раньше даты начала')
 
 
+class CreateDateUpdateForm(forms.ModelForm):
+    class Meta:
+        model = DateUpdate
+        fields = ('update', 'description')
+        widgets = {
+                'update': forms.DateTimeInput(
+                        format='%d.%m.%Y %H:%M:%S',  # Формат "дд.мм.гггг чч:мм:сс"
+                        attrs={
+                                'placeholder': 'дд.мм.гггг чч:мм:сс'
+                        }
+                ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Устанавливаем текущую дату (без времени)
+        now = timezone.localtime(timezone.now())  # Конвертирует UTC в локальное время
+        self.fields['update'].initial = now

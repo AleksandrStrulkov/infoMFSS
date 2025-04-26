@@ -29,9 +29,10 @@ django-filter = "^24.3"
 captcha = "^0.6.0"
 django-simple-captcha = "^0.6.1"
 python-json-logger = "^3.2.1"
-
+django-extensions = "^4.1"
+pytest = "^8.3.5"
+pytest-django = "^4.11.1"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core", "setuptools>=65.5.1", "wheel"]
 build-backend = "poetry.core.masonry.api"
-requires = ["setuptools>=65.5.1", "wheel"]

@@ -92,6 +92,11 @@
                                 </li>
                                 <li><a class="dropdown-item" href="{% url 'mfss:quantity_equipment_cable' %}">Всего
                                     установлено</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'mfss:beacon' %}">Список биконов</a></li>
+                                <li>
                             </ul>
                         </li>
                         <li class="nav-item">
@@ -130,6 +135,10 @@
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
+                                    <li><a class="dropdown-item" href="{% url 'mfss:create_beacon' %}">Биконы</a>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
                                     <li><a class="dropdown-item" href="{% url 'mfss:create_pointphone' %}">Точка
                                         телефонии</a></li>
                                     <li>
@@ -164,6 +173,11 @@
                                     </li>
                                     <li><a class="dropdown-item" href="{% url 'mfss:create_execution' %}">Отчет
                                         выполнения работ</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="{% url 'mfss:create_date' %}">Дата
+                                        последнего обновления</a></li>
                                 </ul>
                             </li>
 
@@ -185,6 +199,10 @@
                                     </li>
                                     <li><a class="dropdown-item" href="{% url 'mfss:cable_list' %}">Кабельная
                                         продукция</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="{% url 'mfss:beacon_list' %}">Биконы</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>

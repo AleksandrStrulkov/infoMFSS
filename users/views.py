@@ -17,8 +17,8 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView
-from .sms_utils import send_sms_via_smsc  # Утилита из предыдущего шага
-from .models import SMSDevice  # Модель для хранения кодов
+from .sms_utils import send_sms_via_smsc
+from .models import SMSDevice
 
 
 logger = logging.getLogger(__name__)
