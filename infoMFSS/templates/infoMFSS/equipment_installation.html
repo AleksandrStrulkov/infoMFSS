@@ -43,14 +43,16 @@
                     <thead>
                     <tr class="box-table-th">
                         <th class="align-middle" data-sortable="true">Оборудование</th>
-                         <th class="align-middle">Подсистема</th>
+                        <th class="align-middle" data-sortable="true">Тип</th>
+                        <th class="align-middle">Подсистема</th>
                         <th class="align-middle text-center" data-sortable="true">Нефтешахта</th>
                         <th class="align-middle text-center" data-width="110">Выработка</th>
                         <th class="align-middle text-center" data-width="110">Укл.блок</th>
-                        <th class="align-middle" data-sortable="true">Обозн.в проекте</th>
-                        <th class="align-middle" data-sortable="true">Точка телефонии</th>
-                        <th class="align-middle" data-sortable="true" data-width="110">Распред.коробка</th>
                         <th class="align-middle text-center" data-width="110">Пикет</th>
+                        <th class="align-middle" data-sortable="true">Обозн.в проекте</th>
+                        {#                        <th class="align-middle" data-sortable="true">Точка телефонии</th>#}
+                        {#                        <th class="align-middle" data-sortable="true" data-width="110">Распред.коробка</th>#}
+
                         <th class="text-center text-danger align-middle" data-width="110">Редактировать</th>
                         <th class="text-center text-danger align-middle" data-width="110">Удалить</th>
                     </tr>
@@ -58,32 +60,35 @@
                     <tbody>
                     {% for equipment_installation in equipment_installation_list %}
                         <tr class="box-table-td">
-                        <td class="align-middle">{{ equipment_installation.title }}</td>
-                        <td class="align-middle">{{ equipment_installation.subsystem}}</td>
+                        <td class="align-middle">{{ equipment_installation.title.title }}</td>
+                        <td class="align-middle">{{ equipment_installation.title.device_type }}</td>
+                        <td class="align-middle">{{ equipment_installation.subsystem }}</td>
                         <td class="align-middle">{{ equipment_installation.number_mine }}</td>
-                        <td class="align-middle">{{ equipment_installation.tunnel.title}}</td>
+                        <td class="align-middle">{{ equipment_installation.tunnel.title }}</td>
                         {% if equipment_installation.inclined_blocks != None %}
-                        <td class="align-middle">{{ equipment_installation.inclined_blocks }}</td>
+                            <td class="align-middle">{{ equipment_installation.inclined_blocks }}</td>
                         {% else %}
-                        <td class="align-middle text-center">-</td>
+                            <td class="align-middle text-center">-</td>
+                        {% endif %}
+                        {% if equipment_installation.picket is not None %}
+                            <td class="align-middle">{{ equipment_installation.picket }}</td>
+                        {% else %}
+                            <td class="align-middle text-center">-</td>
                         {% endif %}
                         <td class="align-middle">{{ equipment_installation.name }}</td>
-                        {% if equipment_installation.point_phone %}
-                        <td class="align-middle">{{ equipment_installation.point_phone.title }}/{{ equipment_installation.point_phone.subscriber_number }}</td>
-                        {% else %}
-                        <td class="align-middle text-center">-</td>
-                        {% endif %}
-                        {% if equipment_installation.branches_box %}
-                        <td class="align-middle">{{ equipment_installation.branches_box.title }}</td>
-                        {% else %}
-                        <td class="align-middle text-center">-</td>
-                        {% endif %}
-{#                        <td class="align-middle">{{ equipment_installation.description }}</td>#}
-                        {% if equipment_installation.picket is not None %}
-                        <td class="align-middle">{{ equipment_installation.picket }}</td>
-                        {% else %}
-                        <td class="align-middle text-center">-</td>
-                        {% endif %}
+
+{#                        {% if equipment_installation.point_phone %}#}
+{#                            <td class="align-middle">{{ equipment_installation.point_phone.title }}/{{ equipment_installation.point_phone.subscriber_number }}</td>#}
+{#                        {% else %}#}
+{#                            <td class="align-middle text-center">-</td>#}
+{#                        {% endif %}#}
+{#                        {% if equipment_installation.branches_box %}#}
+{#                            <td class="align-middle">{{ equipment_installation.branches_box.title }}</td>#}
+{#                        {% else %}#}
+{#                            <td class="align-middle text-center">-</td>#}
+{#                        {% endif %}#}
+                        {#                        <td class="align-middle">{{ equipment_installation.description }}</td>#}
+
                         <td class="text-center align-middle"><a class="btn!important text-decoration-none"
                                                                 href="{% url 'mfss:equipment_installation_update' equipment_installation.pk %}">🛠️</a>
                         </td>

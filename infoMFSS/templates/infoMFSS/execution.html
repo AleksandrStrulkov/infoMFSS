@@ -42,7 +42,7 @@
                 >
                     <thead>
                     <tr class="box-table-th">
-                        <th class="align-middle" data-sortable="true" data-width="470">Список оборудования</th>
+                        <th class="align-middle" data-sortable="true">Список оборудования</th>
                          <th class="align-middle" data-sortable="true">Список трасс кабелей</th>
 {#                        <th class="align-middle text-center" data-width="110">Дата начала</th>#}
                         <th class="align-middle text-center" data-width="110">Дата начала</th>
@@ -55,16 +55,20 @@
                     <tbody>
                     {% for execution in execution_list %}
                         <tr class="box-table-td">
-                        {% if execution.equipment_install %}
-                        <td class="align-middle">{{ execution.equipment_install }}</td>
+                        {% if execution.equipment_install is not None %}
+                            <td class="align-middle text-start">{{ execution.equipment_install.title.title }}-
+                                ({{ execution.equipment_install.name }}) - {{ execution.equipment_install.number_mine }}</td>
                         {% else %}
-                        <td class="align-middle">-</td>
+                            <td class="align-middle">&#128500;</td>
                         {% endif %}
-                        {% if execution.cable_magazine %}
-                        <td class="align-middle">{{ execution.cable_magazine }}</td>
+
+                         {% if execution.cable_magazine is not None %}
+                        <td class="align-middle text-start">{{ execution.cable_magazine.cable.device_type }} (
+                            {{ execution.cable_magazine.name }}) - {{ execution.cable_magazine.number_mine }}</td>
                         {% else %}
-                        <td class="align-middle">-</td>
+                        <td class="align-middle">&#128500;</td>
                         {% endif %}
+
                         <td class="align-middle">{{ execution.date_start|date:'d.m.Y' }}</td>
                         <td class="align-middle">{{ execution.date_end|date:'d.m.Y' }}</td>
                         {% if execution.execution_bool == True %}

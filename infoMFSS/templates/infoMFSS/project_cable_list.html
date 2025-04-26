@@ -120,42 +120,67 @@
                         >
                         <thead>
                         <tr class="box-table-th">
-                            <th class="align-middle" data-field="number_mine" data-sortable="true" data-width="110">Шахта</th>
+                            <th class="align-middle" data-field="cable" data-sortable="true">Кабель</th>
+                            <th class="align-middle" data-field="device_type" data-sortable="true">Тип</th>
                             <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                            <th class="align-middle" data-field="number_mine" data-sortable="true" data-width="110">
+                                Шахта
+                            </th>
+
                             <th class="align-middle" data-field="track_from_box" data-sortable="true">Начало трассы</th>
                             <th class="align-middle" data-field="track_to_box" data-sortable="true">Конец трассы</th>
-                            <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок</th>
-                            <th class="align-middle" data-field="distance" data-sortable="true">Протяженность</th>
-                            <th class="align-middle" data-field="cable" data-sortable="true">Марка кабеля</th>
-                            <th class="align-middle" data-field="name" data-sortable="true">Обозначение в проекте</th>
+                            <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок
+                            </th>
+                            <th class="align-middle" data-field="distance" data-sortable="true">L, м</th>
+
+                            <th class="align-middle" data-field="name" data-sortable="true">Об.в проекте</th>
                             <th class="align-middle" data-field="cable_bool" data-sortable="true">Проложен</th>
                         </tr>
                         </thead>
                     {% endif %}
                     <tbody>
-                    {% for object in project_cable_list %}
-                        {% if object %}
+                    {% for project_cable in project_cable_list %}
+                        {% if project_cable %}
                             <tr class="box-table-td">
-                                <td class="align-middle">{{ object.number_mine.title }}</td>
-                                <td class="align-middle">{{ object.subsystem.title }}</td>
-                                <td class="align-middle">{{ object.track_from_box.title }}
-                                    ({{ object.track_from_box.tunnel.title }})
+                                <td class="align-middle">{{ project_cable.cable.title }}</td>
+                                {% if project_cable.cable.device_type is not None %}
+                                    <td class="align-middle">{{ project_cable.cable.device_type }}</td>
+                                {% else %}
+                                    <td class="align-middle">-</td>
+                                {% endif %}
+                                <td data-field="subsystem" class="text-start">
+                                    {% if project_cable.subsystem %}
+                                        <span
+                                                data-bs-toggle="tooltip"
+                                                data-bs-custom-class="tooltip-card"
+                                                title="{{ project_cable.subsystem.description|default:'Нет описания'|escape }}">
+                                                {{ project_cable.subsystem.title }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">Без подсистемы</span>
+                                    {% endif %}
                                 </td>
-                                {% if object.track_to_box.title %}
-                                    <td class="align-middle">{{ object.track_to_box.title }}
-                                        ({{ object.track_to_box.tunnel.title }})
+                                {% include 'infoMFSS/includes/include_tooltip_subsystem.html' %}
+                                <td class="align-middle">{{ project_cable.number_mine.title }}</td>
+
+                                <td class="align-middle">{{ project_cable.track_from_box.title }}
+                                    ({{ project_cable.track_from_box.tunnel.title }})
+                                </td>
+                                {% if project_cable.track_to_box.title %}
+                                    <td class="align-middle">{{ project_cable.track_to_box.title }}
+                                        ({{ project_cable.track_to_box.tunnel.title }})
                                     </td>
                                 {% else %}
-                                    <td class="align-middle">{{ object.track_to_phone.title }}
-                                        ({{ object.track_to_phone.tunnel.title }})
-                                        ({{ object.track_to_phone.subscriber_number }})
+                                    <td class="align-middle">{{ project_cable.track_to_phone.title }}
+                                        ({{ project_cable.track_to_phone.tunnel.title }})
+                                        ({{ project_cable.track_to_phone.subscriber_number }})
                                     </td>
                                 {% endif %}
-                                <td class="align-middle">{{ object.inclined_blocks.title }}</td>
-                                <td class="align-middle">{{ object.distance }}</td>
-                                <td class="align-middle">{{ object.cable.title }}</td>
-                                <td class="align-middle">{{ object.name }}</td>
-                                {% if object.cable_bool.execution_bool == True %}
+                                <td class="align-middle">{{ project_cable.inclined_blocks.title }}</td>
+                                <td class="align-middle">{{ project_cable.distance }}</td>
+
+                                <td class="align-middle">{{ project_cable.name }}</td>
+                                {% if project_cable.cable_bool.execution_bool == True %}
                                     <td class="align-middle text-center">&#9989;</td>
                                 {% else %}
                                     <td class="align-middle text-center">&#10060;</td>

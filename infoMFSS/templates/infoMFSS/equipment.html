@@ -42,9 +42,10 @@
                 >
                     <thead>
                     <tr class="box-table-th">
-                        <th class="align-middle" data-field="equipment" data-sortable="true" data-width="250">
+                        <th class="align-middle" data-field="equipment" data-sortable="true" data-width="200">
                             Оборудование
                         </th>
+                        <th class="align-middle" data-field="device_type" data-sortable="true">Тип</th>
                         <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
                         <th class="align-middle" data-field="description">Описание</th>
                         <th class="text-center text-danger align-middle" data-width="110">Руководство</th>
@@ -57,8 +58,9 @@
                     <tbody>
                     {% for equipment in equipment_list %}
                         {#                        {% if equipment_file.title != 'Все оборудование' %}#}
-                        <tr>
+                        <tr class="box-table-td">
                         <td class="align-middle">{{ equipment.title }}</td>
+                        <td class="align-middle">{{ equipment.device_type }}</td>
                         <td class="align-middle">{{ equipment.subsystem }}</td>
                         <td class="align-middle">{{ equipment.description }}</td>
 

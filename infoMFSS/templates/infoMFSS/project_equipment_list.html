@@ -116,16 +116,23 @@
                                 >
                                 <thead>
                                 <tr class="box-table-th">
-                                    <th class="align-middle" data-field="mine" data-sortable="true">Шахта</th>
-                                    <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
                                     <th class="align-middle" data-field="equipment" data-sortable="true">Оборудование
                                     </th>
-                                    <th class="align-middle" data-field="title" data-sortable="true">Обозн. в проекте
-                                    </th>
-                                    <th class="align-middle" data-field="subscriber_number" data-sortable="true">Аб.номер</th>
+                                    <th class="align-middle" data-field="device_type" data-sortable="true">Тип</th>
+                                    <th class="align-middle" data-field="subsystem" data-sortable="true">Подсистема</th>
+                                    <th class="align-middle" data-field="mine" data-sortable="true">Шахта</th>
                                     <th class="align-middle" data-field="tunnel" data-sortable="true">Выработка</th>
                                     <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный
                                         блок
+                                    </th>
+                                    <th class="align-middle" data-field="picket" data-sortable="true">Пикет</th>
+                                    <th class="align-middle" data-field="subscriber_number" data-sortable="true">
+                                        Аб.номер
+                                    </th>
+
+                                    <th class="align-middle" data-field="ip_address" data-sortable="true">IP-адрес</th>
+                                    <th class="align-middle" data-field="serial_number" data-sortable="true">Зав. №</th>
+                                    <th class="align-middle" data-field="title" data-sortable="true">Об.в проекте
                                     </th>
                                     <th class="align-middle" data-field="equipment_bool" data-sortable="true">
                                         Установлено
@@ -137,39 +144,71 @@
                             {% for project in project_equipment_list %}
                                 {% if project.title %}
                                     <tr class="box-table-td">
-                                        {#                                        <td>{{ object.number_mine.title }}</td>#}
-                                        <td class="align-middle">{{ project.number_mine.title }}</td>
-                                        <td class="align-middle">{{ project.subsystem.title }}
                                         <td class="align-middle">{{ project.title.title }}
-
-                                            {% if project.point_phone %}
-                                                <td class="align-middle">{{ project.point_phone.title }}</td>
-                                            {% else %}
-                                                <td class="align-middle">{{ project.name }}
-                                            {% endif %}
-
-                                            {% if project.point_phone %}
-                                                <td class="align-middle">{{ project.point_phone.subscriber_number }}</td>
-                                            {% else %}
+                                            {% if project.title.device_type is not None %}
+                                                <td class="align-middle">{{ project.title.device_type }}
+                                                    {% else %}
                                                 <td class="align-middle">-</td>
                                             {% endif %}
+                                        <td data-field="subsystem" class="text-start">
+                                            {% if project.subsystem %}
+                                                <span
+                                                        data-bs-toggle="tooltip"
+                                                        data-bs-custom-class="tooltip-card"
+                                                        title="{{ project.subsystem.description|default:'Нет описания'|escape }}">
+                                                {{ project.subsystem.title }}
+                                        </span>
+                                            {% else %}
+                                                <span class="text-muted">Без подсистемы</span>
+                                            {% endif %}
+                                        </td>
+                                        {% include 'infoMFSS/includes/include_tooltip_subsystem.html' %}
+                                        <td class="align-middle">{{ project.number_mine.title }}</td>
 
                                         {% if project.point_phone %}
-                                            <td class="align-middle">{{ project.point_phone.tunnel.title }}(ПК{{ project.picket }})</td>
+                                            <td class="align-middle">{{ project.point_phone.tunnel.title }}</td>
                                         {% elif  project.branches_box %}
-                                            <td class="align-middle">{{ project.branches_box.tunnel.title }}(ПК{{ project.picket }})</td>
+                                            <td class="align-middle">{{ project.branches_box.tunnel.title }}</td>
                                         {% else %}
-                                            <td class="align-middle">{{ project.tunnel.title }}(ПК{{ project.picket }})</td>
+                                            <td class="align-middle">{{ project.tunnel.title }}</td>
+                                        {% endif %}
+                                        <td class="align-middle">{{ project.inclined_blocks.title }}</td>
+
+                                        {% if  project.picket is not None %}
+                                            <td class="align-middle">{{  project.picket }}</td>
+                                        {% else %}
+                                            <td class="text-muted">-</td>
                                         {% endif %}
 
-                                        <td class="align-middle">{{ project.inclined_blocks.title }}</td>
+                                        {% if project.point_phone %}
+                                            <td class="align-middle">{{ project.point_phone.subscriber_number }}</td>
+                                        {% else %}
+                                            <td class="align-middle">-</td>
+                                        {% endif %}
+
+                                        {% if project.ip_address is not None %}
+                                            <td class="align-middle">{{ project.ip_address }}</td>
+                                        {% else %}
+                                            <td class="align-middle">-</td>
+                                        {% endif %}
+
+                                        {% if project.serial_number is not None %}
+                                            <td class="align-middle">{{ project.serial_number }}</td>
+                                        {% else %}
+                                            <td class="align-middle">-</td>
+                                        {% endif %}
+
+                                        {% if project.point_phone %}
+                                            <td class="align-middle">{{ project.point_phone.title }}</td>
+                                        {% else %}
+                                            <td class="align-middle">{{ project.name }}
+                                        {% endif %}
 
                                         {% if project.equipment_bool.execution_bool == True %}
                                             <td class="align-middle text-center">&#9989;</td>
                                         {% else %}
                                             <td class="align-middle text-center">&#10060;</td>
                                         {% endif %}
-
                                     </tr>
                                 {% endif %}
                             {% endfor %}
