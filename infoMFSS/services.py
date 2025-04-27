@@ -1,6 +1,18 @@
 from django.db.models import Q, Sum
-from .models import DateUpdate, Execution, BranchesBox, EquipmentInstallation, CableMagazine, NumberMine, \
-    Subsystem, InclinedBlocks, Equipment, Cable, Visual, Beacon
+from .models import (
+    DateUpdate,
+    Execution,
+    BranchesBox,
+    EquipmentInstallation,
+    CableMagazine,
+    NumberMine,
+    Subsystem,
+    InclinedBlocks,
+    Equipment,
+    Cable,
+    Visual,
+    Beacon,
+)
 
 
 class BaseFilterService:
@@ -12,6 +24,7 @@ class BaseFilterService:
     - default_order: Поле для сортировки
     - base_filter: Базовое условие (например, Q(execution_bool=True))
     """
+
     model = None
     filter_config = {}
     default_order = None
@@ -36,19 +49,20 @@ class BaseFilterService:
 
 class PercentService:
     @staticmethod
-    def calculate_percent(mine='Все шахты', subsystem='Все подсистемы', incl_blocks='Все уклонные блоки'):
+    def calculate_percent(mine="Все шахты", subsystem="Все подсистемы", incl_blocks="Все уклонные блоки"):
         """Вычисляет процент выполнения на основе фильтров."""
         filters = Q()
 
-        if mine != 'Все шахты':
+        if mine != "Все шахты":
             filters &= Q(equipment_install__number_mine__title=mine) | Q(cable_magazine__number_mine__title=mine)
 
-        if subsystem != 'Все подсистемы':
+        if subsystem != "Все подсистемы":
             filters &= Q(equipment_install__subsystem__title=subsystem) | Q(cable_magazine__subsystem__title=subsystem)
 
-        if incl_blocks != 'Все уклонные блоки':
+        if incl_blocks != "Все уклонные блоки":
             filters &= Q(equipment_install__inclined_blocks__title=incl_blocks) | Q(
-                cable_magazine__inclined_blocks__title=incl_blocks)
+                cable_magazine__inclined_blocks__title=incl_blocks
+            )
 
         # Общее количество записей
         total_count = Execution.objects.filter(filters).count()
@@ -62,31 +76,32 @@ class PercentService:
             percent = 0
 
         return {
-            'total_count': total_count,
-            'true_count': true_count,
-            'percent': percent,
+            "total_count": total_count,
+            "true_count": true_count,
+            "percent": percent,
         }
 
     @staticmethod
     def get_mines_subsystems_incl_blocks():
         """Получает списки шахт, подсистем и уклонных блоков для формирования выборки."""
-        mines = [obj.title for obj in NumberMine.objects.exclude(title='Все шахты')]
-        subsystems = [obj.title for obj in Subsystem.objects.exclude(title='Все подсистемы')]
-        incl_blocks = [obj.title for obj in InclinedBlocks.objects.exclude(title='Все уклонные блоки')]
+        mines = [obj.title for obj in NumberMine.objects.exclude(title="Все шахты")]
+        subsystems = [obj.title for obj in Subsystem.objects.exclude(title="Все подсистемы")]
+        incl_blocks = [obj.title for obj in InclinedBlocks.objects.exclude(title="Все уклонные блоки")]
 
         return {
-            'mines': mines,
-            'subsystems': subsystems,
-            'incl_blocks': incl_blocks,
+            "mines": mines,
+            "subsystems": subsystems,
+            "incl_blocks": incl_blocks,
         }
 
     @staticmethod
     def get_latest_update():
         """Получает или создает начальную запись обновления."""
         try:
-            return DateUpdate.objects.latest('update')
+            return DateUpdate.objects.latest("update")
         except DateUpdate.DoesNotExist:
             from django.utils import timezone
+
             return DateUpdate.objects.create(update=timezone.now())
 
 
@@ -96,10 +111,10 @@ class EquipmentFilterService(BaseFilterService):
     base_filter = Q(execution_bool=True)
 
     filter_config = {
-            "mine": ("equipment_install__number_mine__title", "Все шахты"),
-            "subsystem": ("equipment_install__subsystem__title", "Все подсистемы"),
-            "incl_blocks": ("equipment_install__inclined_blocks__title", "Все уклонные блоки"),
-            "equipment": ("equipment_install__title__title", "Все оборудование"),
+        "mine": ("equipment_install__number_mine__title", "Все шахты"),
+        "subsystem": ("equipment_install__subsystem__title", "Все подсистемы"),
+        "incl_blocks": ("equipment_install__inclined_blocks__title", "Все уклонные блоки"),
+        "equipment": ("equipment_install__title__title", "Все оборудование"),
     }
 
 
@@ -109,10 +124,10 @@ class CableFilterService(BaseFilterService):
     base_filter = Q(execution_bool=True)
 
     filter_config = {
-            "mine": ("cable_magazine__number_mine__title", "Все шахты"),
-            "subsystem": ("cable_magazine__subsystem__title", "Все подсистемы"),
-            "incl_blocks": ("cable_magazine__inclined_blocks__title", "Все уклонные блоки"),
-            "cable": ("cable_magazine__cable__title", "Все кабели"),
+        "mine": ("cable_magazine__number_mine__title", "Все шахты"),
+        "subsystem": ("cable_magazine__subsystem__title", "Все подсистемы"),
+        "incl_blocks": ("cable_magazine__inclined_blocks__title", "Все уклонные блоки"),
+        "cable": ("cable_magazine__cable__title", "Все кабели"),
     }
 
 
@@ -121,9 +136,9 @@ class BoxFilterService(BaseFilterService):
     default_order = "number_mine"
 
     filter_config = {
-            "mine": ("number_mine__title", "Все шахты"),
-            "subsystem": ("subsystem__title", "Все подсистемы"),
-            "incl_blocks": ("inclined_blocks__title", "Все уклонные блоки"),
+        "mine": ("number_mine__title", "Все шахты"),
+        "subsystem": ("subsystem__title", "Все подсистемы"),
+        "incl_blocks": ("inclined_blocks__title", "Все уклонные блоки"),
     }
 
 
@@ -132,8 +147,8 @@ class BeaconFilterService(BaseFilterService):
     default_order = "number_mine"
 
     filter_config = {
-            "mine": ("number_mine__title", "Все шахты"),
-            "incl_blocks": ("inclined_blocks__title", "Все уклонные блоки"),
+        "mine": ("number_mine__title", "Все шахты"),
+        "incl_blocks": ("inclined_blocks__title", "Все уклонные блоки"),
     }
 
 
@@ -142,9 +157,9 @@ class VisualFilterService(BaseFilterService):
     default_order = "number_mine"
 
     filter_config = {
-            "mine": ("number_mine__title", None),
-            "equipment": ("equipment__title", None),
-            "cable": ("cable__title", None),
+        "mine": ("number_mine__title", None),
+        "equipment": ("equipment__title", None),
+        "cable": ("cable__title", None),
     }
 
     @classmethod
@@ -171,7 +186,7 @@ class VisualFilterService(BaseFilterService):
             cable_filter = Q(cable__title=cable) if cable is not None else Q()
 
             # Объединяем их через ИЛИ
-            filters &= (equipment_filter | cable_filter)
+            filters &= equipment_filter | cable_filter
 
         return cls.model.objects.filter(filters).order_by(cls.default_order)
 
@@ -181,8 +196,8 @@ class ProjectEquipmentFilterService(BaseFilterService):
     default_order = "number_mine__title"
 
     filter_config = {
-            "mine": ("number_mine__title", "Все шахты"),
-            "subsystem": ("subsystem__title", "Все подсистемы"),
+        "mine": ("number_mine__title", "Все шахты"),
+        "subsystem": ("subsystem__title", "Все подсистемы"),
     }
 
 
@@ -192,11 +207,11 @@ class ProjectCableFilterService(ProjectEquipmentFilterService, BaseFilterService
 
 class QuantityEqCabFilterService:
     @staticmethod
-    def calculate_quantity(equipment=None, cable=None, mine='Все шахты'):
+    def calculate_quantity(equipment=None, cable=None, mine="Все шахты"):
         """Вычисляет количество установленного оборудования"""
         filters = Q()
 
-        if mine != 'Все шахты':
+        if mine != "Все шахты":
             filters &= Q(equipment_install__number_mine__title=mine) | Q(cable_magazine__number_mine__title=mine)
 
         if equipment is not None:
@@ -209,29 +224,32 @@ class QuantityEqCabFilterService:
         quantity = Execution.objects.filter(filters, execution_bool=True).count()
 
         # Вычисляем сумму длины кабеля
-        total_length = Execution.objects.filter(filters, execution_bool=True).aggregate(
-                total=Sum('cable_magazine__distance')
-        )['total'] or 0
+        total_length = (
+            Execution.objects.filter(filters, execution_bool=True).aggregate(total=Sum("cable_magazine__distance"))[
+                "total"
+            ]
+            or 0
+        )
 
         return {
-                'quantity': quantity,
-                'total_length': total_length,
+            "quantity": quantity,
+            "total_length": total_length,
         }
 
     @staticmethod
     def get_mines_subsystems_incl_blocks():
         """Получает списки шахт, оборудования и кабельной продукции"""
-        mines = [obj.title for obj in NumberMine.objects.exclude(title='Все шахты')]
-        equipment = [obj.title for obj in Equipment.objects.exclude(title='Все оборудование')]
-        cable = [obj.title for obj in Cable.objects.exclude(title='Все кабели')]
+        mines = [obj.title for obj in NumberMine.objects.exclude(title="Все шахты")]
+        equipment = [obj.title for obj in Equipment.objects.exclude(title="Все оборудование")]
+        cable = [obj.title for obj in Cable.objects.exclude(title="Все кабели")]
 
         return {
-                'mines': mines,
-                'equipment': equipment,
-                'cable': cable,
+            "mines": mines,
+            "equipment": equipment,
+            "cable": cable,
         }
 
     @staticmethod
     def get_latest_update():
         """Получает последнее обновление данных."""
-        return DateUpdate.objects.latest('update')
+        return DateUpdate.objects.latest("update")
