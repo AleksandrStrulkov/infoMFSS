@@ -344,11 +344,11 @@ class CableMagazine(models.Model):
         verbose_name="От распределительной коробки",
         **NULLABLE,
     )
-    # track_from = models.CharField(
-    #     max_length=100,
-    #     verbose_name="Начало трассы",
-    #     **NULLABLE,
-    # )
+    track_from = models.CharField(
+        max_length=100,
+        verbose_name="Начало трассы",
+        **NULLABLE,
+    )
     track_to_box = models.ForeignKey(
         BranchesBox,
         related_name="box_to",
@@ -356,18 +356,18 @@ class CableMagazine(models.Model):
         verbose_name="До распределительной коробки",
         **NULLABLE,
     )
-    # track_to_phone = models.ForeignKey(
-    #     PointPhone,
-    #     related_name="phone_to",
-    #     on_delete=models.CASCADE,
-    #     verbose_name="До телефонной точки",
-    #     **NULLABLE,
-    # )
-    # track_to = models.CharField(
-    #     max_length=100,
-    #     verbose_name="Конец трассы",
-    #     **NULLABLE,
-    # )
+    track_to_phone = models.ForeignKey(
+        PointPhone,
+        related_name="phone_to",
+        on_delete=models.CASCADE,
+        verbose_name="До телефонной точки",
+        **NULLABLE,
+    )
+    track_to = models.CharField(
+        max_length=100,
+        verbose_name="Конец трассы",
+        **NULLABLE,
+    )
     distance = models.PositiveIntegerField(verbose_name="Протяженность")
     unit = models.ForeignKey(
         Unit, related_name="unit_magazines", on_delete=models.CASCADE, verbose_name="Единица измерения"
