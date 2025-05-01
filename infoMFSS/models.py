@@ -344,11 +344,11 @@ class CableMagazine(models.Model):
         verbose_name="От распределительной коробки",
         **NULLABLE,
     )
-    track_from = models.CharField(
-        max_length=100,
-        verbose_name="Начало трассы",
-        **NULLABLE,
-    )
+    # track_from = models.CharField(
+    #     max_length=100,
+    #     verbose_name="Начало трассы",
+    #     **NULLABLE,
+    # )
     track_to_box = models.ForeignKey(
         BranchesBox,
         related_name="box_to",
@@ -356,21 +356,21 @@ class CableMagazine(models.Model):
         verbose_name="До распределительной коробки",
         **NULLABLE,
     )
-    track_to_phone = models.ForeignKey(
-        PointPhone,
-        related_name="phone_to",
-        on_delete=models.CASCADE,
-        verbose_name="До телефонной точки",
-        **NULLABLE,
-    )
-    track_to = models.CharField(
-        max_length=100,
-        verbose_name="Конец трассы",
-        **NULLABLE,
-    )
+    # track_to_phone = models.ForeignKey(
+    #     PointPhone,
+    #     related_name="phone_to",
+    #     on_delete=models.CASCADE,
+    #     verbose_name="До телефонной точки",
+    #     **NULLABLE,
+    # )
+    # track_to = models.CharField(
+    #     max_length=100,
+    #     verbose_name="Конец трассы",
+    #     **NULLABLE,
+    # )
     distance = models.PositiveIntegerField(verbose_name="Протяженность")
     unit = models.ForeignKey(
-        Unit, related_name="unit_magazines", on_delete=models.CASCADE, verbose_name="Единица " "измерения"
+        Unit, related_name="unit_magazines", on_delete=models.CASCADE, verbose_name="Единица измерения"
     )
     cable_bool = models.ForeignKey(
         "Execution",
@@ -485,6 +485,7 @@ class EquipmentInstallation(models.Model):
             self.picket = self.point_phone.picket
             self.serial_number = self.point_phone.serial_number
             self.device_type = self.point_phone.device_type
+            self.subsystem = Subsystem.objects.get(title="АТС")
             if self.point_phone.inclined_blocks is not None:
                 self.inclined_blocks = self.point_phone.inclined_blocks
         if self.branches_box is not None:
@@ -543,6 +544,8 @@ class Execution(models.Model):
     def save(self, *args, **kwargs):
         is_new = self._state.adding  # Проверяем, что объект новый
         super().save(*args, **kwargs)
+        if self.equipment_install and self.equipment_install.equipment_bool != self:
+            EquipmentInstallation.objects.filter(pk=self.equipment_install.pk).update(equipment_bool=self)
         if is_new:
             if self.equipment_install:
                 logger.info(

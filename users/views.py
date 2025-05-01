@@ -114,7 +114,6 @@ class LogoutView(BaseLogoutView):
 
 class RegisterView(LoggingMixin, CreateView):
     model = User
-    # form_class = UserForm
     form_class = RegisterForm
     success_url = reverse_lazy('users:register_done')
     extra_context = {

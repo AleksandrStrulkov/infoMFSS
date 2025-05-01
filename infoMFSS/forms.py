@@ -29,7 +29,9 @@ class InfoFormMixin(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
+        # if "number_mines" in cleaned_data:
         number_mines = cleaned_data.get("number_mines").title
+        # if "incl_block" in cleaned_data:
         incl_blocks = cleaned_data.get("incl_blocks").title
         subsystems = None
         if "subsystems" in cleaned_data:

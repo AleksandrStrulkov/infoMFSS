@@ -1,77 +1,87 @@
+from typing import Any, Dict, Type
+
 from django.core.management.base import BaseCommand
-from django.db import transaction
-from infoMFSS.models import (
-    NumberMine,
-    InclinedBlocks,
-    Unit,
-    Subsystem,
-    Tunnel,
-    Cable,
-    PointPhone,
-    Equipment,
-    EquipmentInstallation,
-    BranchesBox,
-    CableMagazine,
-)
+from django.db import models, transaction
 
-def all_data_from_models(model):
-    datas = {data.title: data for data in model.objects.all()}
-    return datas
+from infoMFSS.models import (BranchesBox, Cable, CableMagazine, Equipment,
+                             EquipmentInstallation, InclinedBlocks, NumberMine,
+                             PointPhone, Subsystem, Tunnel, Unit)
+
+# def from_models(model, field):
+#     datas = {data.field: data for data in model.objects.all()}
+#     return datas
 
 
-def all_mines():
-    mines = {mine.title: mine for mine in NumberMine.objects.all()}
-    return mines
+def from_models(model: Type[models.Model], field: str) -> Dict[Any, models.Model]:
+    """
+    Создает словарь, сопоставляющий значения полей с экземплярами модели.
+    Аргументы:
+            model: класс модели Django
+            field: Имя поля, которое будет использоваться в качестве ключей словаря
+    Возвращает:
+            Словарь, где ключи — это значения полей, а значения — экземпляры модели
+    """
+    try:
+        return {getattr(obj, field): obj for obj in model.objects.all()}
+    except AttributeError as e:
+        raise AttributeError(f"Поле '{field}' не существует в модели {model.__name__}") from e
+    except Exception as e:
+        raise Exception(f"Ошибка при создании словаря из модели: {str(e)}") from e
 
 
-def all_subsystems():
-    subsystems = {subsystem.title: subsystem for subsystem in Subsystem.objects.all()}
-    return subsystems
-
-
-def all_blocks():
-    inclined_blocks = {inclined_block.title: inclined_block for inclined_block in InclinedBlocks.objects.all()}
-    return inclined_blocks
-
-
-def all_tunnels():
-    tunnels = {tunnel.title: tunnel for tunnel in Tunnel.objects.all()}
-    return tunnels
-
-
-def all_equipments():
-    equipments = {equipment.title: equipment for equipment in EquipmentInstallation.objects.all()}
-    return equipments
-
-
-def all_cables():
-    cables = {cable.title: cable for cable in Cable.objects.all()}
-    return cables
-
-
-def all_boxs():
-    boxs = {box.title: box for box in BranchesBox.objects.all()}
-    return boxs
-
-
-def all_points_phones():
-    phones = {phone.title: phone for phone in PointPhone.objects.all()}
-    return phones
-
-
-def all_branches_box():
-    branches_box = {box.title: box for box in BranchesBox.objects.all()}
-    return branches_box
-
-
-def all_units():
-    units = {unit.title: unit for unit in Unit.objects.all()}
-    return units
-
-
-def all_cable_magazine():
-    cable_magazine = {magazine.title: magazine for magazine in CableMagazine.objects.all()}
-    return cable_magazine
+# def all_mines():
+#     mines = {mine.title: mine for mine in NumberMine.objects.all()}
+#     return mines
+#
+#
+# def all_subsystems():
+#     subsystems = {subsystem.title: subsystem for subsystem in Subsystem.objects.all()}
+#     return subsystems
+#
+#
+# def all_blocks():
+#     inclined_blocks = {inclined_block.title: inclined_block for inclined_block in InclinedBlocks.objects.all()}
+#     return inclined_blocks
+#
+#
+# def all_tunnels():
+#     tunnels = {tunnel.title: tunnel for tunnel in Tunnel.objects.all()}
+#     return tunnels
+#
+#
+# def all_equipments():
+#     equipments = {equipment.title: equipment for equipment in EquipmentInstallation.objects.all()}
+#     return equipments
+#
+#
+# def all_cables():
+#     cables = {cable.title: cable for cable in Cable.objects.all()}
+#     return cables
+#
+#
+# def all_boxs():
+#     boxs = {box.title: box for box in BranchesBox.objects.all()}
+#     return boxs
+#
+#
+# def all_points_phones():
+#     phones = {phone.title: phone for phone in PointPhone.objects.all()}
+#     return phones
+#
+#
+# def all_branches_box():
+#     branches_box = {box.title: box for box in BranchesBox.objects.all()}
+#     return branches_box
+#
+#
+# def all_units():
+#     units = {unit.title: unit for unit in Unit.objects.all()}
+#     return units
+#
+#
+# def all_cable_magazine():
+#     cable_magazine = {magazine.title: magazine for magazine in CableMagazine.objects.all()}
+#     return cable_magazine
 
 
 class Command(BaseCommand):
@@ -89,7 +99,7 @@ class Command(BaseCommand):
                 self.create_cables()
                 self.create_points_phone()
                 self.create_branches_box()
-                self.create_cable_magazine()
+                # self.create_cable_magazine()
             self.stdout.write(self.style.SUCCESS("Данные успешно добавлены!"))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Ошибка: {e}"))
@@ -123,22 +133,72 @@ class Command(BaseCommand):
     def create_blocks(self):
 
         blocks_list = [
-            {"title": "3Т-9", "number_mine": all_mines().get("Нефтешахта №1"), "description": "", "slug": None},
-            {"title": "1Т-4", "number_mine": all_mines().get("Нефтешахта №1"), "description": "", "slug": None},
-            {"title": "4Т-4", "number_mine": all_mines().get("Нефтешахта №1"), "description": "", "slug": None},
-            {"title": '1-3Д "Юг"', "number_mine": all_mines().get("Нефтешахта №1"), "description": "", "slug": None},
             {
-                "title": '1-3Д "Север"',
-                "number_mine": all_mines().get("Нефтешахта №1"),
+                "title": "3Т-9",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "description": "",
                 "slug": None,
             },
-            {"title": "2-3Д", "number_mine": all_mines().get("Нефтешахта №2"), "description": "", "slug": None},
-            {"title": "2-1Д", "number_mine": all_mines().get("Нефтешахта №2"), "description": "", "slug": None},
-            {"title": "2Т-1", "number_mine": all_mines().get("Нефтешахта №3"), "description": "", "slug": None},
-            {"title": "3Т-4", "number_mine": all_mines().get("Нефтешахта №3"), "description": "", "slug": None},
-            {"title": "2Т-4", "number_mine": all_mines().get("Нефтешахта №3"), "description": "", "slug": None},
-            {"title": "1Т-1", "number_mine": all_mines().get("Нефтешахта №3"), "description": "", "slug": None},
+            {
+                "title": "1Т-4",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "4Т-4",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": '1-3Д "Юг"',
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": '1-3Д "Север"',
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "2-3Д",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "2-1Д",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "2Т-1",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "3Т-4",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "2Т-4",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "1Т-1",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "description": "",
+                "slug": None,
+            },
             {"title": "Все уклонные блоки", "number_mine": None, "description": "", "slug": None},
         ]
 
@@ -213,7 +273,7 @@ class Command(BaseCommand):
         tunnels_list = [
             {
                 "title": "СОШ-1эт.",
-                "number_mine": all_mines().get("Нефтешахта №1"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -222,7 +282,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЮОШ-1эт.",
-                "number_mine": all_mines().get("Нефтешахта №1"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -231,7 +291,16 @@ class Command(BaseCommand):
             },
             {
                 "title": "СКБ",
-                "number_mine": all_mines().get("Нефтешахта №1"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "л/х СКБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -240,7 +309,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЮКБ-1",
-                "number_mine": all_mines().get("Нефтешахта №1"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -249,7 +318,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЮКБ-2",
-                "number_mine": all_mines().get("Нефтешахта №1"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -258,7 +327,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "СОШ-2эт.",
-                "number_mine": all_mines().get("Нефтешахта №1"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -267,7 +336,52 @@ class Command(BaseCommand):
             },
             {
                 "title": "СОШ-3эт.",
-                "number_mine": all_mines().get("Нефтешахта №1"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЭУ-3",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮОШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ходок ЦВС",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Сбойка №5 от л/х СКБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮПШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -276,8 +390,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВПП ходка",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "inclined_blocks": all_blocks().get("1Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -285,8 +399,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВПП уклона",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "inclined_blocks": all_blocks().get("1Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -294,8 +408,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Ходок",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "inclined_blocks": all_blocks().get("1Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -303,8 +417,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Уклон",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "inclined_blocks": all_blocks().get("1Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -312,8 +426,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "НПП уклона",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "inclined_blocks": all_blocks().get("1Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -321,8 +435,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "НПП ходка",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "inclined_blocks": all_blocks().get("1Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -330,8 +444,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Сбойка №5",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "inclined_blocks": all_blocks().get("1Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -339,7 +453,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЗКБ",
-                "number_mine": all_mines().get("Нефтешахта №2"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -348,7 +462,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "СОШ-2эт.",
-                "number_mine": all_mines().get("Нефтешахта №2"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -357,7 +471,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "КБ",
-                "number_mine": all_mines().get("Нефтешахта №2"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -366,7 +480,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЮВВШ-1эт.",
-                "number_mine": all_mines().get("Нефтешахта №2"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -375,7 +489,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЮВВШ-2эт.",
-                "number_mine": all_mines().get("Нефтешахта №2"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -384,7 +498,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЮНВШ-1эт.",
-                "number_mine": all_mines().get("Нефтешахта №2"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -393,7 +507,43 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЮОШ-1эт.",
-                "number_mine": all_mines().get("Нефтешахта №2"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮНВШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Обходная ЮНВШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "129 п.ш.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЗКБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -402,8 +552,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВПП ходка",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "inclined_blocks": all_blocks().get("2-1Д"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -411,8 +561,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВПП уклона",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "inclined_blocks": all_blocks().get("2-1Д"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -420,8 +570,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Ходок",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "inclined_blocks": all_blocks().get("2-1Д"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -429,8 +579,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Уклон",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "inclined_blocks": all_blocks().get("2-1Д"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -438,8 +588,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "НПП ходка",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "inclined_blocks": all_blocks().get("2-1Д"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -447,8 +597,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "НПП уклона",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "inclined_blocks": all_blocks().get("2-1Д"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -456,8 +606,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Насосная",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "inclined_blocks": all_blocks().get("2-1Д"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -465,7 +615,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "КБ",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -474,7 +624,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "301 п.ш.",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -483,7 +633,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВПрШ-0эт.",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -492,7 +642,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ЗПдШ-1эт.",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -501,7 +651,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВОШ-1эт.",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -510,7 +660,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "Порожняковая ветвь ПС",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -519,7 +669,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "Вент.сбойка ВС №1",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -528,7 +678,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "Ходок на ПС",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -537,7 +687,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "101 п.ш.",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -546,7 +696,7 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВПдШ-3эт.",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -555,7 +705,25 @@ class Command(BaseCommand):
             },
             {
                 "title": "217 п.ш.",
-                "number_mine": all_mines().get("Нефтешахта №3"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПШ-0эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "03 п.ш.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
                 "inclined_blocks": None,
                 "tuf_bool": True,
                 "inclined_bool": False,
@@ -564,8 +732,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВПП ходка",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "inclined_blocks": all_blocks().get("2Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -573,8 +741,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "ВПП уклона",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "inclined_blocks": all_blocks().get("2Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -582,8 +750,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Ходок",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "inclined_blocks": all_blocks().get("2Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -591,8 +759,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Уклон",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "inclined_blocks": all_blocks().get("2Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -600,8 +768,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "НПП ходка",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "inclined_blocks": all_blocks().get("2Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -609,8 +777,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "НПП уклона",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "inclined_blocks": all_blocks().get("2Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -618,8 +786,8 @@ class Command(BaseCommand):
             },
             {
                 "title": "Насосная",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "inclined_blocks": all_blocks().get("2Т-4"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
                 "tuf_bool": False,
                 "inclined_bool": True,
                 "description": "",
@@ -643,7 +811,7 @@ class Command(BaseCommand):
                 "title": "Телефон",
                 "device_type": "Эльтон-Ex231",
                 "description": "Телефонный аппарат рудничного исполнения, взрывозащищенный",
-                "subsystem": all_subsystems().get("АТС"),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -653,7 +821,7 @@ class Command(BaseCommand):
                 "title": "Станция связи",
                 "device_type": "Ethertex V4.11",
                 "description": "Станция связи позиционирования",
-                "subsystem": all_subsystems().get("ППИТ"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -663,7 +831,7 @@ class Command(BaseCommand):
                 "title": "Станция связи",
                 "device_type": "Ethertex V4",
                 "description": "Станция связи магистральная МС12.18-34",
-                "subsystem": all_subsystems().get("ВН"),
+                "subsystem": from_models(Subsystem, "title").get("ВН"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -673,7 +841,7 @@ class Command(BaseCommand):
                 "title": "Источник питания",
                 "device_type": "МС 41.01",
                 "description": "Источник питания для станции связи позиционирования",
-                "subsystem": all_subsystems().get("ППИТ"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -683,7 +851,7 @@ class Command(BaseCommand):
                 "title": "Источник питания",
                 "device_type": "МС 41.02",
                 "description": "Источник питания для станции связи магистральная",
-                "subsystem": all_subsystems().get("Различные"),
+                "subsystem": from_models(Subsystem, "title").get("Различные"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -693,7 +861,7 @@ class Command(BaseCommand):
                 "title": "Видеокамера",
                 "device_type": "УТЗШ-МР-32 (22)",
                 "description": "Видеокамера",
-                "subsystem": all_subsystems().get("ВН"),
+                "subsystem": from_models(Subsystem, "title").get("ВН"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -703,7 +871,7 @@ class Command(BaseCommand):
                 "title": "Прожектор ИК",
                 "device_type": "СЗВ2",
                 "description": "Прожектор инфракрасный взрывозащищенный",
-                "subsystem": all_subsystems().get("ВН"),
+                "subsystem": from_models(Subsystem, "title").get("ВН"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -713,7 +881,7 @@ class Command(BaseCommand):
                 "title": "Датчик положения",
                 "device_type": "ДПМГ-2-200",
                 "description": "Датчик положения магнитогерконовый ДПМГ-2 исп. 200 с кронштейном К-ДПМ1 для монтажа",
-                "subsystem": all_subsystems().get("АГК"),
+                "subsystem": from_models(Subsystem, "title").get("АГК"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -723,7 +891,17 @@ class Command(BaseCommand):
                 "title": "Датчик кислорода",
                 "device_type": "СД-1.Т.О2",
                 "description": "Датчик кислорода стационарный СД-1.Т.О2",
-                "subsystem": all_subsystems().get("АГК"),
+                "subsystem": from_models(Subsystem, "title").get("АГК"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Точка доступа wi-fi",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "slug": None,
                 "file_pdf": "",
                 "file_passport": "",
@@ -807,108 +985,60 @@ class Command(BaseCommand):
 
         points_list = [
             {
-                "title": "Т#2-6",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "tunnel": all_tunnels().get("СКБ"),
+                "title": "Т#1-41",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
                 "inclined_blocks": None,
-                "subscriber_number": "8132",
-                "picket": "34",
+                "subscriber_number": "8027",
+                "picket": "53+2",
                 "description": "",
                 "slug": None,
                 "serial_number": "",
                 "device_type": "Эльтон-Ex231",
             },
             {
-                "title": "Т#2-52",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "tunnel": all_tunnels().get("ЮОШ-1эт."),
+                "title": "Т#1-42",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЭУ-3"),
                 "inclined_blocks": None,
-                "subscriber_number": "8408",
-                "picket": "55",
+                "subscriber_number": "8028",
+                "picket": "3",
                 "description": "",
                 "slug": None,
                 "serial_number": "",
                 "device_type": "Эльтон-Ex231",
             },
             {
-                "title": "Т#2-8",
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "tunnel": all_tunnels().get("СОШ-1эт."),
+                "title": "Т#1-13",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЗКБ"),
                 "inclined_blocks": None,
-                "subscriber_number": "8446",
-                "picket": "55",
+                "subscriber_number": "",
+                "picket": "",
                 "description": "",
                 "slug": None,
                 "serial_number": "",
                 "device_type": "Эльтон-Ex231",
             },
             {
-                "title": "Т#1-65",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "tunnel": all_tunnels().get("ЗКБ"),
+                "title": "Т#2-11",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
                 "inclined_blocks": None,
-                "subscriber_number": "5132",
-                "picket": "48",
+                "subscriber_number": "",
+                "picket": "",
                 "description": "",
                 "slug": None,
                 "serial_number": "",
                 "device_type": "Эльтон-Ex231",
             },
             {
-                "title": "Т#1-17",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "tunnel": all_tunnels().get("СОШ-2эт."),
+                "title": "Т#1-27",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("КБ"),
                 "inclined_blocks": None,
-                "subscriber_number": "5408",
-                "picket": "4",
-                "description": "",
-                "slug": None,
-                "serial_number": "",
-                "device_type": "Эльтон-Ex231",
-            },
-            {
-                "title": "Т#2-89",
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "tunnel": all_tunnels().get("ЮВВШ-1эт."),
-                "inclined_blocks": None,
-                "subscriber_number": "5446",
-                "picket": "75",
-                "description": "",
-                "slug": None,
-                "serial_number": "",
-                "device_type": "Эльтон-Ex231",
-            },
-            {
-                "title": "Т#1-12",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "tunnel": all_tunnels().get("КБ"),
-                "inclined_blocks": None,
-                "subscriber_number": "6132",
-                "picket": "98",
-                "description": "",
-                "slug": None,
-                "serial_number": "",
-                "device_type": "Эльтон-Ex231",
-            },
-            {
-                "title": "Т#1-25",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "tunnel": all_tunnels().get("301 п.ш."),
-                "inclined_blocks": None,
-                "subscriber_number": "6408",
-                "picket": "53+3",
-                "description": "",
-                "slug": None,
-                "serial_number": "",
-                "device_type": "Эльтон-Ex231",
-            },
-            {
-                "title": "Т#2-74",
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "tunnel": all_tunnels().get("ВПрШ-0эт."),
-                "inclined_blocks": None,
-                "subscriber_number": "6446",
-                "picket": "83",
+                "subscriber_number": "",
+                "picket": "",
                 "description": "",
                 "slug": None,
                 "serial_number": "",
@@ -932,11 +1062,11 @@ class Command(BaseCommand):
                 "title": "1ССП32",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "tunnel": all_tunnels().get("СОШ-3эт."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЭУ-3"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
-                "picket": "5",
+                "picket": "1",
                 "boolean_block": False,
                 "description": "Станция связи позиционирования",
                 "ip_address": "10.32.012.040",
@@ -947,9 +1077,9 @@ class Command(BaseCommand):
                 "title": "1ССП55",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "tunnel": all_tunnels().get("СОШ-2эт."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-2эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
                 "picket": "1",
                 "boolean_block": False,
@@ -962,9 +1092,9 @@ class Command(BaseCommand):
                 "title": "1ССП34",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "tunnel": all_tunnels().get("СОШ-2эт."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-2эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
                 "picket": "1",
                 "boolean_block": False,
@@ -977,41 +1107,41 @@ class Command(BaseCommand):
                 "title": "50#12",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "tunnel": all_tunnels().get("СОШ-3эт."),
-                "subsystem": all_subsystems().get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-3эт."),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
                 "equipment": None,
-                "picket": "2",
+                "picket": "",
                 "boolean_block": False,
                 "description": "Клеммная коробка на 50 пар",
                 "ip_address": None,
-                "serial_number": "2687889654",
+                "serial_number": "",
                 "device_type": "КСРВ-Н",
             },
             {
-                "title": "2ССП29",
+                "title": "2ССП41",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "tunnel": all_tunnels().get("ЮОШ-1эт."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-1эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
-                "picket": "15",
+                "picket": "",
                 "boolean_block": False,
                 "description": "Станция связи позиционирования",
-                "ip_address": "10.32.023.040",
-                "serial_number": "287",
+                "ip_address": "10.32.023.160",
+                "serial_number": "299",
                 "device_type": "Ethertex V4.11",
             },
             {
                 "title": "2ССП16",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "tunnel": all_tunnels().get("ЮНВШ-1эт."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮНВШ-1эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
-                "picket": "35",
+                "picket": "",
                 "boolean_block": False,
                 "description": "Станция связи позиционирования",
                 "ip_address": "10.32.022.020",
@@ -1022,9 +1152,9 @@ class Command(BaseCommand):
                 "title": "2ССП09",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "tunnel": all_tunnels().get("ЮВВШ-2эт."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
                 "picket": "1",
                 "boolean_block": False,
@@ -1037,26 +1167,26 @@ class Command(BaseCommand):
                 "title": "50#4",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №2"),
-                "tunnel": all_tunnels().get("ЗКБ"),
-                "subsystem": all_subsystems().get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЗКБ"),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
                 "equipment": None,
-                "picket": "44",
+                "picket": "",
                 "boolean_block": False,
                 "description": "Клеммная коробка на 50 пар",
                 "ip_address": None,
-                "serial_number": "2536548754",
+                "serial_number": "",
                 "device_type": "КСРВ-Н",
             },
             {
                 "title": "3ССП51",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "tunnel": all_tunnels().get("301 п.ш."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("301 п.ш."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
-                "picket": "67+4",
+                "picket": "",
                 "boolean_block": False,
                 "description": "Станция связи позиционирования",
                 "ip_address": "10.32.035.030",
@@ -1067,11 +1197,11 @@ class Command(BaseCommand):
                 "title": "3ССП38",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "tunnel": all_tunnels().get("ВПрШ-0эт."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВПШ-0эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
-                "picket": "2+5",
+                "picket": "",
                 "boolean_block": False,
                 "description": "Станция связи позиционирования",
                 "ip_address": "10.32.034.020",
@@ -1082,11 +1212,11 @@ class Command(BaseCommand):
                 "title": "3ССП39",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "tunnel": all_tunnels().get("ВОШ-1эт."),
-                "subsystem": all_subsystems().get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВОШ-1эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "equipment": None,
-                "picket": "15",
+                "picket": "",
                 "boolean_block": False,
                 "description": "Станция связи позиционирования",
                 "ip_address": "10.32.034.030",
@@ -1097,15 +1227,15 @@ class Command(BaseCommand):
                 "title": "50#10",
                 "inclined_blocks": None,
                 "name_slag": None,
-                "number_mine": all_mines().get("Нефтешахта №3"),
-                "tunnel": all_tunnels().get("КБ"),
-                "subsystem": all_subsystems().get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("КБ"),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
                 "equipment": None,
-                "picket": "1",
+                "picket": "",
                 "boolean_block": False,
                 "description": "Клеммная коробка на 50 пар",
                 "ip_address": None,
-                "serial_number": "2536556451",
+                "serial_number": "",
                 "device_type": "КСРВ-Н",
             },
         ]
@@ -1120,22 +1250,28 @@ class Command(BaseCommand):
             BranchesBox.objects.bulk_create(branches_box_to_create)
         self.stdout.write(f"Создано {len(branches_box_to_create)} распределительных коробок")
 
-    # Создание начальных объектов в таблице 'Unit'
+    # Создание начальных объектов в таблице 'CableMagazine'
     def create_cable_magazine(self):
         cable_magazine_list = [
             {
-                "cable": all_cables().get("10"),
+                "cable": from_models(Cable, "device_type").get("Parlan 4х2х0,57"),
                 "name": "",
-                "subsystem": all_subsystems().get("СОШ-2эт."),
-                "number_mine": all_mines().get("Нефтешахта №1"),
-                "inclined_blocks": all_blocks().get(""),
-                "track_from_box": all_boxs().get(""),  # Если это коробка, то указываем  от all_boxs().get(""). ForeignKey
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from_box": from_models(BranchesBox, "title").get(
+                    "1ССП32"
+                ),  # Если это коробка, то указываем  от all_boxs().get(""). ForeignKey
                 "track_from": "",  # Если нет коробки, то указываем от .(str)
-                "track_to_box": all_boxs().get(""),  # Если есть коробка, то указываем до  all_boxs().get(""). (ForeignKey)
-                "track_to_phone": all_points_phones().get(""),  # Если это телефон, то указываем до all_points_phones().get(""). (ForeignKey)
+                "track_to_box": from_models(BranchesBox).get(
+                    ""
+                ),  # Если есть коробка, то указываем до  all_boxs().get(""). (ForeignKey)
+                "track_to_phone": from_models(PointPhone).get(
+                    ""
+                ),  # Если это телефон, то указываем до all_points_phones().get(""). (ForeignKey)
                 "track_to": "",  # Если нет телефона, то указываем. (str)
                 "distance": "",
-                "unit": all_units().get("м."),
+                "unit": from_models(Unit, "title").get("м."),
                 "cable_bool": True,
                 "slug": None,
             }
