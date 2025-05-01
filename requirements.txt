@@ -19,3 +19,9 @@ django-smart-selects==1.7.2
 django-filter==24.3
 django-simple-captcha==0.6.1
 python-json-logger==3.2.1
+django-extensions==4.1
+pytest==8.3.5
+pytest-django==4.11.1
+factory-boy==3.3.3
+pytest-factoryboy==2.7.0
+pytest-cov==6.1.1

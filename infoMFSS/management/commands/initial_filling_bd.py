@@ -1,10 +1,91 @@
+from typing import Any, Dict, Type
+
 from django.core.management.base import BaseCommand
-from django.db import transaction
-from infoMFSS.models import NumberMine, InclinedBlocks, Unit, Subsystem
+from django.db import models, transaction
+
+from infoMFSS.models import (BranchesBox, Cable, CableMagazine, Equipment,
+                             EquipmentInstallation, InclinedBlocks, NumberMine,
+                             PointPhone, Subsystem, Tunnel, Unit)
+
+# def from_models(model, field):
+#     datas = {data.field: data for data in model.objects.all()}
+#     return datas
+
+
+def from_models(model: Type[models.Model], field: str) -> Dict[Any, models.Model]:
+    """
+    Создает словарь, сопоставляющий значения полей с экземплярами модели.
+    Аргументы:
+            model: класс модели Django
+            field: Имя поля, которое будет использоваться в качестве ключей словаря
+    Возвращает:
+            Словарь, где ключи — это значения полей, а значения — экземпляры модели
+    """
+    try:
+        return {getattr(obj, field): obj for obj in model.objects.all()}
+    except AttributeError as e:
+        raise AttributeError(f"Поле '{field}' не существует в модели {model.__name__}") from e
+    except Exception as e:
+        raise Exception(f"Ошибка при создании словаря из модели: {str(e)}") from e
+
+
+# def all_mines():
+#     mines = {mine.title: mine for mine in NumberMine.objects.all()}
+#     return mines
+#
+#
+# def all_subsystems():
+#     subsystems = {subsystem.title: subsystem for subsystem in Subsystem.objects.all()}
+#     return subsystems
+#
+#
+# def all_blocks():
+#     inclined_blocks = {inclined_block.title: inclined_block for inclined_block in InclinedBlocks.objects.all()}
+#     return inclined_blocks
+#
+#
+# def all_tunnels():
+#     tunnels = {tunnel.title: tunnel for tunnel in Tunnel.objects.all()}
+#     return tunnels
+#
+#
+# def all_equipments():
+#     equipments = {equipment.title: equipment for equipment in EquipmentInstallation.objects.all()}
+#     return equipments
+#
+#
+# def all_cables():
+#     cables = {cable.title: cable for cable in Cable.objects.all()}
+#     return cables
+#
+#
+# def all_boxs():
+#     boxs = {box.title: box for box in BranchesBox.objects.all()}
+#     return boxs
+#
+#
+# def all_points_phones():
+#     phones = {phone.title: phone for phone in PointPhone.objects.all()}
+#     return phones
+#
+#
+# def all_branches_box():
+#     branches_box = {box.title: box for box in BranchesBox.objects.all()}
+#     return branches_box
+#
+#
+# def all_units():
+#     units = {unit.title: unit for unit in Unit.objects.all()}
+#     return units
+#
+#
+# def all_cable_magazine():
+#     cable_magazine = {magazine.title: magazine for magazine in CableMagazine.objects.all()}
+#     return cable_magazine
 
 
 class Command(BaseCommand):
-    help = 'Заполняет базу данных начальными данными'
+    help = "Заполняет базу данных начальными данными"
 
     def handle(self, *args, **options):
         try:
@@ -13,113 +94,1194 @@ class Command(BaseCommand):
                 self.create_blocks()
                 self.create_units()
                 self.create_subsystems()
-            self.stdout.write(self.style.SUCCESS('Данные успешно добавлены!'))
+                self.create_tunnels()
+                self.create_equipments()
+                self.create_cables()
+                self.create_points_phone()
+                self.create_branches_box()
+                # self.create_cable_magazine()
+            self.stdout.write(self.style.SUCCESS("Данные успешно добавлены!"))
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Ошибка: {e}'))
+            self.stdout.write(self.style.ERROR(f"Ошибка: {e}"))
 
     # Создание начальных объектов в таблице 'NumberMine'
     def create_mines(self):
         mine_list = [
-                {'title': 'Нефтешахта №1', 'address_mine': 'Республика Коми, г. Ухта пгт Ярега ул. Шахтинская д.9',
-                 'slug': 'nefteshahta-1'},
-                {'title': 'Нефтешахта №2', 'address_mine': 'Республика Коми, г. Ухта п. Первомайский',
-                 'slug': 'nefteshahta-2'},
-                {'title': 'Нефтешахта №3', 'address_mine': 'Республика Коми, г. Ухта п. Доманик',
-                 'slug': 'nefteshahta-3'},
-                {'title': 'Все шахты', 'address_mine': None, 'slug': 'vse-shahty'},
+            {
+                "title": "Нефтешахта №1",
+                "address_mine": "Республика Коми, г. Ухта пгт Ярега ул. Шахтинская д.9",
+                "slug": "nefteshahta-1",
+            },
+            {
+                "title": "Нефтешахта №2",
+                "address_mine": "Республика Коми, г. Ухта п. Первомайский",
+                "slug": "nefteshahta-2",
+            },
+            {"title": "Нефтешахта №3", "address_mine": "Республика Коми, г. Ухта п. Доманик", "slug": "nefteshahta-3"},
+            {"title": "Все шахты", "address_mine": None, "slug": "vse-shahty"},
         ]
 
         # Создаём только несуществующие шахты
-        existing_titles = set(NumberMine.objects.values_list('title', flat=True))
-        mines_to_create = [
-                NumberMine(**item)
-                for item in mine_list
-                if item['title'] not in existing_titles
-        ]
+        existing_titles = set(NumberMine.objects.values_list("title", flat=True))
+        mines_to_create = [NumberMine(**item) for item in mine_list if item["title"] not in existing_titles]
 
         if mines_to_create:
             NumberMine.objects.bulk_create(mines_to_create)
-            self.stdout.write(f'Создано {len(mines_to_create)} нефтешахт')
+        self.stdout.write(f"Создано {len(mines_to_create)} нефтешахт")
 
     # Создание начальных объектов в таблице 'InclinedBlocks'
     def create_blocks(self):
-        # Предварительно получаем все шахты одним запросом
-        mines = {mine.title: mine for mine in NumberMine.objects.all()}
 
         blocks_list = [
-                {'title': '3Т-9', 'number_mine': mines.get('Нефтешахта №1'), 'description': '', 'slug': None},
-                {'title': '1Т-4', 'number_mine': mines.get('Нефтешахта №1'), 'description': '', 'slug': None},
-                {'title': '4Т-4', 'number_mine': mines.get('Нефтешахта №1'), 'description': '', 'slug': None},
-                {'title': '1-3Д "Юг"', 'number_mine': mines.get('Нефтешахта №1'), 'description': '', 'slug': None},
-                {'title': '1-3Д "Север"', 'number_mine': mines.get('Нефтешахта №1'), 'description': '', 'slug': None},
-                {'title': '2-3Д', 'number_mine': mines.get('Нефтешахта №2'), 'description': '', 'slug': None},
-                {'title': '2-1Д', 'number_mine': mines.get('Нефтешахта №2'), 'description': '', 'slug': None},
-                {'title': '2Т-1', 'number_mine': mines.get('Нефтешахта №3'), 'description': '', 'slug': None},
-                {'title': '3Т-4', 'number_mine': mines.get('Нефтешахта №3'), 'description': '', 'slug': None},
-                {'title': '2Т-4', 'number_mine': mines.get('Нефтешахта №3'), 'description': '', 'slug': None},
-                {'title': '1Т-1', 'number_mine': mines.get('Нефтешахта №3'), 'description': '', 'slug': None},
-                {'title': 'Все уклонные блоки', 'number_mine': None, 'description': '', 'slug': None},
+            {
+                "title": "3Т-9",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "1Т-4",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "4Т-4",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": '1-3Д "Юг"',
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": '1-3Д "Север"',
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "2-3Д",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "2-1Д",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "2Т-1",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "3Т-4",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "2Т-4",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "description": "",
+                "slug": None,
+            },
+            {
+                "title": "1Т-1",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "description": "",
+                "slug": None,
+            },
+            {"title": "Все уклонные блоки", "number_mine": None, "description": "", "slug": None},
         ]
 
         # Создаём только несуществующие объекты
-        existing_blocks = set(InclinedBlocks.objects.values_list('title', flat=True))
-        blocks_to_create = [
-                InclinedBlocks(**item)
-                for item in blocks_list
-                if item['title'] not in existing_blocks
-        ]
+        existing_blocks = set(InclinedBlocks.objects.values_list("title", flat=True))
+        blocks_to_create = [InclinedBlocks(**item) for item in blocks_list if item["title"] not in existing_blocks]
 
         if blocks_to_create:
             InclinedBlocks.objects.bulk_create(blocks_to_create)
-            self.stdout.write(f'Создано {len(blocks_to_create)} уклонных блоков')
+        self.stdout.write(f"Создано {len(blocks_to_create)} уклонных блоков")
 
     # Создание начальных объектов в таблице 'Unit'
     def create_units(self):
         units_list = [
-                {'title': 'м.', 'description': 'метр',},
-                {'title': 'км.', 'description': 'километр',},
-                {'title': 'шт.', 'description': 'штук',},
+            {
+                "title": "м.",
+                "description": "метр",
+            },
+            {
+                "title": "км.",
+                "description": "километр",
+            },
+            {
+                "title": "шт.",
+                "description": "штук",
+            },
         ]
         # Создаём только несуществующие объекты
-        existing_units = set(Unit.objects.values_list('title', flat=True))
-        units_to_create = [
-                Unit(**item)
-                for item in units_list
-                if item['title'] not in existing_units
-        ]
+        existing_units = set(Unit.objects.values_list("title", flat=True))
+        units_to_create = [Unit(**item) for item in units_list if item["title"] not in existing_units]
 
         if units_to_create:
             Unit.objects.bulk_create(units_to_create)
-            self.stdout.write(f'Создано {len(units_to_create)} единиц измерения')
+        self.stdout.write(f"Создано {len(units_to_create)} единиц измерения")
 
     # Создание начальных объектов в таблице 'Subsystem'
     def create_subsystems(self):
+
         subsystems_list = [
-                {'title': 'АТС', 'description': 'Подсистема шахтной связи', 'slug': 'ats'},
-                {'title': 'ППИТ', 'description': 'Подсистема позиционирования и передачи данных', 'slug': 'ppit'},
-                {'title': 'АГК', 'description': 'Подсистема аэрогазового контроля', 'slug': 'agk'},
-                {'title': 'ВН', 'description': 'Подсистема видеонаблюдения', 'slug': 'vn'},
-                {'title': 'ПЖ', 'description': 'Подсистема контроля и управления пожарным водоснабжением',
-                 'slug': 'pz'},
-                {'title': 'ВМП', 'description': 'Подсистема контроля и управления ВМП', 'slug': 'vmp'},
-                {'title': 'АСКТП', 'description': 'Автоматизированная система контроля технологическими процессами',
-                 'slug': 'asktp'},
-                {'title': 'КРУ', 'description': 'Подсистема управления комплектными распределительными устройствами',
-                 'slug': 'kur'},
-                {'title': 'Все подсистемы', 'description': '', 'slug': 'allsubsystems'},
+            {"title": "АТС", "description": "Подсистема шахтной связи", "slug": "ats"},
+            {"title": "ППИТ", "description": "Подсистема позиционирования и передачи данных", "slug": "ppit"},
+            {"title": "АГК", "description": "Подсистема аэрогазового контроля", "slug": "agk"},
+            {"title": "ВН", "description": "Подсистема видеонаблюдения", "slug": "vn"},
+            {"title": "ПЖ", "description": "Подсистема контроля и управления пожарным водоснабжением", "slug": "pz"},
+            {"title": "ВМП", "description": "Подсистема контроля и управления ВМП", "slug": "vmp"},
+            {
+                "title": "АСКТП",
+                "description": "Автоматизированная система контроля технологическими процессами",
+                "slug": "asktp",
+            },
+            {
+                "title": "КРУ",
+                "description": "Подсистема управления комплектными распределительными устройствами",
+                "slug": "kur",
+            },
+            {"title": "Все подсистемы", "description": "", "slug": "allsubsystems"},
+            {"title": "Различные", "description": "АГК, ВН, ПЖ, ВМП, АСКТП, КРУ", "slug": "subsystems"},
         ]
         # Создаём только несуществующие объекты
-        existing_subsystems = set(Subsystem.objects.values_list('title', flat=True))
+        existing_subsystems = set(Subsystem.objects.values_list("title", flat=True))
         subsystems_to_create = [
-                Subsystem(**item)
-                for item in subsystems_list
-                if item['title'] not in existing_subsystems
+            Subsystem(**item) for item in subsystems_list if item["title"] not in existing_subsystems
         ]
 
         if subsystems_to_create:
             Subsystem.objects.bulk_create(subsystems_to_create)
-            self.stdout.write(f'Создано {len(subsystems_to_create)} подсистем')
+        self.stdout.write(f"Создано {len(subsystems_to_create)} подсистем")
 
-        # Создание начальных объектов в таблице 'Subsystem'
+    # Создание начальных объектов в таблице 'Tunnel'
+    def create_tunnels(self):
 
+        tunnels_list = [
+            {
+                "title": "СОШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮОШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "СКБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "л/х СКБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮКБ-1",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮКБ-2",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "СОШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "СОШ-3эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЭУ-3",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮОШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ходок ЦВС",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Сбойка №5 от л/х СКБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮПШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПП ходка",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПП уклона",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Ходок",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Уклон",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "НПП уклона",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "НПП ходка",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Сбойка №5",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("1Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЗКБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "СОШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "КБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮВВШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮВВШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮНВШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮОШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЮНВШ-2эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Обходная ЮНВШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "129 п.ш.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЗКБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПП ходка",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПП уклона",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Ходок",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Уклон",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "НПП ходка",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "НПП уклона",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Насосная",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2-1Д"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "КБ",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "301 п.ш.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПрШ-0эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ЗПдШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВОШ-1эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Порожняковая ветвь ПС",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Вент.сбойка ВС №1",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Ходок на ПС",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "101 п.ш.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПдШ-3эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "217 п.ш.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПШ-0эт.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "03 п.ш.",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "tuf_bool": True,
+                "inclined_bool": False,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПП ходка",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "ВПП уклона",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Ходок",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Уклон",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "НПП ходка",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "НПП уклона",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+            {
+                "title": "Насосная",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": from_models(InclinedBlocks, "title").get("2Т-4"),
+                "tuf_bool": False,
+                "inclined_bool": True,
+                "description": "",
+                "name_slag": "",
+            },
+        ]
 
+        # Создаём только несуществующие объекты
+        existing_tunnels = set(Tunnel.objects.values_list("title", flat=True))
+        tunnels_to_create = [Tunnel(**item) for item in tunnels_list if item["title"] not in existing_tunnels]
+
+        if tunnels_to_create:
+            Tunnel.objects.bulk_create(tunnels_to_create)
+        self.stdout.write(f"Создано {len(tunnels_to_create)} выработок")
+
+    # Создание начальных объектов в таблице 'Equipment'
+    def create_equipments(self):
+
+        equipment_list = [
+            {
+                "title": "Телефон",
+                "device_type": "Эльтон-Ex231",
+                "description": "Телефонный аппарат рудничного исполнения, взрывозащищенный",
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Станция связи",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Станция связи",
+                "device_type": "Ethertex V4",
+                "description": "Станция связи магистральная МС12.18-34",
+                "subsystem": from_models(Subsystem, "title").get("ВН"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Источник питания",
+                "device_type": "МС 41.01",
+                "description": "Источник питания для станции связи позиционирования",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Источник питания",
+                "device_type": "МС 41.02",
+                "description": "Источник питания для станции связи магистральная",
+                "subsystem": from_models(Subsystem, "title").get("Различные"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Видеокамера",
+                "device_type": "УТЗШ-МР-32 (22)",
+                "description": "Видеокамера",
+                "subsystem": from_models(Subsystem, "title").get("ВН"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Прожектор ИК",
+                "device_type": "СЗВ2",
+                "description": "Прожектор инфракрасный взрывозащищенный",
+                "subsystem": from_models(Subsystem, "title").get("ВН"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Датчик положения",
+                "device_type": "ДПМГ-2-200",
+                "description": "Датчик положения магнитогерконовый ДПМГ-2 исп. 200 с кронштейном К-ДПМ1 для монтажа",
+                "subsystem": from_models(Subsystem, "title").get("АГК"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Датчик кислорода",
+                "device_type": "СД-1.Т.О2",
+                "description": "Датчик кислорода стационарный СД-1.Т.О2",
+                "subsystem": from_models(Subsystem, "title").get("АГК"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+            {
+                "title": "Точка доступа wi-fi",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "slug": None,
+                "file_pdf": "",
+                "file_passport": "",
+                "file_certificate": "",
+            },
+        ]
+        # Создаём только несуществующие объекты
+        existing_equipments = set(Equipment.objects.values_list("title", flat=True))
+        equipments_to_create = [
+            Equipment(**item) for item in equipment_list if item["title"] not in existing_equipments
+        ]
+
+        if equipments_to_create:
+            Equipment.objects.bulk_create(equipments_to_create)
+        self.stdout.write(f"Создано {len(equipments_to_create)} шт. оборудования")
+
+    # Создание начальных объектов в таблице 'Cable'
+    def create_cables(self):
+        # Предварительно получаем все шахты одним запросом
+        cables_list = [
+            {
+                "title": "Все кабели",
+                "device_type": None,
+                "description": None,
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
+            },
+            {
+                "title": "Многопарный (4 пары)",
+                "device_type": "Parlan 4х2х0,57",
+                "description": "Кабель предназначен для систем цифровой связи с параметрами передачи до 250 МГц",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
+            },
+            {
+                "title": "Многопарный (20 пар)",
+                "device_type": "SКAРU 20х2х0,64",
+                "description": "Кабель предназначен для систем цифровой связи с параметрами передачи до 250 МГц",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
+            },
+            {
+                "title": "Многопарный (50 пар)",
+                "device_type": "SКAРU 50х2х0,64",
+                "description": "Кабель предназначен для систем цифровой связи с параметрами передачи до 250 МГц",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
+            },
+            {
+                "title": "Многопарный (100 пар)",
+                "device_type": "SКAРU 100х2х0,64",
+                "description": "Кабель предназначен для систем цифровой связи с параметрами передачи до 250 МГц",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
+            },
+            {
+                "title": "Оптический",
+                "device_type": "ОКЛСт-нг(А)-HF-01-16-10/125-2,7",
+                "description": "Кабель предназначен для прокладки оптических линий связи.",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
+            },
+        ]
+
+        # Создаём только несуществующие объекты
+        existing_cables = set(Cable.objects.values_list("title", flat=True))
+        cables_to_create = [Cable(**item) for item in cables_list if item["title"] not in existing_cables]
+
+        if cables_to_create:
+            Cable.objects.bulk_create(cables_to_create)
+        self.stdout.write(f"Создано {len(cables_to_create)} кабелей")
+
+    # Создание начальных объектов в таблице 'PointPhone'
+    def create_points_phone(self):
+
+        points_list = [
+            {
+                "title": "Т#1-41",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
+                "inclined_blocks": None,
+                "subscriber_number": "8027",
+                "picket": "53+2",
+                "description": "",
+                "slug": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+            },
+            {
+                "title": "Т#1-42",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЭУ-3"),
+                "inclined_blocks": None,
+                "subscriber_number": "8028",
+                "picket": "3",
+                "description": "",
+                "slug": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+            },
+            {
+                "title": "Т#1-13",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЗКБ"),
+                "inclined_blocks": None,
+                "subscriber_number": "",
+                "picket": "",
+                "description": "",
+                "slug": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+            },
+            {
+                "title": "Т#2-11",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
+                "inclined_blocks": None,
+                "subscriber_number": "",
+                "picket": "",
+                "description": "",
+                "slug": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+            },
+            {
+                "title": "Т#1-27",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("КБ"),
+                "inclined_blocks": None,
+                "subscriber_number": "",
+                "picket": "",
+                "description": "",
+                "slug": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+            },
+        ]
+
+        # Создаём только несуществующие объекты
+        existing_points = set(PointPhone.objects.values_list("title", flat=True))
+        points_to_create = [PointPhone(**item) for item in points_list if item["title"] not in existing_points]
+
+        if points_to_create:
+            PointPhone.objects.bulk_create(points_to_create)
+        self.stdout.write(f"Создано {len(points_to_create)} точек связи")
+
+    # Создание начальных объектов в таблице 'BranchesBox'
+    def create_branches_box(self):
+
+        branches_box_list = [
+            {
+                "title": "1ССП32",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЭУ-3"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "1",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.012.040",
+                "serial_number": "192",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "1ССП55",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-2эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "1",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.012.010",
+                "serial_number": "162",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "1ССП34",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-2эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "1",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.012.040",
+                "serial_number": "199",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "50#12",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-3эт."),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "equipment": None,
+                "picket": "",
+                "boolean_block": False,
+                "description": "Клеммная коробка на 50 пар",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "КСРВ-Н",
+            },
+            {
+                "title": "2ССП41",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-1эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.023.160",
+                "serial_number": "299",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "2ССП16",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮНВШ-1эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.022.020",
+                "serial_number": "274",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "2ССП09",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "1",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.021.090",
+                "serial_number": "267",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "50#4",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЗКБ"),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "equipment": None,
+                "picket": "",
+                "boolean_block": False,
+                "description": "Клеммная коробка на 50 пар",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "КСРВ-Н",
+            },
+            {
+                "title": "3ССП51",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("301 п.ш."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.035.030",
+                "serial_number": "258",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "3ССП38",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВПШ-0эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.034.020",
+                "serial_number": "245",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "3ССП39",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВОШ-1эт."),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "equipment": None,
+                "picket": "",
+                "boolean_block": False,
+                "description": "Станция связи позиционирования",
+                "ip_address": "10.32.034.030",
+                "serial_number": "246",
+                "device_type": "Ethertex V4.11",
+            },
+            {
+                "title": "50#10",
+                "inclined_blocks": None,
+                "name_slag": None,
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("КБ"),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "equipment": None,
+                "picket": "",
+                "boolean_block": False,
+                "description": "Клеммная коробка на 50 пар",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "КСРВ-Н",
+            },
+        ]
+
+        # Создаём только несуществующие объекты
+        existing_branches_box = set(BranchesBox.objects.values_list("title", flat=True))
+        branches_box_to_create = [
+            BranchesBox(**item) for item in branches_box_list if item["title"] not in existing_branches_box
+        ]
+
+        if branches_box_to_create:
+            BranchesBox.objects.bulk_create(branches_box_to_create)
+        self.stdout.write(f"Создано {len(branches_box_to_create)} распределительных коробок")
+
+    # Создание начальных объектов в таблице 'CableMagazine'
+    def create_cable_magazine(self):
+        cable_magazine_list = [
+            {
+                "cable": from_models(Cable, "device_type").get("Parlan 4х2х0,57"),
+                "name": "",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from_box": from_models(BranchesBox, "title").get(
+                    "1ССП32"
+                ),  # Если это коробка, то указываем  от all_boxs().get(""). ForeignKey
+                "track_from": "",  # Если нет коробки, то указываем от .(str)
+                "track_to_box": from_models(BranchesBox).get(
+                    ""
+                ),  # Если есть коробка, то указываем до  all_boxs().get(""). (ForeignKey)
+                "track_to_phone": from_models(PointPhone).get(
+                    ""
+                ),  # Если это телефон, то указываем до all_points_phones().get(""). (ForeignKey)
+                "track_to": "",  # Если нет телефона, то указываем. (str)
+                "distance": "",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": True,
+                "slug": None,
+            }
+        ]
+        # Создаём только несуществующие объекты
+        existing_cable_magazine = set(CableMagazine.objects.values_list("name", flat=True))
+        cable_magazine_to_create = [
+            CableMagazine(**item) for item in cable_magazine_list if item["name"] not in existing_cable_magazine
+        ]
+
+        if cable_magazine_to_create:
+            CableMagazine.objects.bulk_create(cable_magazine_to_create)
+        self.stdout.write(f"Создано {len(cable_magazine_to_create)} объектов")

@@ -1,0 +1,8 @@
+[run]
+source = infoMFSS
+
+omit =
+    */migrations/*
+    */settings/*
+    */tests/*
+    manage.py
