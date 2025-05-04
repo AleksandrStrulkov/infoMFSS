@@ -46,10 +46,10 @@
                         <th class="align-middle" data-sortable="true">Тип</th>
                         <th class="align-middle" data-sortable="true">Подсистема</th>
                         <th class="align-middle" data-sortable="true">Нефтешахта</th>
+{#                        <th class="align-middle">Уклонный блок</th>#}
+                        <th class="align-middle">Начало трассы</th>
+                        <th class="align-middle">Конец трассы</th>
                         <th class="align-middle">Уклонный блок</th>
-                        <th class="align-middle">От расп.коробки</th>
-                        <th class="align-middle">До расп.коробки</th>
-                        <th class="align-middle">До т. телефонии</th>
                         <th class="align-middle" data-sortable="true">Обозначение</th>
                         <th class="align-middle">Расстояние</th>
                         <th class="align-middle">Ед.изм.</th>
@@ -65,22 +65,30 @@
                         <td class="align-middle">{{ cable_magazine.cable.device_type }}</td>
                         <td class="align-middle">{{ cable_magazine.subsystem }}</td>
                         <td class="align-middle">{{ cable_magazine.number_mine }}</td>
+
+
+                        {% if cable_magazine.track_from.picket %}
+                        <td class="align-middle text-center">{{ cable_magazine.track_from.tunnel.title }}
+                            (ПК {{ cable_magazine.track_from.picket}})
+                        </td>
+                        {% else %}
+                        <td class="align-middle text-center">{{ cable_magazine.track_from.tunnel.title }}</td>
+                        {% endif %}
+
+                        {% if cable_magazine.track_to.picket %}
+                        <td class="align-middle text-center">{{ cable_magazine.track_to.tunnel.title }}
+                            (ПК {{ cable_magazine.track_to.picket}})
+                        </td>
+                        {% else %}
+                        <td class="align-middle text-center">{{ cable_magazine.track_to.tunnel.title }}</td>
+                        {% endif %}
+
                         {% if cable_magazine.inclined_blocks %}
                             <td class="align-middle">{{ cable_magazine.inclined_blocks.title }}</td>
                         {% else %}
                             <td class="align-middle text-center">-</td>
                         {% endif %}
-                        <td class="align-middle text-center">{{ cable_magazine.track_from_box }}</td>
-                        {% if cable_magazine.track_to_box %}
-                            <td class="align-middle text-center">{{ cable_magazine.track_to_box }}</td>
-                        {% else %}
-                            <td class="align-middle text-center">-</td>
-                        {% endif %}
-                        {% if cable_magazine.track_to_phone %}
-                            <td class="align-middle text-center">{{ cable_magazine.track_to_phone.title }}</td>
-                        {% else %}
-                            <td class="align-middle text-center">-</td>
-                        {% endif %}
+
                         <td class="align-middle text-center">{{ cable_magazine.name }}</td>
                         <td class="align-middle text-center">{{ cable_magazine.distance }}</td>
                         <td class="align-middle text-center">{{ cable_magazine.unit }}</td>

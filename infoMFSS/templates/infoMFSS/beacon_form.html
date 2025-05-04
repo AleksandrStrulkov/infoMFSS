@@ -78,6 +78,7 @@
                         <th class="align-middle" data-field="mac_address">MAC-адрес</th>
                         <th class="align-middle" data-field="serial_number" data-sortable="true">Зав. №</th>
                         <th class="align-middle" data-field="minor" data-sortable="true">МИНОР</th>
+                        <th class="align-middle" data-field="data" data-sortable="true">Дата монтажа</th>
                         <th class="align-middle" data-field="execution_bool" data-sortable="true">Установлен</th>
                     </tr>
                     </thead>
@@ -98,6 +99,7 @@
                         <td class="align-middle">{{ beacon.mac_address }}</td>
                         <td class="align-middle">{{ beacon.serial_number }}</td>
                         <td class="align-middle">{{ beacon.minor }}</td>
+                        <td class="align-middle">{{ beacon.data }}</td>
                         {% if beacon.execution_bool == True %}
                             <td class="align-middle text-center">&#9989;</td>
                         {% else %}

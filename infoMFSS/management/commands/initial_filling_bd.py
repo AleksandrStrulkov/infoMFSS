@@ -1,87 +1,59 @@
 from typing import Any, Dict, Type
-
+import datetime
+# from datetime import datetime
+from django.utils import timezone
 from django.core.management.base import BaseCommand
 from django.db import models, transaction
 
-from infoMFSS.models import (BranchesBox, Cable, CableMagazine, Equipment,
-                             EquipmentInstallation, InclinedBlocks, NumberMine,
-                             PointPhone, Subsystem, Tunnel, Unit)
+from infoMFSS.models import (
+    BranchesBox,
+    Cable,
+    CableMagazine,
+    Equipment,
+    EquipmentInstallation,
+    Execution,
+    InclinedBlocks,
+    NumberMine,
+    PointPhone,
+    Subsystem,
+    Tunnel,
+    Unit,
+    Violations,
+    DateUpdate,
+    Beacon,
+)
 
-# def from_models(model, field):
-#     datas = {data.field: data for data in model.objects.all()}
-#     return datas
+
+def get_nested_attr(obj: Any, attr_path: str) -> Any:
+    """Рекурсивно получает атрибуты, поддерживая 'related__field'."""
+    for attr in attr_path.split("__"):
+        obj = getattr(obj, attr)
+        if obj is None:
+            return None
+    return obj
 
 
 def from_models(model: Type[models.Model], field: str) -> Dict[Any, models.Model]:
     """
-    Создает словарь, сопоставляющий значения полей с экземплярами модели.
+    Создает словарь, сопоставляющий значения полей (включая связанные) с экземплярами модели.
     Аргументы:
-            model: класс модели Django
-            field: Имя поля, которое будет использоваться в качестве ключей словаря
+        model: класс модели Django
+        field: Имя поля или путь к полю через '__', например 'user__email'
     Возвращает:
-            Словарь, где ключи — это значения полей, а значения — экземпляры модели
+        Словарь, где ключи — это значения полей, а значения — экземпляры модели
     """
     try:
-        return {getattr(obj, field): obj for obj in model.objects.all()}
+        queryset = model.objects.select_related().all()
+        result = {}
+        for obj in queryset:
+            key = get_nested_attr(obj, field)
+            if key is not None:
+                result[key] = obj
+        return result
     except AttributeError as e:
         raise AttributeError(f"Поле '{field}' не существует в модели {model.__name__}") from e
     except Exception as e:
         raise Exception(f"Ошибка при создании словаря из модели: {str(e)}") from e
-
-
-# def all_mines():
-#     mines = {mine.title: mine for mine in NumberMine.objects.all()}
-#     return mines
-#
-#
-# def all_subsystems():
-#     subsystems = {subsystem.title: subsystem for subsystem in Subsystem.objects.all()}
-#     return subsystems
-#
-#
-# def all_blocks():
-#     inclined_blocks = {inclined_block.title: inclined_block for inclined_block in InclinedBlocks.objects.all()}
-#     return inclined_blocks
-#
-#
-# def all_tunnels():
-#     tunnels = {tunnel.title: tunnel for tunnel in Tunnel.objects.all()}
-#     return tunnels
-#
-#
-# def all_equipments():
-#     equipments = {equipment.title: equipment for equipment in EquipmentInstallation.objects.all()}
-#     return equipments
-#
-#
-# def all_cables():
-#     cables = {cable.title: cable for cable in Cable.objects.all()}
-#     return cables
-#
-#
-# def all_boxs():
-#     boxs = {box.title: box for box in BranchesBox.objects.all()}
-#     return boxs
-#
-#
-# def all_points_phones():
-#     phones = {phone.title: phone for phone in PointPhone.objects.all()}
-#     return phones
-#
-#
-# def all_branches_box():
-#     branches_box = {box.title: box for box in BranchesBox.objects.all()}
-#     return branches_box
-#
-#
-# def all_units():
-#     units = {unit.title: unit for unit in Unit.objects.all()}
-#     return units
-#
-#
-# def all_cable_magazine():
-#     cable_magazine = {magazine.title: magazine for magazine in CableMagazine.objects.all()}
-#     return cable_magazine
 
 
 class Command(BaseCommand):
@@ -99,7 +71,14 @@ class Command(BaseCommand):
                 self.create_cables()
                 self.create_points_phone()
                 self.create_branches_box()
-                # self.create_cable_magazine()
+                self.create_equipment_installation()
+                self.create_cable_magazine()
+                self.create_execution()
+                self.create_violations()
+                self.create_equipment_installation_bool()
+                self.create_cable_magazine_bool()
+                self.create_date_update()
+                self.create_beacon()
             self.stdout.write(self.style.SUCCESS("Данные успешно добавлены!"))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f"Ошибка: {e}"))
@@ -127,7 +106,7 @@ class Command(BaseCommand):
 
         if mines_to_create:
             NumberMine.objects.bulk_create(mines_to_create)
-        self.stdout.write(f"Создано {len(mines_to_create)} нефтешахт")
+        self.stdout.write(f"✅ Создано {len(mines_to_create)} нефтешахт")
 
     # Создание начальных объектов в таблице 'InclinedBlocks'
     def create_blocks(self):
@@ -208,7 +187,7 @@ class Command(BaseCommand):
 
         if blocks_to_create:
             InclinedBlocks.objects.bulk_create(blocks_to_create)
-        self.stdout.write(f"Создано {len(blocks_to_create)} уклонных блоков")
+        self.stdout.write(f"✅ Создано {len(blocks_to_create)} уклонных блоков")
 
     # Создание начальных объектов в таблице 'Unit'
     def create_units(self):
@@ -232,7 +211,7 @@ class Command(BaseCommand):
 
         if units_to_create:
             Unit.objects.bulk_create(units_to_create)
-        self.stdout.write(f"Создано {len(units_to_create)} единиц измерения")
+        self.stdout.write(f"✅ Создано {len(units_to_create)} единиц измерения")
 
     # Создание начальных объектов в таблице 'Subsystem'
     def create_subsystems(self):
@@ -265,7 +244,7 @@ class Command(BaseCommand):
 
         if subsystems_to_create:
             Subsystem.objects.bulk_create(subsystems_to_create)
-        self.stdout.write(f"Создано {len(subsystems_to_create)} подсистем")
+        self.stdout.write(f"✅ Создано {len(subsystems_to_create)} подсистем")
 
     # Создание начальных объектов в таблице 'Tunnel'
     def create_tunnels(self):
@@ -332,7 +311,7 @@ class Command(BaseCommand):
                 "tuf_bool": True,
                 "inclined_bool": False,
                 "description": "",
-                "name_slag": "",
+                "name_slag": "sosh-2-nsh1",
             },
             {
                 "title": "СОШ-3эт.",
@@ -467,7 +446,7 @@ class Command(BaseCommand):
                 "tuf_bool": True,
                 "inclined_bool": False,
                 "description": "",
-                "name_slag": "",
+                "name_slag": "sosh-2-nsh2",
             },
             {
                 "title": "КБ",
@@ -801,7 +780,7 @@ class Command(BaseCommand):
 
         if tunnels_to_create:
             Tunnel.objects.bulk_create(tunnels_to_create)
-        self.stdout.write(f"Создано {len(tunnels_to_create)} выработок")
+        self.stdout.write(f"✅ Создано {len(tunnels_to_create)} выработок")
 
     # Создание начальных объектов в таблице 'Equipment'
     def create_equipments(self):
@@ -813,9 +792,9 @@ class Command(BaseCommand):
                 "description": "Телефонный аппарат рудничного исполнения, взрывозащищенный",
                 "subsystem": from_models(Subsystem, "title").get("АТС"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Станция связи",
@@ -823,9 +802,9 @@ class Command(BaseCommand):
                 "description": "Станция связи позиционирования",
                 "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Станция связи",
@@ -833,9 +812,9 @@ class Command(BaseCommand):
                 "description": "Станция связи магистральная МС12.18-34",
                 "subsystem": from_models(Subsystem, "title").get("ВН"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Источник питания",
@@ -843,9 +822,9 @@ class Command(BaseCommand):
                 "description": "Источник питания для станции связи позиционирования",
                 "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Источник питания",
@@ -853,9 +832,9 @@ class Command(BaseCommand):
                 "description": "Источник питания для станции связи магистральная",
                 "subsystem": from_models(Subsystem, "title").get("Различные"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Видеокамера",
@@ -863,9 +842,9 @@ class Command(BaseCommand):
                 "description": "Видеокамера",
                 "subsystem": from_models(Subsystem, "title").get("ВН"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Прожектор ИК",
@@ -873,9 +852,9 @@ class Command(BaseCommand):
                 "description": "Прожектор инфракрасный взрывозащищенный",
                 "subsystem": from_models(Subsystem, "title").get("ВН"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Датчик положения",
@@ -883,9 +862,9 @@ class Command(BaseCommand):
                 "description": "Датчик положения магнитогерконовый ДПМГ-2 исп. 200 с кронштейном К-ДПМ1 для монтажа",
                 "subsystem": from_models(Subsystem, "title").get("АГК"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Датчик кислорода",
@@ -893,9 +872,9 @@ class Command(BaseCommand):
                 "description": "Датчик кислорода стационарный СД-1.Т.О2",
                 "subsystem": from_models(Subsystem, "title").get("АГК"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
             {
                 "title": "Точка доступа wi-fi",
@@ -903,9 +882,29 @@ class Command(BaseCommand):
                 "description": "",
                 "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "slug": None,
-                "file_pdf": "",
-                "file_passport": "",
-                "file_certificate": "",
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
+            },
+            {
+                "title": "Клеммная коробка на 50 пар",
+                "device_type": "КСРВ-Н",
+                "description": "",
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "slug": None,
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
+            },
+            {
+                "title": "Все оборудование",
+                "device_type": None,
+                "description": None,
+                "subsystem": None,
+                "slug": None,
+                "file_pdf": None,
+                "file_passport": None,
+                "file_certificate": None,
             },
         ]
         # Создаём только несуществующие объекты
@@ -916,7 +915,7 @@ class Command(BaseCommand):
 
         if equipments_to_create:
             Equipment.objects.bulk_create(equipments_to_create)
-        self.stdout.write(f"Создано {len(equipments_to_create)} шт. оборудования")
+        self.stdout.write(f"✅ Создано {len(equipments_to_create)} шт. оборудования")
 
     # Создание начальных объектов в таблице 'Cable'
     def create_cables(self):
@@ -978,7 +977,7 @@ class Command(BaseCommand):
 
         if cables_to_create:
             Cable.objects.bulk_create(cables_to_create)
-        self.stdout.write(f"Создано {len(cables_to_create)} кабелей")
+        self.stdout.write(f"✅ Создано {len(cables_to_create)} кабелей")
 
     # Создание начальных объектов в таблице 'PointPhone'
     def create_points_phone(self):
@@ -1052,7 +1051,7 @@ class Command(BaseCommand):
 
         if points_to_create:
             PointPhone.objects.bulk_create(points_to_create)
-        self.stdout.write(f"Создано {len(points_to_create)} точек связи")
+        self.stdout.write(f"✅ Создано {len(points_to_create)} точек связи")
 
     # Создание начальных объектов в таблице 'BranchesBox'
     def create_branches_box(self):
@@ -1248,40 +1247,2325 @@ class Command(BaseCommand):
 
         if branches_box_to_create:
             BranchesBox.objects.bulk_create(branches_box_to_create)
-        self.stdout.write(f"Создано {len(branches_box_to_create)} распределительных коробок")
+        self.stdout.write(f"✅ Создано {len(branches_box_to_create)} распределительных коробок")
+
+    # Создание начальных объектов в таблице 'EquipmentInstallation'
+    def create_equipment_installation(self):
+        equipment_installation_list = [
+            {
+                "title": from_models(Equipment, "title").get("Телефон"),
+                "name": "Т#1-41",
+                "point_phone": from_models(PointPhone, "title").get("Т#1-41"),
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
+                "inclined_blocks": None,
+                # "equipment_bool": from_models(Execution, "equipment_install__name").get("Т#1-41"),
+                "picket": "53+2",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+                "description": None,
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Телефон"),
+                "name": "Т#1-42",
+                "point_phone": from_models(PointPhone, "title").get("Т#1-42"),
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЭУ-3"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "3",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+                "description": None,
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Телефон"),
+                "name": "Т#1-13",
+                "point_phone": from_models(PointPhone, "title").get("Т#1-13"),
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЗКБ"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+                "description": None,
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Телефон"),
+                "name": "Т#2-11",
+                "point_phone": from_models(PointPhone, "title").get("Т#2-11"),
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+                "description": None,
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Телефон"),
+                "name": "Т#1-27",
+                "point_phone": from_models(PointPhone, "title").get("Т#1-27"),
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("КБ"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "Эльтон-Ex231",
+                "description": None,
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "1ССП32",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("1ССП32"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЭУ-3"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "1",
+                "ip_address": "10.32.012.040",
+                "serial_number": "192",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "1ССП55",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("1ССП55"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "1",
+                "ip_address": "10.32.012.010",
+                "serial_number": "162",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "1ССП34",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("1ССП34"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "1",
+                "ip_address": "10.32.012.040",
+                "serial_number": "199",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Клеммная коробка на 50 пар"),
+                "name": "50#12",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("50#12"),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-3эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "КСРВ-Н",
+                "description": "Клеммная коробка на 50 пар",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "2ССП41",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("1ССП34"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.023.160",
+                "serial_number": "299",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "2ССП16",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("2ССП16"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮНВШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.022.020",
+                "serial_number": "274",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "2ССП09",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("2ССП09"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "1",
+                "ip_address": "10.32.021.090",
+                "serial_number": "267",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Клеммная коробка на 50 пар"),
+                "name": "50#4",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("50#4"),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЗКБ"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "КСРВ-Н",
+                "description": "Клеммная коробка на 50 пар",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "3ССП51",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("3ССП51"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("301 п.ш."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.035.030",
+                "serial_number": "258",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "3ССП38",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("3ССП38"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВПШ-0эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.020",
+                "serial_number": "245",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "device_type").get("Ethertex V4.11"),
+                "name": "3ССП39",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("3ССП39"),
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВОШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.030",
+                "serial_number": "246",
+                "device_type": "Ethertex V4.11",
+                "description": "Станция связи позиционирования",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Клеммная коробка на 50 пар"),
+                "name": "50#10",
+                "point_phone": None,
+                "branches_box": from_models(BranchesBox, "title").get("50#10"),
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("КБ"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": None,
+                "serial_number": "",
+                "device_type": "КСРВ-Н",
+                "description": "Клеммная коробка на 50 пар",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD321",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-3эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.012.041",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD322",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-3эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.012.042",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD323",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-3эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.012.043",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD551",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЮПШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.012.011",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD552",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("л/х СКБ"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "26",
+                "ip_address": "10.32.012.012",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD553",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "25+5",
+                "ip_address": "10.32.012.013",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD341",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЮОШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "2",
+                "ip_address": "10.32.012.021",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD342",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ходок ЦВС"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.012.022",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD343",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("Сбойка №5 от л/х СКБ"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.012.023",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "1TD344",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "name_slag").get("sosh-2-nsh1"),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.012.024",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD411",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮНВШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.023.161",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD412",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.023.162",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD413",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.023.163",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD161",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("Обходная ЮНВШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.022.021",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD162",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮНВШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.022.022",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD163",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("129 п.ш."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.022.023",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD091",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.021.091",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD092",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.021.092",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "2TD093",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "tunnel": from_models(Tunnel, "title").get("ЮВВШ-2эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.021.093",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD511",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВПдШ-3эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.035.031",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD512",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВПдШ-3эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.035.032",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD381",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ЗПдШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.021",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD382",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВПШ-0эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.022",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD383",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВПШ-0эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.023",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD384",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВПШ-0эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.024",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD391",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("03 п.ш."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.031",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD392",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВОШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.032",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+            {
+                "title": from_models(Equipment, "title").get("Точка доступа wi-fi"),
+                "name": "3TD393",
+                "point_phone": None,
+                "branches_box": None,
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "tunnel": from_models(Tunnel, "title").get("ВОШ-1эт."),
+                "inclined_blocks": None,
+                "equipment_bool": None,
+                "picket": "",
+                "ip_address": "10.32.034.033",
+                "serial_number": "",
+                "device_type": "EtherTex AP МС32.11",
+                "description": "Точка доступа wi-fi",
+                "file_graphics": None,
+            },
+        ]
+        # Создание начальных объектов в таблице 'Equipment'
+        # Создаём только несуществующие объекты
+        existing_equipment_install = set(
+            EquipmentInstallation.objects.select_related("title").values_list("title__title", flat=True)
+        )
+        equipment_to_create = [
+            EquipmentInstallation(**item)
+            for item in equipment_installation_list
+            if item["title"].title not in existing_equipment_install
+        ]
+
+        if equipment_to_create:
+            EquipmentInstallation.objects.bulk_create(equipment_to_create)
+        self.stdout.write(f"✅ Создано {len(equipment_to_create)} мест установки оборудования")
 
     # Создание начальных объектов в таблице 'CableMagazine'
     def create_cable_magazine(self):
         cable_magazine_list = [
             {
-                "cable": from_models(Cable, "device_type").get("Parlan 4х2х0,57"),
-                "name": "",
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП32/1TD321",
                 "subsystem": from_models(Subsystem, "title").get("ППИТ"),
                 "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
                 "inclined_blocks": None,
-                "track_from_box": from_models(BranchesBox, "title").get(
-                    "1ССП32"
-                ),  # Если это коробка, то указываем  от all_boxs().get(""). ForeignKey
-                "track_from": "",  # Если нет коробки, то указываем от .(str)
-                "track_to_box": from_models(BranchesBox).get(
-                    ""
-                ),  # Если есть коробка, то указываем до  all_boxs().get(""). (ForeignKey)
-                "track_to_phone": from_models(PointPhone).get(
-                    ""
-                ),  # Если это телефон, то указываем до all_points_phones().get(""). (ForeignKey)
-                "track_to": "",  # Если нет телефона, то указываем. (str)
-                "distance": "",
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП32"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD321"),
+                "distance": "21",
                 "unit": from_models(Unit, "title").get("м."),
-                "cable_bool": True,
+                "cable_bool": None,
                 "slug": None,
-            }
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП32/1TD322",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП32"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD322"),
+                "distance": "25",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП32/1TD323",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП32"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD323"),
+                "distance": "35",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП55/1TD551",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП55"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD551"),
+                "distance": "83",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП55/1TD552",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП55"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD552"),
+                "distance": "35",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП55/1TD553",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП55"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD553"),
+                "distance": "70",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП34/1TD341",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП34"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD341"),
+                "distance": "71",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП34/1TD342",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП34"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD342"),
+                "distance": "135",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП34/1TD343",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП34"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD343"),
+                "distance": "55",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "1ССП34/1TD344",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("1ССП34"),
+                "track_to": from_models(EquipmentInstallation, "name").get("1TD344"),
+                "distance": "115",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "50#12/Т#1-41",
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("50#12"),
+                "track_to": from_models(EquipmentInstallation, "name").get("Т#1-41"),
+                "distance": "30",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "50#12/Т#1-42",
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("50#12"),
+                "track_to": from_models(EquipmentInstallation, "name").get("Т#1-42"),
+                "distance": "114",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП41/2TD411",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП41"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD411"),
+                "distance": "95",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП41/2TD412",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП41"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD412"),
+                "distance": "35",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП41/2TD413",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП41"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD413"),
+                "distance": "135",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП16/2TD161",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП16"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD161"),
+                "distance": "13",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП16/2TD162",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП16"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD162"),
+                "distance": "77",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП16/2TD163",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП16"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD163"),
+                "distance": "60",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП09/2TD091",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП09"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD091"),
+                "distance": "50",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП09/2TD092",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП09"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD092"),
+                "distance": "35",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "2ССП09/2TD093",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("2ССП09"),
+                "track_to": from_models(EquipmentInstallation, "name").get("2TD093"),
+                "distance": "55",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "50#4/Т#1-13",
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("50#4"),
+                "track_to": from_models(EquipmentInstallation, "name").get("Т#1-13"),
+                "distance": "15",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "50#4/Т#2-11",
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("50#4"),
+                "track_to": from_models(EquipmentInstallation, "name").get("Т#2-11"),
+                "distance": "154",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП51/3TD511",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП51"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD511"),
+                "distance": "116",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП51/3TD512",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП51"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD512"),
+                "distance": "66",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП38/3TD381",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП38"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD381"),
+                "distance": "122",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП38/3TD382",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП38"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD382"),
+                "distance": "59",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП38/3TD383",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП38"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD383"),
+                "distance": "42",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП38/3TD384",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП38"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD384"),
+                "distance": "118",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП39/3TD391",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП39"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD391"),
+                "distance": "127",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП39/3TD392",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП39"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD392"),
+                "distance": "14",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "3ССП39/3TD393",
+                "subsystem": from_models(Subsystem, "title").get("ППИТ"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("3ССП39"),
+                "track_to": from_models(EquipmentInstallation, "name").get("3TD393"),
+                "distance": "46",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
+            {
+                "cable": from_models(Cable, "title").get("Многопарный (4 пары)"),
+                "name": "50#10/Т#1-27",
+                "subsystem": from_models(Subsystem, "title").get("АТС"),
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "inclined_blocks": None,
+                "track_from": from_models(EquipmentInstallation, "name").get("50#10"),
+                "track_to": from_models(EquipmentInstallation, "name").get("Т#1-27"),
+                "distance": "18",
+                "unit": from_models(Unit, "title").get("м."),
+                "cable_bool": None,
+                "slug": None,
+            },
         ]
-        # Создаём только несуществующие объекты
-        existing_cable_magazine = set(CableMagazine.objects.values_list("name", flat=True))
+
+        existing_cable_magazine = set(
+            CableMagazine.objects.select_related("cable").values_list("cable__title", flat=True)
+        )
         cable_magazine_to_create = [
-            CableMagazine(**item) for item in cable_magazine_list if item["name"] not in existing_cable_magazine
+            CableMagazine(**item) for item in cable_magazine_list if item["cable"].title not in existing_cable_magazine
         ]
 
         if cable_magazine_to_create:
             CableMagazine.objects.bulk_create(cable_magazine_to_create)
-        self.stdout.write(f"Создано {len(cable_magazine_to_create)} объектов")
+        self.stdout.write(f"✅ Создано {len(cable_magazine_to_create)} трасс кабелей")
+
+    # Создание начальных объектов в таблице 'Execution'
+    def create_execution(self):
+        execution_list = [
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("Т#1-41"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("Т#1-42"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("Т#1-13"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("Т#2-11"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("Т#1-27"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1ССП32"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1ССП55"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1ССП34"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("50#12"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2ССП41"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2ССП16"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2ССП09"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("50#4"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3ССП51"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3ССП38"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3ССП39"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("50#10"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD321"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD322"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD323"),
+                "cable_magazine": None,
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD551"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD552"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD553"),
+                "cable_magazine": None,
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD341"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD342"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD343"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("1TD344"),
+                "cable_magazine": None,
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD411"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD412"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD413"),
+                "cable_magazine": None,
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD161"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD162"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD163"),
+                "cable_magazine": None,
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD091"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD092"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("2TD093"),
+                "cable_magazine": None,
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD511"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD512"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD381"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD382"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD383"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD384"),
+                "cable_magazine": None,
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD391"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD392"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": from_models(EquipmentInstallation, "name").get("3TD393"),
+                "cable_magazine": None,
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП32/1TD321"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП32/1TD322"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП32/1TD323"),
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП55/1TD551"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП55/1TD552"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП55/1TD553"),
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП34/1TD341"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП34/1TD342"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП34/1TD343"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("1ССП34/1TD344"),
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("50#12/Т#1-41"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("50#12/Т#1-42"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("50#12/Т#1-42"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП41/2TD411"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП41/2TD412"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП41/2TD413"),
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП16/2TD161"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП16/2TD162"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП16/2TD163"),
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП09/2TD091"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП09/2TD092"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("2ССП09/2TD093"),
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("50#4/Т#1-13"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("50#4/Т#2-11"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП51/3TD511"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП51/3TD511"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП51/3TD512"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП51/3TD512"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП38/3TD381"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП38/3TD382"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП38/3TD383"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП38/3TD384"),
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП39/3TD391"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП39/3TD392"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("3ССП39/3TD393"),
+                "execution_bool": False,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+            {
+                "equipment_install": None,
+                "cable_magazine": from_models(CableMagazine, "name").get("50#10/Т#1-27"),
+                "execution_bool": True,
+                "date_start": None,
+                "date_end": None,
+                "description": None,
+            },
+        ]
+
+        existing_execution = set(Execution.objects.values_list("equipment_install__name", flat=True))
+        existing_track_cable = set(Execution.objects.values_list("cable_magazine__name", flat=True))
+
+        execution_to_create = []
+
+        for item in execution_list:
+            equip = item.get("equipment_install")
+            cable = item.get("cable_magazine")
+
+            equip_name = getattr(equip, "name", None)
+            cable_name = getattr(cable, "name", None)
+
+            # Уникальность по любому из двух полей
+            if (equip_name and equip_name not in existing_execution) or (
+                cable_name and cable_name not in existing_track_cable
+            ):
+                execution_to_create.append(Execution(**item))
+
+        if execution_to_create:
+            Execution.objects.bulk_create(execution_to_create)
+
+        self.stdout.write(f"✅ Создано {len(execution_to_create)} объектов выполнения работ")
+
+    # Создание начальных объектов в таблице 'Violations'
+    def create_violations(self):
+        violations_list = [
+            {
+                "id": 1,
+                "number_act": "02/12/5/ГУГП",
+                "date_act": datetime.date(2025, 2, 12),
+                "issued_by_act": "ГУГП",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "title": "У клеммной коробки 50#12 не затянуты плотно гермовводы",
+                "execution_bool": True,
+                "file_act": None,
+                "file_notification": None,
+            },
+            {
+                "id": 2,
+                "number_act": "02/8/4/НШ-2",
+                "date_act": datetime.date(2025, 2, 8),
+                "issued_by_act": "НШ-2",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №2"),
+                "title": "У станции связи 2ССП16 отсутствует заземление",
+                "execution_bool": True,
+                "file_act": None,
+                "file_notification": None,
+            },
+            {
+                "id": 3,
+                "number_act": "03/12/4/НШ-3",
+                "date_act": datetime.date(2025, 3, 12),
+                "issued_by_act": "НШ-3",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №3"),
+                "title": "Кабельная линия 3ССП51/3TD511 не уложена на подвесы",
+                "execution_bool": False,
+                "file_act": None,
+                "file_notification": None,
+            },
+        ]
+
+        existing_violations = set(Violations.objects.values_list("id", flat=True))
+
+        violations_to_create = [
+            Violations(**item) for item in violations_list if item["id"] not in existing_violations
+        ]
+
+        if violations_to_create:
+            Violations.objects.bulk_create(violations_to_create)
+        self.stdout.write(f"✅ Создано {len(violations_to_create)} нарушений")
+
+    # Обновление поля execution_bool в таблице 'EquipmentInstallation'
+    def create_equipment_installation_bool(self):
+        # Список имён EquipmentInstallation, которые надо обновить
+        names_to_update = [
+            "Т#1-41",
+            "Т#1-42",
+            "Т#1-13",
+            "Т#2-11",
+            "Т#1-27",
+            "1ССП32",
+            "1ССП55",
+            "1ССП34",
+            "50#12",
+            "2ССП41",
+            "2ССП16",
+            "2ССП09",
+            "50#4",
+            "3ССП51",
+            "3ССП38",
+            "3ССП39",
+            "50#10",
+            "1TD321",
+            "1TD322",
+            "1TD322",
+            "1TD323",
+            "1TD551",
+            "1TD552",
+            "1TD553",
+            "1TD341",
+            "1TD342",
+            "1TD343",
+            "1TD344",
+            "2TD411",
+            "2TD412",
+            "2TD413",
+            "2TD161",
+            "2TD162",
+            "2TD163",
+            "2TD091",
+            "2TD092",
+            "2TD093",
+            "3TD511",
+            "3TD512",
+            "3TD381",
+            "3TD382",
+            "3TD383",
+            "3TD384",
+            "3TD391",
+            "3TD392",
+            "3TD393",
+            "3TD393",
+        ]
+
+        # Получаем Execution по имени связанного EquipmentInstallation
+        executions = Execution.objects.filter(equipment_install__name__in=names_to_update).select_related(
+            "equipment_install"
+        )
+
+        # Словарь: name -> Execution
+        execution_map = {e.equipment_install.name: e for e in executions}
+
+        # Получаем все нужные EquipmentInstallation
+        equipments = EquipmentInstallation.objects.filter(name__in=names_to_update)
+
+        # Обновляем поле equipment_bool
+        for eq in equipments:
+            execution = execution_map.get(eq.name)
+            if execution:
+                eq.equipment_bool = execution
+
+        # Массовое обновление
+        EquipmentInstallation.objects.bulk_update(equipments, ["equipment_bool"])
+
+        self.stdout.write(f"✅ Обновлено {len(equipments)} записей EquipmentInstallation")
+
+    # Обновление поля cable_bool в таблице 'CableMagazine'
+    def create_cable_magazine_bool(self):
+        # Список имён CableMagazine, которые надо обновить
+        names_to_update = [
+            "1ССП32/1TD321",
+            "1ССП32/1TD322",
+            "1ССП32/1TD323",
+            "1ССП55/1TD551",
+            "1ССП55/1TD552",
+            "1ССП55/1TD553",
+            "1ССП34/1TD341",
+            "1ССП34/1TD342",
+            "1ССП34/1TD343",
+            "1ССП34/1TD344",
+            "50#12/Т#1-41",
+            "50#12/Т#1-42",
+            "2ССП41/2TD411",
+            "2ССП41/2TD412",
+            "2ССП41/2TD413",
+            "2ССП16/2TD161",
+            "2ССП16/2TD162",
+            "2ССП16/2TD163",
+            "2ССП09/2TD091",
+            "2ССП09/2TD092",
+            "2ССП09/2TD093",
+            "50#4/Т#1-13",
+            "50#4/Т#2-11",
+            "3ССП51/3TD511",
+            "3ССП51/3TD512",
+            "3ССП38/3TD381",
+            "3ССП38/3TD382",
+            "3ССП38/3TD383",
+            "3ССП38/3TD384",
+            "3ССП39/3TD391",
+            "3ССП39/3TD392",
+            "3ССП39/3TD393",
+            "50#10/Т#1-27",
+        ]
+
+        executions = Execution.objects.filter(cable_magazine__name__in=names_to_update).select_related(
+            "cable_magazine"
+        )
+
+        execution_map = {e.cable_magazine.name: e for e in executions}
+
+        cable_magazines = CableMagazine.objects.filter(name__in=names_to_update)
+
+        for eq in cable_magazines:
+            execution = execution_map.get(eq.name)
+            if execution:
+                eq.cable_bool = execution
+
+        # Массовое обновление
+        CableMagazine.objects.bulk_update(cable_magazines, ["cable_bool"])
+
+        self.stdout.write(f"✅ Обновлено {len(cable_magazines)} записей CableMagazine")
+
+    # Создание начальных объектов в таблице 'DateUpdate'
+    def create_date_update(self):
+        date_update_list = [
+            {
+                "update": timezone.make_aware(datetime.datetime(2025, 5, 1)),
+                "description": None,
+            },
+            {
+                "update": timezone.make_aware(datetime.datetime(2025, 5, 2)),
+                "description": None,
+            },
+            {
+                "update": timezone.make_aware(datetime.datetime(2025, 5, 3)),
+                "description": None,
+            },
+            {
+                "update": timezone.make_aware(datetime.datetime(2025, 5, 4)),
+                "description": None,
+            },
+        ]
+        existing_date_updates = set(DateUpdate.objects.values_list("update", flat=True))
+        date_updates_to_create = [
+            DateUpdate(**item) for item in date_update_list if item["update"] not in existing_date_updates
+        ]
+        if date_updates_to_create:
+            DateUpdate.objects.bulk_create(date_updates_to_create)
+        self.stdout.write(f"✅ Создано {len(date_updates_to_create)} записей в таблице 'DateUpdate'")
+
+    # Создание начальных объектов в таблице 'Beacon'
+    def create_beacon(self):
+        beacon_list = [
+            {
+                "designation": "1ВК725",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "66",
+                "mac_address": "CD:8A:E5:F9:28:1E",
+                "serial_number": "1143",
+                "minor": "8777",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("04.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК743",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "69",
+                "mac_address": "E0:5D:EA:F7:3D:F0",
+                "serial_number": "1105",
+                "minor": "8739",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("04.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК744",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "76",
+                "mac_address": "DF:5B:3D:A3:01:11",
+                "serial_number": "1170",
+                "minor": "8804",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("04.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК709",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "18+5",
+                "mac_address": "CB:29:BB:27:24:0D",
+                "serial_number": "1549",
+                "minor": "9183",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("03.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК668",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЮОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "13+4",
+                "mac_address": "F5:40:54:F7:C4:A6",
+                "serial_number": "1538",
+                "minor": "9172",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("02.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК679",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЮОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "2",
+                "mac_address": "D5:69:46:BA:6E:82",
+                "serial_number": "1547",
+                "minor": "9181",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("02.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК620",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЮОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "26+5",
+                "mac_address": "EA:BF:C2:31:CE:5A",
+                "serial_number": "1552",
+                "minor": "9186",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("02.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК619",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЮОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "29",
+                "mac_address": "E7:B9:F4:74:A1:4A",
+                "serial_number": "1575",
+                "minor": "9209",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("02.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК673",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЮОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "9",
+                "mac_address": "CE:DF:6B:BC:76:1F",
+                "serial_number": "1577",
+                "minor": "9211",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("02.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК681",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("ЮОШ-1эт."),
+                "inclined_blocks": None,
+                "picket": "5",
+                "mac_address": "D8:AB:1C:C4:5B:ED",
+                "serial_number": "1589",
+                "minor": "9223",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("02.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК888",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
+                "inclined_blocks": None,
+                "picket": "78",
+                "mac_address": "D5:CB:B4:51:97:B8",
+                "serial_number": "504",
+                "minor": "8138",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("15.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК895",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
+                "inclined_blocks": None,
+                "picket": "70",
+                "mac_address": "E6:DF:90:33:A1:39",
+                "serial_number": "509",
+                "minor": "8143",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("15.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК1014",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
+                "inclined_blocks": None,
+                "picket": "30",
+                "mac_address": "F6:8C:3F:17:37:B7",
+                "serial_number": "1206",
+                "minor": "8840",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("15.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК1020",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
+                "inclined_blocks": None,
+                "picket": "57",
+                "mac_address": "F4:E5:F1:D9:C8:59",
+                "serial_number": "1304",
+                "minor": "8938",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("15.04.2025", "%d.%m.%Y").date(),
+            },
+            {
+                "designation": "1ВК996",
+                "subsystem": "Позиционирование",
+                "number_mine": from_models(NumberMine, "title").get("Нефтешахта №1"),
+                "tunnel": from_models(Tunnel, "title").get("СКБ"),
+                "inclined_blocks": None,
+                "picket": "26",
+                "mac_address": "FA:67:20:BF:CF:3C",
+                "serial_number": "1309",
+                "minor": "8943",
+                "execution_bool": True,
+                "data": datetime.datetime.strptime("15.04.2025", "%d.%m.%Y").date(),
+            },
+        ]
+
+        # Создаём только несуществующие объекты
+        existing_beacons = set(Beacon.objects.values_list("designation", flat=True))
+        beacons_to_create = [Beacon(**item) for item in beacon_list if item["designation"] not in existing_beacons]
+
+        if beacons_to_create:
+            Beacon.objects.bulk_create(beacons_to_create)
+        self.stdout.write(f"✅ Создано {len(beacons_to_create)} биконов")

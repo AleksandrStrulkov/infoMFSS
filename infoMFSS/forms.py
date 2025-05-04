@@ -342,6 +342,7 @@ class BeaconCreateForm(forms.ModelForm):
             "serial_number",
             "minor",
             "execution_bool",
+            "data",
         )
         widgets = {
             "designation": forms.TextInput(
@@ -597,9 +598,9 @@ class CableMagazineCreateForm(forms.ModelForm):
             "subsystem",
             "number_mine",
             "inclined_blocks",
-            "track_from_box",
-            "track_to_box",
-            "track_to_phone",
+            "track_from",
+            "track_to",
+            # "track_to_phone",
             "distance",
             "unit",
         )
@@ -616,26 +617,26 @@ class CableMagazineCreateForm(forms.ModelForm):
         self.fields["subsystem"].empty_label = "Выберите подсистему"
         self.fields["number_mine"].empty_label = "Выберите шахту"
         self.fields["inclined_blocks"].empty_label = "Выберите уклонный блок"
-        self.fields["track_from_box"].empty_label = "Выберите распределительную коробку"
-        self.fields["track_to_box"].empty_label = "Выберите распределительную коробку"
-        self.fields["track_to_phone"].empty_label = "Выберите точку телефонии"
+        self.fields["track_from"].empty_label = "Выберите начало трассы"
+        self.fields["track_to"].empty_label = "Выберите окончание трассы"
+        # self.fields["track_to_phone"].empty_label = "Выберите точку телефонии"
         self.fields["unit"].empty_label = "Выберите единицу измерения"
         # self.fields['cable_bool'].empty_label = "Выберите значение после фиксирования выполнения в отчете"
 
     def clean(self):
         cleaned_data = super().clean()
-        track_from_box = cleaned_data.get("track_from_box")
-        track_to_box = cleaned_data.get("track_to_box")
-        track_to_phone = cleaned_data.get("track_to_phone")
+        track_from = cleaned_data.get("track_from")
+        track_to = cleaned_data.get("track_to")
+        # track_to_phone = cleaned_data.get("track_to_phone")
 
-        if track_from_box is None:
-            self.add_error("track_from_box", "Поле обязательно для заполнения")
+        if track_from is None:
+            self.add_error("track_from", "Поле обязательно для заполнения")
 
-        if track_to_box and track_to_phone:
-            self.add_error("track_to_box", "Выберите только одно поле")
+        if track_to is None:
+            self.add_error("track_to", "Поле обязательно для заполнения")
 
-        if track_to_box and track_to_phone:
-            self.add_error("track_to_phone", "Выберите только одно поле")
+        # if track_to_box and track_to_phone:
+        #     self.add_error("track_to_phone", "Выберите только одно поле")
 
 
 class ViolationsCreateForm(forms.ModelForm):
@@ -755,6 +756,9 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
             "tunnel",
             "inclined_blocks",
             "picket",
+            "device_type",
+            "description",
+            "file_graphics",
         )
         widgets = {
             "name": forms.TextInput(
@@ -827,6 +831,7 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
             Field("tunnel"),
             Field("inclined_blocks"),
             Field("picket"),
+            # Field("file_graphics"),
         )
 
     def clean(self):
@@ -841,6 +846,7 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
         inclined_blocks = cleaned_data.get("inclined_blocks")
         picket = cleaned_data.get("picket")
         serial_number = cleaned_data.get("serial_number")
+        device_type = cleaned_data.get("device_type")
 
         if point_phone and branches_box:
             self.add_error("point_phone", "Укажите одну позицию")
@@ -872,6 +878,8 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
                     self.add_error("inclined_blocks", "При выборе точки телефонии данное поле не указывается")
                 if picket:
                     self.add_error("picket", "При выборе точки телефонии данное поле не указывается")
+                if device_type:
+                    self.add_error("device_type", "При выборе точки телефонии данное поле не указывается")
 
         if branches_box is not None and (name or subsystem or number_mine or tunnel or inclined_blocks or picket):
             if point_phone is None:
@@ -889,6 +897,8 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
                     )
                 if picket:
                     self.add_error("picket", "При выборе распределительной коробки данное поле не указывается")
+                if device_type:
+                    self.add_error("device_type", "При выборе распределительной коробки данное поле не указывается")
 
         if title is None:
             self.add_error("title", "Укажите наименование оборудования")

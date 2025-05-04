@@ -19,5 +19,8 @@ python manage.py collectstatic --noinput
 echo "👤 Создание суперпользователя..."
 python manage.py create_users
 
+echo "👤 Заполнение БД начальными данными..."
+python manage.py initial_filling_bd
+
 echo "🚀 Запуск uWSGI..."
 exec uwsgi --ini uwsgi.ini
