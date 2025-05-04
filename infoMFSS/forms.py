@@ -260,7 +260,7 @@ class QuantityEquipmentCableForm(forms.Form):
     )
     cable = forms.ModelChoiceField(
         queryset=Cable.objects.exclude(title="Все кабели"),
-        to_field_name="title",
+        to_field_name="device_type",
         label="Кабель",
         required=False,
         empty_label="Не выбрано",
