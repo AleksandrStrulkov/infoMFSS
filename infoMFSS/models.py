@@ -337,37 +337,51 @@ class CableMagazine(models.Model):
         default="Туффит",
         **NULLABLE,
     )
-    track_from_box = models.ForeignKey(
-        BranchesBox,
-        related_name="box_from",
+    # track_from_box = models.ForeignKey(
+    #     BranchesBox,
+    #     related_name="box_from",
+    #     on_delete=models.CASCADE,
+    #     verbose_name="От распределительной коробки",
+    #     **NULLABLE,
+    # )
+    track_from = models.ForeignKey(
+        "EquipmentInstallation",
+        related_name="track_from",
         on_delete=models.CASCADE,
-        verbose_name="От распределительной коробки",
+        verbose_name="От оборудования",
         **NULLABLE,
     )
-    track_from = models.CharField(
-        max_length=100,
-        verbose_name="Начало трассы",
-        **NULLABLE,
-    )
-    track_to_box = models.ForeignKey(
-        BranchesBox,
-        related_name="box_to",
+    # track_from = models.CharField(
+    #     max_length=100,
+    #     verbose_name="Начало трассы",
+    #     **NULLABLE,
+    # )
+    # track_to_box = models.ForeignKey(
+    #     BranchesBox,
+    #     related_name="box_to",
+    #     on_delete=models.CASCADE,
+    #     verbose_name="До распределительной коробки",
+    #     **NULLABLE,
+    # )
+    # track_to_phone = models.ForeignKey(
+    #     PointPhone,
+    #     related_name="phone_to",
+    #     on_delete=models.CASCADE,
+    #     verbose_name="До телефонной точки",
+    #     **NULLABLE,
+    # )
+    track_to = models.ForeignKey(
+        "EquipmentInstallation",
+        related_name="track_to",
         on_delete=models.CASCADE,
-        verbose_name="До распределительной коробки",
+        verbose_name="До оборудования",
         **NULLABLE,
     )
-    track_to_phone = models.ForeignKey(
-        PointPhone,
-        related_name="phone_to",
-        on_delete=models.CASCADE,
-        verbose_name="До телефонной точки",
-        **NULLABLE,
-    )
-    track_to = models.CharField(
-        max_length=100,
-        verbose_name="Конец трассы",
-        **NULLABLE,
-    )
+    # track_to = models.CharField(
+    #     max_length=100,
+    #     verbose_name="Конец трассы",
+    #     **NULLABLE,
+    # )
     distance = models.PositiveIntegerField(verbose_name="Протяженность")
     unit = models.ForeignKey(
         Unit, related_name="unit_magazines", on_delete=models.CASCADE, verbose_name="Единица измерения"
@@ -383,10 +397,10 @@ class CableMagazine(models.Model):
 
     def save(self, *args, **kwargs):
         # Генерируем name перед сохранением
-        if self.track_to_box is not None:
-            self.name = f"{self.track_from_box.title}/{self.track_to_box.title}"
-        else:
-            self.name = f"{self.track_from_box.title}/{self.track_to_phone.title}"
+        # if self.track_to is not None:
+        self.name = f"{self.track_from.name}/{self.track_to.name}"
+        # else:
+        #     self.name = f"{self.track_from_box.title}/{self.track_to_phone.title}"
         is_new = self._state.adding  # Проверяем, что объект новый
         super().save(*args, **kwargs)
         if is_new:
@@ -683,6 +697,7 @@ class Beacon(models.Model):
     serial_number = models.CharField(max_length=10, verbose_name="Зав. №", unique=True, default="")
     minor = models.CharField(max_length=10, verbose_name="МИНОР", unique=True, default="")
     execution_bool = models.BooleanField(verbose_name="Установлен", default=False)
+    data = models.DateField(verbose_name="Дата монтажа")
 
     def __str__(self):
         return f"{self.designation} ({self.number_mine.title})"

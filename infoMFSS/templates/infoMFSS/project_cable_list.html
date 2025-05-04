@@ -127,8 +127,8 @@
                                 Шахта
                             </th>
 
-                            <th class="align-middle" data-field="track_from_box" data-sortable="true">Начало трассы</th>
-                            <th class="align-middle" data-field="track_to_box" data-sortable="true">Конец трассы</th>
+                            <th class="align-middle" data-field="track_from" data-sortable="true">Начало трассы</th>
+                            <th class="align-middle" data-field="track_to" data-sortable="true">Конец трассы</th>
                             <th class="align-middle" data-field="inclined_blocks" data-sortable="true">Уклонный блок
                             </th>
                             <th class="align-middle" data-field="distance" data-sortable="true">L, м</th>
@@ -163,19 +163,19 @@
                                 {% include 'infoMFSS/includes/include_tooltip_subsystem.html' %}
                                 <td class="align-middle">{{ project_cable.number_mine.title }}</td>
 
-                                <td class="align-middle">{{ project_cable.track_from_box.title }}
-                                    ({{ project_cable.track_from_box.tunnel.title }})
+                                <td class="align-middle">{{ project_cable.track_from.tunnel.title }}
+{#                                    ({{ project_cable.track_from_box.tunnel.title }})#}
                                 </td>
-                                {% if project_cable.track_to_box.title %}
-                                    <td class="align-middle">{{ project_cable.track_to_box.title }}
-                                        ({{ project_cable.track_to_box.tunnel.title }})
+{#                                {% if project_cable.track_to_box.title %}#}
+                                    <td class="align-middle">{{ project_cable.track_to.tunnel.title }}
+{#                                        ({{ project_cable.track_to_box.tunnel.title }})#}
                                     </td>
-                                {% else %}
-                                    <td class="align-middle">{{ project_cable.track_to_phone.title }}
-                                        ({{ project_cable.track_to_phone.tunnel.title }})
-                                        ({{ project_cable.track_to_phone.subscriber_number }})
-                                    </td>
-                                {% endif %}
+{#                                {% else %}#}
+{#                                    <td class="align-middle">{{ project_cable.track_to_phone.title }}#}
+{#                                        ({{ project_cable.track_to_phone.tunnel.title }})#}
+{#                                        ({{ project_cable.track_to_phone.subscriber_number }})#}
+{#                                    </td>#}
+{#                                {% endif %}#}
                                 <td class="align-middle">{{ project_cable.inclined_blocks.title }}</td>
                                 <td class="align-middle">{{ project_cable.distance }}</td>
 

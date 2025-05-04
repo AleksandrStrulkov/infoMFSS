@@ -1,14 +1,11 @@
 {% extends 'infoMFSS/base.html' %}
-{#{% load my_tags %}#}
 
+{% load static %}
 
 {% block content %}
     <br>
     <br>
     <br>
-    {#    <section class="container text-center">#}
-    {#        <h7>Проект МФСБ</h7>#}
-    {#    </section>#}
     <div class="container text-center mt-5 mb-5">
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
@@ -48,7 +45,8 @@
         <div class="container mb-5 mt-5">
             <div class="row">
                 <div class="col-sm image-container">
-                    <img src="../../../static/images/first_project8.png" class="image-container" alt="...">
+{#                    <img src="../../../static/images/first_project8.png" class="image-container" alt="...">#}
+                    <img src="{% static 'images/first_project8.png' %}" class="image-container" alt="...">
                 </div>
             </div>
 
@@ -75,9 +73,6 @@
     <div class="container-xxl">
         <div class="container-xxl">
             <div class="block-white text-center mt-sm-4">
-                {#                <h8>#}
-                {#                    Выполнение#}
-                {#                </h8>#}
                 <div class="container text-center mt-3">
                     <h11>
                         Нефтешахта №1: {{ percent_mine1 }} %
@@ -129,7 +124,8 @@
             <div class="row row-cols-1 row-cols-xxl-3 g-4">
                 <div class="col">
                     <div class="card h-100 border-light border-none">
-                        <img src="../../../static/images/svg/percent3.svg" class="card-grey card-radius icon"
+{#                        <img src="../../../static/images/svg/percent3.svg" class="card-grey card-radius icon"#}
+                        <img src="{% static 'images/svg/percent3.svg' %}" class="card-grey card-radius icon"
                              width="390" height="200" alt="#">
 
                         <div class="card-body">
@@ -143,7 +139,8 @@
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none icons--gradient">
-                        <img src="../../../static/images/svg/equipment.svg" class="card-grey card-radius icon"
+{#                        <img src="../../../static/images/svg/equipment.svg" class="card-grey card-radius icon"#}
+                        <img src="{% static 'images/svg/equipment.svg' %}" class="card-grey card-radius icon"
                              width="390" height="200" alt="#">
 
                         <div class="card-body">
@@ -156,7 +153,8 @@
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none icons--gradient">
-                        <img src="../../../static/images/svg/cable.svg" class="card-grey card-radius icon"
+{#                        <img src="../../../static/images/svg/cable.svg" class="card-grey card-radius icon"#}
+                        <img src="{% static 'images/svg/cable.svg' %}" class="card-grey card-radius icon"
                              width="390" height="200" alt="#">
 
                         <div class="card-body">
@@ -192,10 +190,10 @@
             <div class="row row-cols-1 row-cols-xxl-3 g-4">
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/bezier.svg"
+{#                        <img src="../../../static/images/svg/bezier.svg"#}
+                        <img src="{% static 'images/svg/bezier.svg' %}"
                              class="card-grey card-radius icon card-white"
                              width="416" height="200" alt="#">
-
                         <div class="card-body">
                             <h3 class="card-title h3-block-card-head">Распределительное оборудование</h3>
                             <p class="card-text h3-block-card-footer">Просмотр
@@ -206,20 +204,10 @@
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/filetype-pdf.svg"
+{#                        <img src="../../../static/images/svg/filetype-pdf.svg"#}
+                        <img src="{% static 'images/svg/filetype-pdf.svg' %}"
                              class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
-
-                        {#                        <div class="card-body">#}
-                        {#                            <h5 class="card-title h3-block-card-head">Сервис рассылок</h5>#}
-                        {#                            <p class="card-text h3-block-card-footer">В этом разделе есть возможность написать письмо и#}
-                        {#                                настроить#}
-                        {#                                отправку по графику, вы можете сохранять свои письма и получателей (клиентов),#}
-                        {#                                выбирать их в#}
-                        {#                                последующем формировании. Выбор периодичности отправки: ежедневно, еженедельно,#}
-                        {#                                ежемесячно и ежегодно. </p>#}
-                        {#                            <a href="#" class="stretched-link"></a>#}
-                        {#                        </div>#}
                         <div class="card-body">
                             <h5 class="card-title h3-block-card-head">Документация на оборудование</h5>
                             <p class="card-text h3-block-card-footer">Просмотр
@@ -230,16 +218,10 @@
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/check-square.svg"
+{#                        <img src="../../../static/images/svg/check-square.svg"#}
+                        <img src="{% static 'images/svg/check-square.svg' %}"
                              class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
-
-                        {#                        <div class="card-body">#}
-                        {#                            <h5 class="card-title h3-block-card-head">Сервис напоминаний</h5>#}
-                        {#                            <p class="card-text h3-block-card-footer">В этом разделе можно организовать напоминания#}
-                        {#                            в виде сообщения в telegram бот.</p>#}
-                        {#                            <a href="#" class="stretched-link"></a>#}
-                        {#                        </div>#}
                         <div class="card-body">
                             <h5 class="card-title h3-block-card-head">Отчет исправления замечаний</h5>
                             <p class="card-text h3-block-card-footer">Просмотр
@@ -253,7 +235,8 @@
             <div class="row row-cols-1 row-cols-xxl-3 g-4">
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/binocle.svg"
+{#                        <img src="../../../static/images/svg/binocle.svg"#}
+                        <img src="{% static 'images/svg/binocle.svg' %}"
                              class="card-grey card-radius icon card-white"
                              width="416" height="200" alt="#">
 
@@ -267,7 +250,8 @@
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/subsystem.svg"
+{#                        <img src="../../../static/images/svg/subsystem.svg"#}
+                        <img src="{% static 'images/svg/subsystem.svg' %}"
                              class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
                         <div class="card-body">
@@ -280,7 +264,8 @@
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none col-grey">
-                        <img src="../../../static/images/svg/chat-left-text.svg"
+{#                        <img src="../../../static/images/svg/chat-left-text.svg"#}
+                        <img src="{% static 'images/svg/chat-left-text.svg' %}"
                              class="card-grey card-radius icon card-white"
                              width="390" height="200" alt="#">
                         <div class="card-body">
@@ -307,28 +292,15 @@
     </div>
     <div class="block-all-white mt-sm-3">
         <div class="container-xxl mt-5">
-            {#                    <div class="row row-cols-1 row-cols-md-3 g-4">#}
             <div class="row row-cols-1 row-cols-xxl-3 g-4">
                 <div class="col">
                 </div>
                 <div class="col">
                     <div class="card h-100 border-light border-none icons--gradient">
-                        <img src="../../../static/images/svg/envelope-at.svg" class="card-grey card-radius icon"
+{#                        <img src="../../../static/images/svg/envelope-at.svg" class="card-grey card-radius icon"#}
+                        <img src="{% static 'images/svg/envelope-at.svg' %}" class="card-grey card-radius icon"
                              width="390" height="200" alt="#">
-
                         <div class="card-body">
-                            {#                            <h5 class="card-title h3-block-card-head">Admin</h5>#}
-                            {#                            <p class="card-text h3-block-card-footer"><font color="#6d37ff">Уважаемые гости</font>#}
-                            {#                                ресурса, данный <font color="#6d37ff">проект</font>#}
-                            {#                                выполнен только <font color="#6d37ff">в учебных целях</font>#}
-                            {#                                и без каких либо коммерческих интересов. <font color="#6d37ff">Но</font> стоит#}
-                            {#                                отметить, что без вложений сил и времени, без абонентской оплаты хоста, домена и#}
-                            {#                                прочих ежемесячных выплат было бы трудно и даже невозможно выполнить и поддерживать#}
-                            {#                                проект в дальнейшем. Поэтому финансовая помощь на чашку <font color="#6d37ff">latte#}
-                            {#                                    приветствуется</font>)#}
-                            {##}
-                            {#                            </p>#}
-                            {#                            <a href="#" class="stretched-link"></a>#}
                             <h5 class="card-title h3-block-card-head">Обратная связь</h5>
                             <p class="card-text h3-block-card-footer">В случае обнаружения ошибки в данных
                             напишите письмо администратору ресурса, в случае просьбы включить Вас в
@@ -346,8 +318,4 @@
     </div>
     <br>
     <br>
-{#    {% include 'mfss/includes/nsh1_modal.html' %}#}
-{#    {% include 'mfss/includes/nsh2_modal.html' %}#}
-{#    {% include 'mfss/includes/nsh3_modal.html' %}#}
-{#    {% include 'mfss/includes/nsh123_modal.html' %}#}
 {% endblock %}

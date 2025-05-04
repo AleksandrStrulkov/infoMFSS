@@ -94,9 +94,9 @@ class BranchesBoxAdmin(admin.ModelAdmin):
 
 class BeaconAdmin(admin.ModelAdmin):
     list_display = ('designation', 'number_mine', 'tunnel', 'inclined_blocks', 'picket',  'mac_address', 'serial_number',
-                    'minor', 'execution_bool',)
-    list_filter = ('designation', 'number_mine', 'tunnel', 'inclined_blocks', 'serial_number', 'minor')
-    search_fields = ('designation', 'number_mine', 'tunnel', 'inclined_blocks', 'serial_number', 'minor')
+                    'minor', 'execution_bool', 'data')
+    list_filter = ('designation', 'number_mine', 'tunnel', 'inclined_blocks', 'serial_number', 'minor', 'data')
+    search_fields = ('designation', 'number_mine', 'tunnel', 'inclined_blocks', 'serial_number', 'minor', 'data')
 
 
 @admin.register(Visual)
@@ -120,8 +120,7 @@ class ViolationsAdmin(admin.ModelAdmin):
 
 # @admin.register(CableMagazine)
 class CableMagazineAdmin(admin.ModelAdmin):
-    list_display = ('cable', 'name', 'subsystem', 'number_mine', 'inclined_blocks', 'track_from', 'track_from_box',
-                    'track_to_box', 'track_to_phone',
+    list_display = ('cable', 'name', 'subsystem', 'number_mine', 'inclined_blocks', 'track_from', 'track_to',
                     'distance', 'unit', 'slug')
     # prepopulated_fields = {'slug': ('track_from')}
     prepopulated_fields = {'slug': ('track_from', 'track_to')}
