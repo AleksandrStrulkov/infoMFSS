@@ -218,7 +218,7 @@ class QuantityEqCabFilterService:
             filters &= Q(equipment_install__title__title=equipment)
 
         if cable is not None:
-            filters &= Q(cable_magazine__cable__title=cable)
+            filters &= Q(cable_magazine__cable__device_type=cable)
 
         # Общее количество записей
         quantity = Execution.objects.filter(filters, execution_bool=True).count()

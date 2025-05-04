@@ -187,10 +187,10 @@ class Cable(models.Model):
     file_certificate = models.FileField(upload_to="pdf_certificate", **NULLABLE, verbose_name="Сертификат")
 
     def __str__(self):
-        if self.device_type is not None:
-            return f"{self.title}-{self.device_type}"
-        else:
-            return f"{self.title}"
+        # if self.device_type is not None:
+        #     return f"{self.title}-{self.device_type}"
+        # else:
+        return f"{self.device_type}"
 
     def save(self, *args, **kwargs):
         is_new = self._state.adding  # Проверяем, что объект новый
