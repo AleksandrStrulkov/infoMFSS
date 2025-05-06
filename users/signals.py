@@ -11,12 +11,10 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_register)
 def post_register_dispatcher(sender, **kwargs):
-    send_activation_notification(kwargs['instance'])
+    send_activation_notification(kwargs["instance"])
 
 
 @receiver(post_save, sender=get_user_model())
 def log_user_creation(sender, instance, created, **kwargs):
     if created:  # Проверяем, что пользователь создан, а не обновлен
-        logger.info(f'Создан новый пользователь: {instance.last_name} (ID: {instance.id})')
-
-
+        logger.info(f"Создан новый пользователь: {instance.last_name} (ID: {instance.id})")

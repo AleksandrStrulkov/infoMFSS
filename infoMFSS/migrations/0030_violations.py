@@ -7,27 +7,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0029_cable_file_passport_equipment_file_passport_and_more'),
+        ("infoMFSS", "0029_cable_file_passport_equipment_file_passport_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Violations',
+            name="Violations",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('number_act', models.CharField(blank=True, max_length=100, null=True, verbose_name='Номер акта')),
-                ('date_act', models.DateField(blank=True, null=True, verbose_name='Дата выдачи')),
-                ('issued_by_act', models.CharField(blank=True, max_length=100, null=True, verbose_name='Кем выдано')),
-                ('title', models.TextField(blank=True, null=True, verbose_name='Описание нарушения')),
-                ('execution_bool', models.BooleanField(default=False, verbose_name='Устранение нарушения')),
-                ('file_act', models.FileField(blank=True, null=True, upload_to='pdf_act')),
-                ('file_notification', models.FileField(blank=True, null=True, upload_to='pdf_notifications')),
-                ('number_mine', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mine_act', to='infoMFSS.numbermine', verbose_name='Шахта')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("number_act", models.CharField(blank=True, max_length=100, null=True, verbose_name="Номер акта")),
+                ("date_act", models.DateField(blank=True, null=True, verbose_name="Дата выдачи")),
+                ("issued_by_act", models.CharField(blank=True, max_length=100, null=True, verbose_name="Кем выдано")),
+                ("title", models.TextField(blank=True, null=True, verbose_name="Описание нарушения")),
+                ("execution_bool", models.BooleanField(default=False, verbose_name="Устранение нарушения")),
+                ("file_act", models.FileField(blank=True, null=True, upload_to="pdf_act")),
+                ("file_notification", models.FileField(blank=True, null=True, upload_to="pdf_notifications")),
+                (
+                    "number_mine",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="mine_act",
+                        to="infoMFSS.numbermine",
+                        verbose_name="Шахта",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'нарушение',
-                'verbose_name_plural': 'нарушения',
-                'ordering': ['date_act'],
+                "verbose_name": "нарушение",
+                "verbose_name_plural": "нарушения",
+                "ordering": ["date_act"],
             },
         ),
     ]

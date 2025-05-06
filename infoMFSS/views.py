@@ -1,39 +1,67 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import (LoginRequiredMixin,
-                                        PermissionRequiredMixin,
-                                        UserPassesTestMixin)
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.cache import cache
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import (CreateView, DeleteView, DetailView, FormView,
-                                  ListView, TemplateView, UpdateView)
+from django.views.generic import CreateView, DeleteView, DetailView, FormView, ListView, TemplateView, UpdateView
 
-from infoMFSS.forms import (BeaconCreateForm, BeaconForm, BoxForm,
-                            BranchesBoxCreateForm, CableCreateForm, CableForm,
-                            CableMagazineCreateForm, ContactForm,
-                            CreateDateUpdateForm,
-                            CreateEquipmentInstallationForm,
-                            CreateExecutionForm, EquipmentCreateForm,
-                            EquipmentForm, PercentForm, PointPhoneCreateForm,
-                            ProjectCableForm, ProjectEquipmentForm,
-                            QuantityEquipmentCableForm, ViolationsCreateForm,
-                            VisualCreateNewForm, VisualForm)
-from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
-                             DateUpdate, Equipment, EquipmentInstallation,
-                             Execution, InclinedBlocks, NumberMine, PointPhone,
-                             Subsystem, Violations, Visual)
+from infoMFSS.forms import (
+    BeaconCreateForm,
+    BeaconForm,
+    BoxForm,
+    BranchesBoxCreateForm,
+    CableCreateForm,
+    CableForm,
+    CableMagazineCreateForm,
+    ContactForm,
+    CreateDateUpdateForm,
+    CreateEquipmentInstallationForm,
+    CreateExecutionForm,
+    EquipmentCreateForm,
+    EquipmentForm,
+    PercentForm,
+    PointPhoneCreateForm,
+    ProjectCableForm,
+    ProjectEquipmentForm,
+    QuantityEquipmentCableForm,
+    ViolationsCreateForm,
+    VisualCreateNewForm,
+    VisualForm,
+)
+from infoMFSS.models import (
+    Beacon,
+    BranchesBox,
+    Cable,
+    CableMagazine,
+    DateUpdate,
+    Equipment,
+    EquipmentInstallation,
+    Execution,
+    InclinedBlocks,
+    NumberMine,
+    PointPhone,
+    Subsystem,
+    Violations,
+    Visual,
+)
 from infoMFSS.services_logger import *
 
 from .params import FilterParams
-from .services import (BeaconFilterService, BoxFilterService,
-                       CableFilterService, EquipmentFilterService,
-                       PercentService, ProjectCableFilterService,
-                       ProjectEquipmentFilterService,
-                       QuantityEqCabFilterService, VisualFilterService)
+from .services import (
+    BeaconFilterService,
+    BoxFilterService,
+    CableFilterService,
+    EquipmentFilterService,
+    PercentService,
+    ProjectCableFilterService,
+    ProjectEquipmentFilterService,
+    QuantityEqCabFilterService,
+    VisualFilterService,
+)
 
 
 def sass_page_handler(request):

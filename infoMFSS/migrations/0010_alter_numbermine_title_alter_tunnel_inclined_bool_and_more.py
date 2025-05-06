@@ -6,23 +6,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0009_alter_execution_cable_magazine_and_more'),
+        ("infoMFSS", "0009_alter_execution_cable_magazine_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='numbermine',
-            name='title',
-            field=models.CharField(choices=[('Нефтешахта №1', 'Нефтешахта №1'), ('Нефтешахта №2', 'Нефтешахта №2'), ('Нефтешахта №3', 'Нефтешахта №3'), ('', '')], max_length=15, verbose_name='Шахта'),
+            model_name="numbermine",
+            name="title",
+            field=models.CharField(
+                choices=[
+                    ("Нефтешахта №1", "Нефтешахта №1"),
+                    ("Нефтешахта №2", "Нефтешахта №2"),
+                    ("Нефтешахта №3", "Нефтешахта №3"),
+                    ("", ""),
+                ],
+                max_length=15,
+                verbose_name="Шахта",
+            ),
         ),
         migrations.AlterField(
-            model_name='tunnel',
-            name='inclined_bool',
-            field=models.BooleanField(blank=True, default=False, null=True, verbose_name='Признак уклонного блока'),
+            model_name="tunnel",
+            name="inclined_bool",
+            field=models.BooleanField(blank=True, default=False, null=True, verbose_name="Признак уклонного блока"),
         ),
         migrations.AlterField(
-            model_name='tunnel',
-            name='tuf_bool',
-            field=models.BooleanField(blank=True, default=False, null=True, verbose_name='Признак туффитового горизонта'),
+            model_name="tunnel",
+            name="tuf_bool",
+            field=models.BooleanField(
+                blank=True, default=False, null=True, verbose_name="Признак туффитового горизонта"
+            ),
         ),
     ]

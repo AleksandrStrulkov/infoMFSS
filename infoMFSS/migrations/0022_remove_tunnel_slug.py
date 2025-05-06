@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0021_equipmentinstallation_equipment_bool'),
+        ("infoMFSS", "0021_equipmentinstallation_equipment_bool"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='tunnel',
-            name='slug',
+            model_name="tunnel",
+            name="slug",
         ),
     ]

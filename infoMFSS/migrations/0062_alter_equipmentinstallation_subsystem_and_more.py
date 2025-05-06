@@ -7,18 +7,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0061_visual'),
+        ("infoMFSS", "0061_visual"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='equipmentinstallation',
-            name='subsystem',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sub_installs', to='infoMFSS.subsystem', verbose_name='Подсистема'),
+            model_name="equipmentinstallation",
+            name="subsystem",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="sub_installs",
+                to="infoMFSS.subsystem",
+                verbose_name="Подсистема",
+            ),
         ),
         migrations.AlterField(
-            model_name='visual',
-            name='file_pdf',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_visual', verbose_name='Файл'),
+            model_name="visual",
+            name="file_pdf",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_visual", verbose_name="Файл"),
         ),
     ]

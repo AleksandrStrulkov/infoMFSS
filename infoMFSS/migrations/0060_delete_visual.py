@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0059_alter_violations_execution_bool'),
+        ("infoMFSS", "0059_alter_violations_execution_bool"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Visual',
+            name="Visual",
         ),
     ]

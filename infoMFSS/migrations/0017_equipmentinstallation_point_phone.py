@@ -7,13 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0016_alter_cablemagazine_track_from_and_more'),
+        ("infoMFSS", "0016_alter_cablemagazine_track_from_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='equipmentinstallation',
-            name='point_phone',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='phones', to='infoMFSS.pointphone', verbose_name='Точка телефонии'),
+            model_name="equipmentinstallation",
+            name="point_phone",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="phones",
+                to="infoMFSS.pointphone",
+                verbose_name="Точка телефонии",
+            ),
         ),
     ]

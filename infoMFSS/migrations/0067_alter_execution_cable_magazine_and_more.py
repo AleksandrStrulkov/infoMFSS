@@ -7,18 +7,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0066_alter_execution_cable_magazine_and_more'),
+        ("infoMFSS", "0066_alter_execution_cable_magazine_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='execution',
-            name='cable_magazine',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='cable_executions', to='infoMFSS.cablemagazine', verbose_name='Список трасс кабелей'),
+            model_name="execution",
+            name="cable_magazine",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="cable_executions",
+                to="infoMFSS.cablemagazine",
+                verbose_name="Список трасс кабелей",
+            ),
         ),
         migrations.AlterField(
-            model_name='execution',
-            name='equipment_install',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='eq_executions', to='infoMFSS.equipmentinstallation', verbose_name='Список оборудования'),
+            model_name="execution",
+            name="equipment_install",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="eq_executions",
+                to="infoMFSS.equipmentinstallation",
+                verbose_name="Список оборудования",
+            ),
         ),
     ]

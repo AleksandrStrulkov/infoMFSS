@@ -6,20 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0027_cable_file_pdf'),
+        ("infoMFSS", "0027_cable_file_pdf"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cable',
-            name='file_certificate',
-            field=models.FileField(default=1, upload_to='pdf_certificate'),
+            model_name="cable",
+            name="file_certificate",
+            field=models.FileField(default=1, upload_to="pdf_certificate"),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='equipment',
-            name='file_certificate',
-            field=models.FileField(default=1, upload_to='pdf_certificate'),
+            model_name="equipment",
+            name="file_certificate",
+            field=models.FileField(default=1, upload_to="pdf_certificate"),
             preserve_default=False,
         ),
     ]

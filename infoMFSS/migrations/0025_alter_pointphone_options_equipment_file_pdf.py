@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0024_alter_equipmentinstallation_number_mine_and_more'),
+        ("infoMFSS", "0024_alter_equipmentinstallation_number_mine_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='pointphone',
-            options={'ordering': ['title'], 'verbose_name': 'точка телефонии', 'verbose_name_plural': 'точки телефонии'},
+            name="pointphone",
+            options={
+                "ordering": ["title"],
+                "verbose_name": "точка телефонии",
+                "verbose_name_plural": "точки телефонии",
+            },
         ),
         migrations.AddField(
-            model_name='equipment',
-            name='file_pdf',
-            field=models.FileField(default=1, upload_to='pdf'),
+            model_name="equipment",
+            name="file_pdf",
+            field=models.FileField(default=1, upload_to="pdf"),
             preserve_default=False,
         ),
     ]

@@ -6,28 +6,28 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0040_remove_pointphone_inclined_blocks_and_more'),
+        ("infoMFSS", "0040_remove_pointphone_inclined_blocks_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='branchesbox',
-            name='boolean_block',
+            model_name="branchesbox",
+            name="boolean_block",
         ),
         migrations.RemoveField(
-            model_name='branchesbox',
-            name='equipment',
+            model_name="branchesbox",
+            name="equipment",
         ),
         migrations.RemoveField(
-            model_name='branchesbox',
-            name='inclined_blocks',
+            model_name="branchesbox",
+            name="inclined_blocks",
         ),
         migrations.RemoveField(
-            model_name='branchesbox',
-            name='picket',
+            model_name="branchesbox",
+            name="picket",
         ),
         migrations.RemoveField(
-            model_name='branchesbox',
-            name='tunnel',
+            model_name="branchesbox",
+            name="tunnel",
         ),
     ]

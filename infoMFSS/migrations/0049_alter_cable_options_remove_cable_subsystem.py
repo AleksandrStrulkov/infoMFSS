@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0048_remove_cable_slug'),
+        ("infoMFSS", "0048_remove_cable_slug"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='cable',
-            options={'ordering': ['-id'], 'verbose_name': 'кабель', 'verbose_name_plural': 'кабели'},
+            name="cable",
+            options={"ordering": ["-id"], "verbose_name": "кабель", "verbose_name_plural": "кабели"},
         ),
         migrations.RemoveField(
-            model_name='cable',
-            name='subsystem',
+            model_name="cable",
+            name="subsystem",
         ),
     ]

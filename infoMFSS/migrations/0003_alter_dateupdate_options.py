@@ -6,12 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0002_dateupdate'),
+        ("infoMFSS", "0002_dateupdate"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='dateupdate',
-            options={'ordering': ['-update'], 'verbose_name': 'дата последнего изменения', 'verbose_name_plural': 'даты последнего изменения'},
+            name="dateupdate",
+            options={
+                "ordering": ["-update"],
+                "verbose_name": "дата последнего изменения",
+                "verbose_name_plural": "даты последнего изменения",
+            },
         ),
     ]

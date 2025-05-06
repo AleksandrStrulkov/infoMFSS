@@ -7,27 +7,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0013_alter_subsystem_options_branchesbox_name_slag'),
+        ("infoMFSS", "0013_alter_subsystem_options_branchesbox_name_slag"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='cablemagazine',
-            name='track_to',
+            model_name="cablemagazine",
+            name="track_to",
         ),
         migrations.AddField(
-            model_name='cablemagazine',
-            name='track_to_box',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='box_to', to='infoMFSS.branchesbox', verbose_name='До распределительной коробки'),
+            model_name="cablemagazine",
+            name="track_to_box",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="box_to",
+                to="infoMFSS.branchesbox",
+                verbose_name="До распределительной коробки",
+            ),
         ),
         migrations.AddField(
-            model_name='cablemagazine',
-            name='track_to_phone',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='phone_to', to='infoMFSS.pointphone', verbose_name='До телефонной точки'),
+            model_name="cablemagazine",
+            name="track_to_phone",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="phone_to",
+                to="infoMFSS.pointphone",
+                verbose_name="До телефонной точки",
+            ),
         ),
         migrations.AlterField(
-            model_name='cablemagazine',
-            name='track_from',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='box_from', to='infoMFSS.branchesbox', verbose_name='От распределительной коробки'),
+            model_name="cablemagazine",
+            name="track_from",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="box_from",
+                to="infoMFSS.branchesbox",
+                verbose_name="От распределительной коробки",
+            ),
         ),
     ]

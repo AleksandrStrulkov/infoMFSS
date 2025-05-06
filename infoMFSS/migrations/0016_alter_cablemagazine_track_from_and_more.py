@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0015_cablemagazine_track_from_box_cablemagazine_track_to_and_more'),
+        ("infoMFSS", "0015_cablemagazine_track_from_box_cablemagazine_track_to_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cablemagazine',
-            name='track_from',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='Начало трассы'),
+            model_name="cablemagazine",
+            name="track_from",
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name="Начало трассы"),
         ),
         migrations.AlterField(
-            model_name='cablemagazine',
-            name='track_to',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='Конец трассы'),
+            model_name="cablemagazine",
+            name="track_to",
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name="Конец трассы"),
         ),
     ]

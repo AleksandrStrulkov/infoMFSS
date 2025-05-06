@@ -7,18 +7,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0006_alter_inclinedblocks_options'),
+        ("infoMFSS", "0006_alter_inclinedblocks_options"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='execution',
-            name='number_mine',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='mine_executions', to='infoMFSS.numbermine', verbose_name='Шахта'),
+            model_name="execution",
+            name="number_mine",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="mine_executions",
+                to="infoMFSS.numbermine",
+                verbose_name="Шахта",
+            ),
         ),
         migrations.AlterField(
-            model_name='execution',
-            name='subsystem',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sub_executions', to='infoMFSS.subsystem', verbose_name='Подсистема'),
+            model_name="execution",
+            name="subsystem",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="sub_executions",
+                to="infoMFSS.subsystem",
+                verbose_name="Подсистема",
+            ),
         ),
     ]

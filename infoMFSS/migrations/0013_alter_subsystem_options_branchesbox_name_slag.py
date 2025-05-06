@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0012_alter_inclinedblocks_number_mine'),
+        ("infoMFSS", "0012_alter_inclinedblocks_number_mine"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='subsystem',
-            options={'ordering': ['id'], 'verbose_name': 'подсистема', 'verbose_name_plural': 'подсистемы'},
+            name="subsystem",
+            options={"ordering": ["id"], "verbose_name": "подсистема", "verbose_name_plural": "подсистемы"},
         ),
         migrations.AddField(
-            model_name='branchesbox',
-            name='name_slag',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='Генерация slag'),
+            model_name="branchesbox",
+            name="name_slag",
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name="Генерация slag"),
         ),
     ]

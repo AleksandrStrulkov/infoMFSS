@@ -7,13 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0052_alter_branchesbox_title'),
+        ("infoMFSS", "0052_alter_branchesbox_title"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='branchesbox',
-            name='equipment',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='equipment_boxs', to='infoMFSS.equipmentinstallation', verbose_name='Связанное оборудование'),
+            model_name="branchesbox",
+            name="equipment",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="equipment_boxs",
+                to="infoMFSS.equipmentinstallation",
+                verbose_name="Связанное оборудование",
+            ),
         ),
     ]

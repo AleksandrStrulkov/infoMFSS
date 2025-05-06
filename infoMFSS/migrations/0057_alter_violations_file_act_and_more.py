@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0056_alter_violations_file_act_and_more'),
+        ("infoMFSS", "0056_alter_violations_file_act_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='violations',
-            name='file_act',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_act', verbose_name='Акт'),
+            model_name="violations",
+            name="file_act",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_act", verbose_name="Акт"),
         ),
         migrations.AlterField(
-            model_name='violations',
-            name='file_notification',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_notifications', verbose_name='Уведомление'),
+            model_name="violations",
+            name="file_notification",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_notifications", verbose_name="Уведомление"),
         ),
     ]

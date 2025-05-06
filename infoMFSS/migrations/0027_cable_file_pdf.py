@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0026_cable_subsystem_equipment_subsystem'),
+        ("infoMFSS", "0026_cable_subsystem_equipment_subsystem"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cable',
-            name='file_pdf',
-            field=models.FileField(default=1, upload_to='pdf'),
+            model_name="cable",
+            name="file_pdf",
+            field=models.FileField(default=1, upload_to="pdf"),
             preserve_default=False,
         ),
     ]

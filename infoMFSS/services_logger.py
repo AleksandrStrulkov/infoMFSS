@@ -30,13 +30,6 @@ class LoggingMixin:
         # Логирование ошибки
         logger.warning(error_message, extra={"classname": self.__class__.__name__})
 
-        # Отправка email администратору
-        # mail_admins(
-        #         subject='Ошибка валидации формы',
-        #         message=error_message,
-        #         fail_silently=True,
-        # )
-
         return super().form_invalid(form)
 
 

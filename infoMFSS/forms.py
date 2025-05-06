@@ -1,15 +1,27 @@
 from captcha.fields import CaptchaField
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Field, Layout, Submit
+from crispy_forms.layout import HTML, Field, Layout
 from django import forms
 from django.db.models import Case, IntegerField, Value, When
 from django.utils import timezone
 
 from infoMFSS.castom_widgets_form import CustomModelChoiceField
-from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
-                             DateUpdate, Equipment, EquipmentInstallation,
-                             Execution, InclinedBlocks, NumberMine, PointPhone,
-                             Subsystem, Tunnel, Violations, Visual)
+from infoMFSS.models import (
+    Beacon,
+    BranchesBox,
+    Cable,
+    CableMagazine,
+    DateUpdate,
+    Equipment,
+    EquipmentInstallation,
+    Execution,
+    InclinedBlocks,
+    NumberMine,
+    PointPhone,
+    Subsystem,
+    Violations,
+    Visual,
+)
 
 
 class InfoFormMixin(forms.Form):
@@ -186,10 +198,6 @@ class BeaconForm(InfoFormMixin, forms.Form):
             InclinedBlocks.objects.filter(number_mine__title__icontains=number_mines).values_list("title", flat=True)
         )
         incl_list.append("Все уклонные блоки")
-
-        incl_all_list = list(
-            InclinedBlocks.objects.exclude(title="Все уклонные блоки").values_list("title", flat=True)
-        )
 
         if incl_list and incl_blocks not in incl_list:
             self.add_error("incl_blocks", "Не верно указан уклонный блок")
@@ -396,9 +404,9 @@ class BeaconCreateForm(forms.ModelForm):
         )
         incl_list.append("Все уклонные блоки")
 
-        incl_all_list = list(
-            InclinedBlocks.objects.exclude(title="Все уклонные блоки").values_list("title", flat=True)
-        )
+        # incl_all_list = list(
+        #     InclinedBlocks.objects.exclude(title="Все уклонные блоки").values_list("title", flat=True)
+        # )
 
         if tunnel is not None:
             if tunnel.inclined_blocks is not None and inclined_blocks is None:
@@ -481,7 +489,7 @@ class PointPhoneCreateForm(forms.ModelForm):
         if serial_number is not None:
             for item in serial_number:
                 if not item.isdigit():
-                    self.add_error("serial_number", f"Заводской номер должен быть числом")
+                    self.add_error("serial_number", "Заводской номер должен быть числом")
 
         for item in subscriber_number:
             if not item.isdigit():
@@ -556,7 +564,7 @@ class BranchesBoxCreateForm(forms.ModelForm):
         tunnel = cleaned_data.get("tunnel")
         inclined_blocks = cleaned_data.get("inclined_blocks")
         subsystem = cleaned_data.get("subsystem")
-        equipment = cleaned_data.get("equipment")
+        # equipment = cleaned_data.get("equipment")
         boolean_block = cleaned_data.get("boolean_block")
         ip_address = cleaned_data.get("ip_address")
         serial_number = cleaned_data.get("serial_number")
@@ -570,7 +578,7 @@ class BranchesBoxCreateForm(forms.ModelForm):
         if serial_number:
             for item in serial_number:
                 if not item.isdigit():
-                    self.add_error("serial_number", f"Заводской номер должен быть числом")
+                    self.add_error("serial_number", "Заводской номер должен быть числом")
 
         if tunnel is None:
             self.add_error("tunnel", "Выработка не выбрана")

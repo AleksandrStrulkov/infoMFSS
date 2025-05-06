@@ -6,48 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0063_alter_equipmentinstallation_options'),
+        ("infoMFSS", "0063_alter_equipmentinstallation_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='branchesbox',
-            name='device_type',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name='Тип'),
+            model_name="branchesbox",
+            name="device_type",
+            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Тип"),
         ),
         migrations.AddField(
-            model_name='branchesbox',
-            name='ip_address',
-            field=models.CharField(blank=True, max_length=13, null=True, verbose_name='IP адрес'),
+            model_name="branchesbox",
+            name="ip_address",
+            field=models.CharField(blank=True, max_length=13, null=True, verbose_name="IP адрес"),
         ),
         migrations.AddField(
-            model_name='branchesbox',
-            name='serial_number',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name='Зав. №'),
+            model_name="branchesbox",
+            name="serial_number",
+            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Зав. №"),
         ),
         migrations.AddField(
-            model_name='equipmentinstallation',
-            name='device_type',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name='Тип'),
+            model_name="equipmentinstallation",
+            name="device_type",
+            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Тип"),
         ),
         migrations.AddField(
-            model_name='equipmentinstallation',
-            name='ip_address',
-            field=models.CharField(blank=True, max_length=13, null=True, verbose_name='IP адрес'),
+            model_name="equipmentinstallation",
+            name="ip_address",
+            field=models.CharField(blank=True, max_length=13, null=True, verbose_name="IP адрес"),
         ),
         migrations.AddField(
-            model_name='equipmentinstallation',
-            name='serial_number',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name='Зав. №'),
+            model_name="equipmentinstallation",
+            name="serial_number",
+            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Зав. №"),
         ),
         migrations.AddField(
-            model_name='pointphone',
-            name='device_type',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name='Тип'),
+            model_name="pointphone",
+            name="device_type",
+            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Тип"),
         ),
         migrations.AddField(
-            model_name='pointphone',
-            name='serial_number',
-            field=models.CharField(blank=True, max_length=50, null=True, verbose_name='Зав. №'),
+            model_name="pointphone",
+            name="serial_number",
+            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Зав. №"),
         ),
     ]

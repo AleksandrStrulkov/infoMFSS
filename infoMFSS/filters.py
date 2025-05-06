@@ -2,8 +2,7 @@ import django_filters
 from django.db.models import Q
 from django_filters import Filter
 
-from infoMFSS.models import (EquipmentInstallation, Execution, InclinedBlocks,
-                             NumberMine, Subsystem)
+from infoMFSS.models import Execution, InclinedBlocks, NumberMine, Subsystem
 
 
 class CustomEquipmentFilter(Filter):

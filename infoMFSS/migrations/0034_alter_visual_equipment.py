@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0033_alter_visual_options_and_more'),
+        ("infoMFSS", "0033_alter_visual_options_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='visual',
-            name='equipment',
-            field=models.CharField(choices=[('Телефоны', 'Телефоны'), ('Респред.коробки', 'Распред.коробки'), ('Датчики ПДК', 'Датчики ПДК'), ('Станции связи', 'Станции связи'), ('Точки доступа wi-fi', 'Точки доступа wi-fi')], max_length=50, verbose_name='Оборудование'),
+            model_name="visual",
+            name="equipment",
+            field=models.CharField(
+                choices=[
+                    ("Телефоны", "Телефоны"),
+                    ("Респред.коробки", "Распред.коробки"),
+                    ("Датчики ПДК", "Датчики ПДК"),
+                    ("Станции связи", "Станции связи"),
+                    ("Точки доступа wi-fi", "Точки доступа wi-fi"),
+                ],
+                max_length=50,
+                verbose_name="Оборудование",
+            ),
         ),
     ]

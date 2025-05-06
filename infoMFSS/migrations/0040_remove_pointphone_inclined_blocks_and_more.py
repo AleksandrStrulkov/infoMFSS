@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0039_remove_pointphone_picket'),
+        ("infoMFSS", "0039_remove_pointphone_picket"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='pointphone',
-            name='inclined_blocks',
+            model_name="pointphone",
+            name="inclined_blocks",
         ),
         migrations.RemoveField(
-            model_name='pointphone',
-            name='tunnel',
+            model_name="pointphone",
+            name="tunnel",
         ),
     ]

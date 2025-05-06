@@ -6,22 +6,26 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0032_visual'),
+        ("infoMFSS", "0032_visual"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='visual',
-            options={'ordering': ['number_mines'], 'verbose_name': 'визуализация', 'verbose_name_plural': 'визуализации'},
+            name="visual",
+            options={
+                "ordering": ["number_mines"],
+                "verbose_name": "визуализация",
+                "verbose_name_plural": "визуализации",
+            },
         ),
         migrations.RenameField(
-            model_name='visual',
-            old_name='number_mine',
-            new_name='number_mines',
+            model_name="visual",
+            old_name="number_mine",
+            new_name="number_mines",
         ),
         migrations.RenameField(
-            model_name='visual',
-            old_name='subsystem',
-            new_name='subsystems',
+            model_name="visual",
+            old_name="subsystem",
+            new_name="subsystems",
         ),
     ]

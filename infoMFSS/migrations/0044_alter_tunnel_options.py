@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0043_pointphone_inclined_blocks_pointphone_picket_and_more'),
+        ("infoMFSS", "0043_pointphone_inclined_blocks_pointphone_picket_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='tunnel',
-            options={'ordering': ['number_mine'], 'verbose_name': 'выработка', 'verbose_name_plural': 'выработки'},
+            name="tunnel",
+            options={"ordering": ["number_mine"], "verbose_name": "выработка", "verbose_name_plural": "выработки"},
         ),
     ]
