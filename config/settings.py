@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 from pythonjsonlogger.jsonlogger import JsonFormatter
 
@@ -90,7 +91,7 @@ DATABASES = {
                 'USER': os.getenv('POSTGRES_USER'),
                 'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
                 'PORT': os.getenv('POSTGRES_PORT'),
-                'HOST': os.getenv('POSTGRES_HOST'),
+                # 'HOST': os.getenv('POSTGRES_HOST'),
         }
 }
 # end

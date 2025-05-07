@@ -7,18 +7,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0025_alter_pointphone_options_equipment_file_pdf'),
+        ("infoMFSS", "0025_alter_pointphone_options_equipment_file_pdf"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cable',
-            name='subsystem',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='subsystem_cable', to='infoMFSS.subsystem', verbose_name='Подсистема'),
+            model_name="cable",
+            name="subsystem",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="subsystem_cable",
+                to="infoMFSS.subsystem",
+                verbose_name="Подсистема",
+            ),
         ),
         migrations.AddField(
-            model_name='equipment',
-            name='subsystem',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='subsystem_equipment', to='infoMFSS.subsystem', verbose_name='Подсистема'),
+            model_name="equipment",
+            name="subsystem",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="subsystem_equipment",
+                to="infoMFSS.subsystem",
+                verbose_name="Подсистема",
+            ),
         ),
     ]

@@ -6,24 +6,47 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0031_equipmentinstallation_file_graphics'),
+        ("infoMFSS", "0031_equipmentinstallation_file_graphics"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Visual',
+            name="Visual",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('number_mine', models.CharField(choices=[('Нефтешахта №1', 'Нефтешахта №1'), ('Нефтешахта №2', 'Нефтешахта №2'), ('Нефтешахта №3', 'Нефтешахта №3')], max_length=15, verbose_name='Шахта')),
-                ('subsystem', models.CharField(choices=[('АТС', 'АТС'), ('АГК', 'АГК'), ('Позиционирование', 'Позиционирование'), ('Видеонаблюдение', 'Видеонаблюдение')], max_length=20, verbose_name='Подсистема')),
-                ('equipment', models.CharField(max_length=50, verbose_name='Оборудование')),
-                ('file_pdf', models.FileField(blank=True, null=True, upload_to='pdf_visual')),
-                ('data', models.DateTimeField(auto_now=True, verbose_name='Дата изменения')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "number_mine",
+                    models.CharField(
+                        choices=[
+                            ("Нефтешахта №1", "Нефтешахта №1"),
+                            ("Нефтешахта №2", "Нефтешахта №2"),
+                            ("Нефтешахта №3", "Нефтешахта №3"),
+                        ],
+                        max_length=15,
+                        verbose_name="Шахта",
+                    ),
+                ),
+                (
+                    "subsystem",
+                    models.CharField(
+                        choices=[
+                            ("АТС", "АТС"),
+                            ("АГК", "АГК"),
+                            ("Позиционирование", "Позиционирование"),
+                            ("Видеонаблюдение", "Видеонаблюдение"),
+                        ],
+                        max_length=20,
+                        verbose_name="Подсистема",
+                    ),
+                ),
+                ("equipment", models.CharField(max_length=50, verbose_name="Оборудование")),
+                ("file_pdf", models.FileField(blank=True, null=True, upload_to="pdf_visual")),
+                ("data", models.DateTimeField(auto_now=True, verbose_name="Дата изменения")),
             ],
             options={
-                'verbose_name': 'визуализация',
-                'verbose_name_plural': 'визуализации',
-                'ordering': ['number_mine'],
+                "verbose_name": "визуализация",
+                "verbose_name_plural": "визуализации",
+                "ordering": ["number_mine"],
             },
         ),
     ]

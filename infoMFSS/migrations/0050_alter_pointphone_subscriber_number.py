@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0049_alter_cable_options_remove_cable_subsystem'),
+        ("infoMFSS", "0049_alter_cable_options_remove_cable_subsystem"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='pointphone',
-            name='subscriber_number',
-            field=models.CharField(max_length=10, verbose_name='Абонентский номер'),
+            model_name="pointphone",
+            name="subscriber_number",
+            field=models.CharField(max_length=10, verbose_name="Абонентский номер"),
         ),
     ]

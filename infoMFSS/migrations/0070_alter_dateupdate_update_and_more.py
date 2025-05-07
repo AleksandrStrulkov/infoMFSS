@@ -24,8 +24,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="numbermine",
             name="address_mine",
-            field=models.CharField(
-                blank=True, max_length=250, null=True, verbose_name="Адрес шахты"
-            ),
+            field=models.CharField(blank=True, max_length=250, null=True, verbose_name="Адрес шахты"),
         ),
     ]

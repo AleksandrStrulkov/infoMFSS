@@ -7,23 +7,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0042_branchesbox_boolean_block_branchesbox_equipment_and_more'),
+        ("infoMFSS", "0042_branchesbox_boolean_block_branchesbox_equipment_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='pointphone',
-            name='inclined_blocks',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='block_phones', to='infoMFSS.inclinedblocks', verbose_name='Уклонный блок'),
+            model_name="pointphone",
+            name="inclined_blocks",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="block_phones",
+                to="infoMFSS.inclinedblocks",
+                verbose_name="Уклонный блок",
+            ),
         ),
         migrations.AddField(
-            model_name='pointphone',
-            name='picket',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='Пикет'),
+            model_name="pointphone",
+            name="picket",
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name="Пикет"),
         ),
         migrations.AddField(
-            model_name='pointphone',
-            name='tunnel',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='tunnel_phones', to='infoMFSS.tunnel', verbose_name='Выработка'),
+            model_name="pointphone",
+            name="tunnel",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="tunnel_phones",
+                to="infoMFSS.tunnel",
+                verbose_name="Выработка",
+            ),
         ),
     ]

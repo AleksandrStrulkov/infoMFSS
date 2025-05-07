@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0068_beacon'),
+        ("infoMFSS", "0068_beacon"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='beacon',
-            name='subsystem',
-            field=models.CharField(default='Позиционирование', max_length=20, verbose_name='Подсистема'),
+            model_name="beacon",
+            name="subsystem",
+            field=models.CharField(default="Позиционирование", max_length=20, verbose_name="Подсистема"),
         ),
     ]

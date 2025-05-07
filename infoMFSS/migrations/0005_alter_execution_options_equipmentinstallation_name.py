@@ -6,17 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0004_tunnel_name_slag'),
+        ("infoMFSS", "0004_tunnel_name_slag"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='execution',
-            options={'ordering': ['equipment_install'], 'verbose_name': 'выполнение работы', 'verbose_name_plural': 'отчет выполнения работ'},
+            name="execution",
+            options={
+                "ordering": ["equipment_install"],
+                "verbose_name": "выполнение работы",
+                "verbose_name_plural": "отчет выполнения работ",
+            },
         ),
         migrations.AddField(
-            model_name='equipmentinstallation',
-            name='name',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='Обозначение в проекте'),
+            model_name="equipmentinstallation",
+            name="name",
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name="Обозначение в проекте"),
         ),
     ]

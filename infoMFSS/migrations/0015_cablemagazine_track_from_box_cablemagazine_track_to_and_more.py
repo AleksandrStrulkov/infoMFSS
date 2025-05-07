@@ -7,25 +7,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0014_remove_cablemagazine_track_to_and_more'),
+        ("infoMFSS", "0014_remove_cablemagazine_track_to_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cablemagazine',
-            name='track_from_box',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='box_from', to='infoMFSS.branchesbox', verbose_name='От распределительной коробки'),
+            model_name="cablemagazine",
+            name="track_from_box",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="box_from",
+                to="infoMFSS.branchesbox",
+                verbose_name="От распределительной коробки",
+            ),
         ),
         migrations.AddField(
-            model_name='cablemagazine',
-            name='track_to',
-            field=models.CharField(default=None, max_length=100, verbose_name='Конец трассы'),
+            model_name="cablemagazine",
+            name="track_to",
+            field=models.CharField(default=None, max_length=100, verbose_name="Конец трассы"),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='cablemagazine',
-            name='track_from',
-            field=models.CharField(default=1, max_length=100, verbose_name='Начало трассы'),
+            model_name="cablemagazine",
+            name="track_from",
+            field=models.CharField(default=1, max_length=100, verbose_name="Начало трассы"),
             preserve_default=False,
         ),
     ]

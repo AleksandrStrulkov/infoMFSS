@@ -7,13 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0020_remove_branchesbox_slug'),
+        ("infoMFSS", "0020_remove_branchesbox_slug"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='equipmentinstallation',
-            name='equipment_bool',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='exe_bool', to='infoMFSS.execution', verbose_name='Выполнение'),
+            model_name="equipmentinstallation",
+            name="equipment_bool",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="exe_bool",
+                to="infoMFSS.execution",
+                verbose_name="Выполнение",
+            ),
         ),
     ]

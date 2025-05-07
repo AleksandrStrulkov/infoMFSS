@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0057_alter_violations_file_act_and_more'),
+        ("infoMFSS", "0057_alter_violations_file_act_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='violations',
-            name='execution_bool',
-            field=models.BooleanField(default=False, verbose_name='Предписание исполнено'),
+            model_name="violations",
+            name="execution_bool",
+            field=models.BooleanField(default=False, verbose_name="Предписание исполнено"),
         ),
     ]

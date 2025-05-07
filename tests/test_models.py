@@ -1,9 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from infoMFSS.forms import EquipmentForm
-from users.models import User
-from tests.factories import UserFactory, CableFactory
+from tests.factories import CableFactory, UserFactory
 from users.utilities import signer
 
 
@@ -57,7 +55,7 @@ def test_inclined_block_str(inclined_blocks):
 
 @pytest.mark.django_db
 def test_tunnel_str(tunnel):
-    assert str(tunnel) == f'{tunnel.title} {tunnel.inclined_blocks} (НШ-{tunnel.number_mine.title[-1]})'
+    assert str(tunnel) == f"{tunnel.title} {tunnel.inclined_blocks} (НШ-{tunnel.number_mine.title[-1]})"
     assert tunnel.number_mine is not None  # Проверяем, что шахта связана
 
 
@@ -69,22 +67,25 @@ def test_equipment_str(equipment):
 
 @pytest.mark.django_db
 def test_cable_str(cable):
-    assert str(cable) == f'{cable.title}-{cable.device_type}'
+    assert str(cable) == f"{cable.title}-{cable.device_type}"
 
 
 @pytest.mark.django_db
 def test_cable_none_device_type_str():
-    cable = CableFactory(title='Parlan',
-                         device_type=None,
-                         description='Многопарный кабель',
-                         file_pdf=None,
-                         file_passport=None,
-                         file_certificate=None)
+    cable = CableFactory(
+        title="Parlan",
+        device_type=None,
+        description="Многопарный кабель",
+        file_pdf=None,
+        file_passport=None,
+        file_certificate=None,
+    )
     assert str(cable) == "Parlan"
 
 
 @pytest.mark.django_db
 def test_point_phone_str(point_phone):
-    assert str(point_phone) == f"{point_phone.title}/{point_phone.subscriber_number} (НШ-{point_phone.number_mine.title[-1]})"
-
-
+    assert (
+        str(point_phone) == f"{point_phone.title}/{point_phone.subscriber_number} "
+        f"(НШ-{point_phone.number_mine.title[-1]})"
+    )

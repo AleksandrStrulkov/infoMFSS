@@ -6,17 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0053_alter_branchesbox_equipment'),
+        ("infoMFSS", "0053_alter_branchesbox_equipment"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='cablemagazine',
-            options={'ordering': ['-id'], 'verbose_name': 'отдельную позицию', 'verbose_name_plural': 'кабельный журнал'},
+            name="cablemagazine",
+            options={
+                "ordering": ["-id"],
+                "verbose_name": "отдельную позицию",
+                "verbose_name_plural": "кабельный журнал",
+            },
         ),
         migrations.AlterField(
-            model_name='violations',
-            name='date_act',
-            field=models.DateField(blank=True, null=True, verbose_name='Дата проверки'),
+            model_name="violations",
+            name="date_act",
+            field=models.DateField(blank=True, null=True, verbose_name="Дата проверки"),
         ),
     ]

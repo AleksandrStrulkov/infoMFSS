@@ -6,20 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0005_user_medium_name'),
+        ("users", "0005_user_medium_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='location_of_work',
-            field=models.CharField(default=1, max_length=50, verbose_name='Место работы'),
+            model_name="user",
+            name="location_of_work",
+            field=models.CharField(default=1, max_length=50, verbose_name="Место работы"),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='user',
-            name='post',
-            field=models.CharField(default=1, max_length=50, verbose_name='Должность'),
+            model_name="user",
+            name="post",
+            field=models.CharField(default=1, max_length=50, verbose_name="Должность"),
             preserve_default=False,
         ),
     ]

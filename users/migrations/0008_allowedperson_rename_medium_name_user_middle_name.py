@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0007_alter_user_first_name_alter_user_last_name_and_more'),
+        ("users", "0007_alter_user_first_name_alter_user_last_name_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AllowedPerson',
+            name="AllowedPerson",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('last_name', models.CharField(max_length=50, verbose_name='Фамилия')),
-                ('first_name', models.CharField(max_length=50, verbose_name='Имя')),
-                ('middle_name', models.CharField(max_length=50, verbose_name='Отчество')),
-                ('is_active', models.BooleanField(default=True)),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("last_name", models.CharField(max_length=50, verbose_name="Фамилия")),
+                ("first_name", models.CharField(max_length=50, verbose_name="Имя")),
+                ("middle_name", models.CharField(max_length=50, verbose_name="Отчество")),
+                ("is_active", models.BooleanField(default=True)),
             ],
         ),
         migrations.RenameField(
-            model_name='user',
-            old_name='medium_name',
-            new_name='middle_name',
+            model_name="user",
+            old_name="medium_name",
+            new_name="middle_name",
         ),
     ]

@@ -13,8 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="cable",
             name="device_type",
-            field=models.CharField(
-                blank=True, max_length=50, null=True, verbose_name="Тип"
-            ),
+            field=models.CharField(blank=True, max_length=50, null=True, verbose_name="Тип"),
         ),
     ]

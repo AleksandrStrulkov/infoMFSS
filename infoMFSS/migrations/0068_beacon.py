@@ -7,28 +7,57 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0067_alter_execution_cable_magazine_and_more'),
+        ("infoMFSS", "0067_alter_execution_cable_magazine_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Beacon',
+            name="Beacon",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('designation', models.CharField(max_length=50, unique=True, verbose_name='Обозн. в проекте')),
-                ('picket', models.CharField(blank=True, max_length=10, null=True, verbose_name='Пикет')),
-                ('mac_address', models.CharField(default='', max_length=17, unique=True, verbose_name='MAC-адрес')),
-                ('serial_number', models.CharField(default='', max_length=10, unique=True, verbose_name='Зав. №')),
-                ('minor', models.CharField(default='', max_length=10, unique=True, verbose_name='МИНОР')),
-                ('execution_bool', models.BooleanField(default=False, verbose_name='Установлен')),
-                ('inclined_blocks', models.ForeignKey(blank=True, default='Туффит', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='incl_beacons', to='infoMFSS.inclinedblocks', verbose_name='Уклонный блок')),
-                ('number_mine', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mine_beacons', to='infoMFSS.numbermine', verbose_name='Шахта')),
-                ('tunnel', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='tunnel_beacons', to='infoMFSS.tunnel', verbose_name='Выработка')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("designation", models.CharField(max_length=50, unique=True, verbose_name="Обозн. в проекте")),
+                ("picket", models.CharField(blank=True, max_length=10, null=True, verbose_name="Пикет")),
+                ("mac_address", models.CharField(default="", max_length=17, unique=True, verbose_name="MAC-адрес")),
+                ("serial_number", models.CharField(default="", max_length=10, unique=True, verbose_name="Зав. №")),
+                ("minor", models.CharField(default="", max_length=10, unique=True, verbose_name="МИНОР")),
+                ("execution_bool", models.BooleanField(default=False, verbose_name="Установлен")),
+                (
+                    "inclined_blocks",
+                    models.ForeignKey(
+                        blank=True,
+                        default="Туффит",
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="incl_beacons",
+                        to="infoMFSS.inclinedblocks",
+                        verbose_name="Уклонный блок",
+                    ),
+                ),
+                (
+                    "number_mine",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="mine_beacons",
+                        to="infoMFSS.numbermine",
+                        verbose_name="Шахта",
+                    ),
+                ),
+                (
+                    "tunnel",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tunnel_beacons",
+                        to="infoMFSS.tunnel",
+                        verbose_name="Выработка",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'бикон',
-                'verbose_name_plural': 'биконы',
-                'ordering': ['number_mine'],
+                "verbose_name": "бикон",
+                "verbose_name_plural": "биконы",
+                "ordering": ["number_mine"],
             },
         ),
     ]

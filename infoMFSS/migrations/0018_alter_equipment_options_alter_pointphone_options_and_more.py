@@ -7,21 +7,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0017_equipmentinstallation_point_phone'),
+        ("infoMFSS", "0017_equipmentinstallation_point_phone"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='equipment',
-            options={'ordering': ['-id'], 'verbose_name': 'оборудование', 'verbose_name_plural': 'оборудования'},
+            name="equipment",
+            options={"ordering": ["-id"], "verbose_name": "оборудование", "verbose_name_plural": "оборудования"},
         ),
         migrations.AlterModelOptions(
-            name='pointphone',
-            options={'ordering': ['-id'], 'verbose_name': 'точка телефонии', 'verbose_name_plural': 'точки телефонии'},
+            name="pointphone",
+            options={"ordering": ["-id"], "verbose_name": "точка телефонии", "verbose_name_plural": "точки телефонии"},
         ),
         migrations.AddField(
-            model_name='equipmentinstallation',
-            name='branches_box',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='box_installs', to='infoMFSS.branchesbox', verbose_name='Распределительная коробка'),
+            model_name="equipmentinstallation",
+            name="branches_box",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="box_installs",
+                to="infoMFSS.branchesbox",
+                verbose_name="Распределительная коробка",
+            ),
         ),
     ]

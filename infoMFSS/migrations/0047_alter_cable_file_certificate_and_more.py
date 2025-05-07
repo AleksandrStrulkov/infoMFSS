@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0046_alter_equipment_file_certificate_and_more'),
+        ("infoMFSS", "0046_alter_equipment_file_certificate_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='cable',
-            name='file_certificate',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_certificate', verbose_name='Сертификат'),
+            model_name="cable",
+            name="file_certificate",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_certificate", verbose_name="Сертификат"),
         ),
         migrations.AlterField(
-            model_name='cable',
-            name='file_passport',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_passport', verbose_name='Паспорт'),
+            model_name="cable",
+            name="file_passport",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_passport", verbose_name="Паспорт"),
         ),
         migrations.AlterField(
-            model_name='cable',
-            name='file_pdf',
-            field=models.FileField(blank=True, null=True, upload_to='pdf', verbose_name='Руководство по эксплуатации'),
+            model_name="cable",
+            name="file_pdf",
+            field=models.FileField(blank=True, null=True, upload_to="pdf", verbose_name="Руководство по эксплуатации"),
         ),
     ]

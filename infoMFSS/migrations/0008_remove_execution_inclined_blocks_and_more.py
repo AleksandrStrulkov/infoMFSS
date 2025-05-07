@@ -6,20 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0007_alter_execution_number_mine_and_more'),
+        ("infoMFSS", "0007_alter_execution_number_mine_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='execution',
-            name='inclined_blocks',
+            model_name="execution",
+            name="inclined_blocks",
         ),
         migrations.RemoveField(
-            model_name='execution',
-            name='number_mine',
+            model_name="execution",
+            name="number_mine",
         ),
         migrations.RemoveField(
-            model_name='execution',
-            name='subsystem',
+            model_name="execution",
+            name="subsystem",
         ),
     ]

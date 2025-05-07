@@ -6,13 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0010_alter_numbermine_title_alter_tunnel_inclined_bool_and_more'),
+        ("infoMFSS", "0010_alter_numbermine_title_alter_tunnel_inclined_bool_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='numbermine',
-            name='title',
-            field=models.CharField(choices=[('Нефтешахта №1', 'Нефтешахта №1'), ('Нефтешахта №2', 'Нефтешахта №2'), ('Нефтешахта №3', 'Нефтешахта №3'), ('Все шахты', 'Все шахты')], max_length=15, verbose_name='Шахта'),
+            model_name="numbermine",
+            name="title",
+            field=models.CharField(
+                choices=[
+                    ("Нефтешахта №1", "Нефтешахта №1"),
+                    ("Нефтешахта №2", "Нефтешахта №2"),
+                    ("Нефтешахта №3", "Нефтешахта №3"),
+                    ("Все шахты", "Все шахты"),
+                ],
+                max_length=15,
+                verbose_name="Шахта",
+            ),
         ),
     ]

@@ -7,18 +7,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0023_alter_pointphone_subscriber_number'),
+        ("infoMFSS", "0023_alter_pointphone_subscriber_number"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='equipmentinstallation',
-            name='number_mine',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='mine_installs', to='infoMFSS.numbermine', verbose_name='Шахта'),
+            model_name="equipmentinstallation",
+            name="number_mine",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="mine_installs",
+                to="infoMFSS.numbermine",
+                verbose_name="Шахта",
+            ),
         ),
         migrations.AlterField(
-            model_name='equipmentinstallation',
-            name='tunnel',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='tunnel_installs', to='infoMFSS.tunnel', verbose_name='Выработка'),
+            model_name="equipmentinstallation",
+            name="tunnel",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="tunnel_installs",
+                to="infoMFSS.tunnel",
+                verbose_name="Выработка",
+            ),
         ),
     ]

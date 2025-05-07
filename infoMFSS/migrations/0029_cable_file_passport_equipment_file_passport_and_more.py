@@ -6,38 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0028_cable_file_certificate_equipment_file_certificate'),
+        ("infoMFSS", "0028_cable_file_certificate_equipment_file_certificate"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cable',
-            name='file_passport',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_passport'),
+            model_name="cable",
+            name="file_passport",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_passport"),
         ),
         migrations.AddField(
-            model_name='equipment',
-            name='file_passport',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_passport'),
+            model_name="equipment",
+            name="file_passport",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_passport"),
         ),
         migrations.AlterField(
-            model_name='cable',
-            name='file_certificate',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_certificate'),
+            model_name="cable",
+            name="file_certificate",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_certificate"),
         ),
         migrations.AlterField(
-            model_name='cable',
-            name='file_pdf',
-            field=models.FileField(blank=True, null=True, upload_to='pdf'),
+            model_name="cable",
+            name="file_pdf",
+            field=models.FileField(blank=True, null=True, upload_to="pdf"),
         ),
         migrations.AlterField(
-            model_name='equipment',
-            name='file_certificate',
-            field=models.FileField(blank=True, null=True, upload_to='pdf_certificate'),
+            model_name="equipment",
+            name="file_certificate",
+            field=models.FileField(blank=True, null=True, upload_to="pdf_certificate"),
         ),
         migrations.AlterField(
-            model_name='equipment',
-            name='file_pdf',
-            field=models.FileField(blank=True, null=True, upload_to='pdf'),
+            model_name="equipment",
+            name="file_pdf",
+            field=models.FileField(blank=True, null=True, upload_to="pdf"),
         ),
     ]

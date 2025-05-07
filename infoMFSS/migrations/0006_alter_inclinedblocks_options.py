@@ -6,12 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('infoMFSS', '0005_alter_execution_options_equipmentinstallation_name'),
+        ("infoMFSS", "0005_alter_execution_options_equipmentinstallation_name"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='inclinedblocks',
-            options={'ordering': ['number_mine'], 'verbose_name': 'уклонный блок', 'verbose_name_plural': 'уклонные блоки'},
+            name="inclinedblocks",
+            options={
+                "ordering": ["number_mine"],
+                "verbose_name": "уклонный блок",
+                "verbose_name_plural": "уклонные блоки",
+            },
         ),
     ]
