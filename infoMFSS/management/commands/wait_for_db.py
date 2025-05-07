@@ -1,4 +1,5 @@
 import time
+
 from django.core.management.base import BaseCommand
 from django.db import connections
 from django.db.utils import OperationalError
@@ -18,7 +19,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS("База данных доступна!"))
                 return
             except OperationalError:
-                self.stdout.write(f"Попытка {i+1}/{max_retries}: База данных недоступна, ожидание...")
+                self.stdout.write(f"Попытка {i + 1} / {max_retries}: База данных недоступна, ожидание...")
                 time.sleep(retry_delay)
 
         self.stdout.write(self.style.ERROR("Не удалось подключиться к базе данных"))

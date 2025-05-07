@@ -1,67 +1,40 @@
+import logging
+
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.contrib.messages.views import SuccessMessageMixin
-from django.core.cache import cache
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DeleteView, DetailView, FormView, ListView, TemplateView, UpdateView
+from django.views.generic import (CreateView, DeleteView, FormView, ListView,
+                                  TemplateView, UpdateView)
 
-from infoMFSS.forms import (
-    BeaconCreateForm,
-    BeaconForm,
-    BoxForm,
-    BranchesBoxCreateForm,
-    CableCreateForm,
-    CableForm,
-    CableMagazineCreateForm,
-    ContactForm,
-    CreateDateUpdateForm,
-    CreateEquipmentInstallationForm,
-    CreateExecutionForm,
-    EquipmentCreateForm,
-    EquipmentForm,
-    PercentForm,
-    PointPhoneCreateForm,
-    ProjectCableForm,
-    ProjectEquipmentForm,
-    QuantityEquipmentCableForm,
-    ViolationsCreateForm,
-    VisualCreateNewForm,
-    VisualForm,
-)
-from infoMFSS.models import (
-    Beacon,
-    BranchesBox,
-    Cable,
-    CableMagazine,
-    DateUpdate,
-    Equipment,
-    EquipmentInstallation,
-    Execution,
-    InclinedBlocks,
-    NumberMine,
-    PointPhone,
-    Subsystem,
-    Violations,
-    Visual,
-)
-from infoMFSS.services_logger import *
+from infoMFSS.forms import (BeaconCreateForm, BeaconForm, BoxForm,
+                            BranchesBoxCreateForm, CableCreateForm, CableForm,
+                            CableMagazineCreateForm, ContactForm,
+                            CreateDateUpdateForm,
+                            CreateEquipmentInstallationForm,
+                            CreateExecutionForm, EquipmentCreateForm,
+                            EquipmentForm, PercentForm, PointPhoneCreateForm,
+                            ProjectCableForm, ProjectEquipmentForm,
+                            QuantityEquipmentCableForm, ViolationsCreateForm,
+                            VisualCreateNewForm, VisualForm)
+from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
+                             DateUpdate, Equipment, EquipmentInstallation,
+                             Execution, PointPhone, Violations, Visual)
+from infoMFSS.services_logger import (LoggingMixin, logger_context_info,
+                                      logger_context_warning,
+                                      logger_form_valid)
 
 from .params import FilterParams
-from .services import (
-    BeaconFilterService,
-    BoxFilterService,
-    CableFilterService,
-    EquipmentFilterService,
-    PercentService,
-    ProjectCableFilterService,
-    ProjectEquipmentFilterService,
-    QuantityEqCabFilterService,
-    VisualFilterService,
-)
+from .services import (BeaconFilterService, BoxFilterService,
+                       CableFilterService, EquipmentFilterService,
+                       PercentService, ProjectCableFilterService,
+                       ProjectEquipmentFilterService,
+                       QuantityEqCabFilterService, VisualFilterService)
+
+logger = logging.getLogger(__name__)
 
 
 def sass_page_handler(request):
@@ -105,7 +78,7 @@ class MFSSPercentTemplateView(TemplateView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -139,7 +112,7 @@ class PercentView(LoggingMixin, LoginRequiredMixin, FormView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -242,7 +215,7 @@ class EquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -320,7 +293,7 @@ class CableListView(LoggingMixin, LoginRequiredMixin, FormView):
 
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -391,7 +364,7 @@ class BoxListView(LoggingMixin, LoginRequiredMixin, FormView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -481,7 +454,7 @@ class ViolationsListView(LoggingMixin, LoginRequiredMixin, ListView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -546,7 +519,7 @@ class BeaconListView(LoggingMixin, LoginRequiredMixin, FormView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -616,7 +589,7 @@ class VisualView(LoggingMixin, LoginRequiredMixin, FormView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
         return context
 
 
@@ -679,7 +652,7 @@ class ProjectEquipmentListView(LoggingMixin, LoginRequiredMixin, FormView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -742,7 +715,7 @@ class ProjectCableListView(LoggingMixin, LoginRequiredMixin, FormView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 
@@ -833,7 +806,7 @@ class QuantityEquipmentCableView(LoggingMixin, LoginRequiredMixin, FormView):
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = f"Произошла ошибка в формировании данных"
+            context["error_message"] = "Произошла ошибка в формировании данных"
 
         return context
 

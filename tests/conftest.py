@@ -1,6 +1,10 @@
 import pytest_factoryboy
-from tests.factories import AllowedPersonFactory, UserFactory, NumberMineFactory, InclinedBlocksFactory, TunnelFactory, \
-    SubsystemFactory, EquipmentFactory, CableFactory, PointPhoneFactory, EquipmentFormFactory
+
+from tests.factories import (AllowedPersonFactory, CableFactory,
+                             EquipmentFactory, EquipmentFormFactory,
+                             InclinedBlocksFactory, NumberMineFactory,
+                             PointPhoneFactory, SubsystemFactory,
+                             TunnelFactory, UserFactory)
 
 pytest_factoryboy.register(AllowedPersonFactory)
 pytest_factoryboy.register(UserFactory)

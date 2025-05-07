@@ -1,5 +1,6 @@
-from infoMFSS.forms import EquipmentForm
 import pytest
+
+from infoMFSS.forms import EquipmentForm
 
 
 @pytest.mark.django_db

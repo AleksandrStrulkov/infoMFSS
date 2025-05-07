@@ -1,18 +1,8 @@
 from django.db.models import Q, Sum
-from .models import (
-    DateUpdate,
-    Execution,
-    BranchesBox,
-    EquipmentInstallation,
-    CableMagazine,
-    NumberMine,
-    Subsystem,
-    InclinedBlocks,
-    Equipment,
-    Cable,
-    Visual,
-    Beacon,
-)
+
+from .models import (Beacon, BranchesBox, Cable, CableMagazine, DateUpdate,
+                     Equipment, EquipmentInstallation, Execution,
+                     InclinedBlocks, NumberMine, Subsystem, Visual)
 
 
 class BaseFilterService:

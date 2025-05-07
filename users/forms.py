@@ -1,12 +1,14 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+import re
+
 from django import forms
+from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.core.exceptions import ValidationError
 
 # from catalog.forms import StyleFormMixin
 from users.models import User
 from users.signals import post_register
-import re
+
 from .models import AllowedPerson
-from django.core.exceptions import ValidationError
 
 
 class StyleFormMixin:

@@ -1,7 +1,5 @@
 import logging
 
-from django.core.mail import mail_admins
-
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +40,7 @@ def logger_context_info(self):
             extra={"classname": self.__class__.__name__},
         )
     return logger.info(
-        f"Контекст обработан и выведен в шаблон. Анонимный пользователь", extra={"classname": self.__class__.__name__}
+        "Контекст обработан и выведен в шаблон. Анонимный пользователь", extra={"classname": self.__class__.__name__}
     )
 
 
@@ -67,5 +65,5 @@ def logger_form_valid(self):
             extra={"classname": self.__class__.__name__},
         )
     return logger.error(
-        f"Форма успешно обработана. Анонимный пользователь", extra={"classname": self.__class__.__name__}
+        "Форма успешно обработана. Анонимный пользователь", extra={"classname": self.__class__.__name__}
     )

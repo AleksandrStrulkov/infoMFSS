@@ -1,25 +1,12 @@
 from django.contrib import admin
-from infoMFSS.models import (
-    NumberMine,
-    Unit,
-    Subsystem,
-    Equipment,
-    InclinedBlocks,
-    CableMagazine,
-    Tunnel,
-    EquipmentInstallation,
-    Execution,
-    BranchesBox,
-    Cable,
-    PointPhone,
-    DateUpdate,
-    Violations,
-    Visual,
-    Beacon,
-)
 from django.contrib.admin import AdminSite
+from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group, User
-from django.contrib.auth.admin import UserAdmin, GroupAdmin
+
+from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
+                             DateUpdate, Equipment, EquipmentInstallation,
+                             Execution, InclinedBlocks, NumberMine, PointPhone,
+                             Subsystem, Tunnel, Unit, Violations, Visual)
 
 
 class MyAdminSite(AdminSite):

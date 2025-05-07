@@ -1,28 +1,15 @@
-from typing import Any, Dict, Type
 import datetime
+from typing import Any, Dict, Type
 
-# from datetime import datetime
-from django.utils import timezone
 from django.core.management.base import BaseCommand
 from django.db import models, transaction
+# from datetime import datetime
+from django.utils import timezone
 
-from infoMFSS.models import (
-    BranchesBox,
-    Cable,
-    CableMagazine,
-    Equipment,
-    EquipmentInstallation,
-    Execution,
-    InclinedBlocks,
-    NumberMine,
-    PointPhone,
-    Subsystem,
-    Tunnel,
-    Unit,
-    Violations,
-    DateUpdate,
-    Beacon,
-)
+from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
+                             DateUpdate, Equipment, EquipmentInstallation,
+                             Execution, InclinedBlocks, NumberMine, PointPhone,
+                             Subsystem, Tunnel, Unit, Violations)
 
 
 def get_nested_attr(obj: Any, attr_path: str) -> Any:

@@ -1,23 +1,26 @@
-from random import randint
 import logging
-from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.views import LoginView as BaseLoginView, PasswordChangeView, PasswordChangeDoneView
-from django.contrib.auth.views import LogoutView as BaseLogoutView
-from django.views.generic import CreateView, UpdateView
-from django.views.generic.base import TemplateView
-from users.models import User
-from users.forms import RegisterForm, UserProfileForm, SMSVerificationForm
-from django.core.signing import BadSignature
-from .utilities import signer
-from infoMFSS.services_logger import LoggingMixin, logger_form_valid
-from django.contrib.auth import authenticate, login
-from django.urls import reverse_lazy
-from django.views.generic import FormView
-from .sms_utils import send_sms_via_smsc
-from .models import SMSDevice
+from random import randint
 
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView as BaseLoginView
+from django.contrib.auth.views import LogoutView as BaseLogoutView
+from django.contrib.auth.views import (PasswordChangeDoneView,
+                                       PasswordChangeView)
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.signing import BadSignature
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, FormView, UpdateView
+from django.views.generic.base import TemplateView
+
+from infoMFSS.services_logger import LoggingMixin, logger_form_valid
+from users.forms import RegisterForm, SMSVerificationForm, UserProfileForm
+from users.models import User
+
+from .models import SMSDevice
+from .sms_utils import send_sms_via_smsc
+from .utilities import signer
 
 logger = logging.getLogger(__name__)
 
@@ -63,12 +66,6 @@ class SMSVerificationView(FormView):
     success_url = reverse_lazy("infoMFSS:home")  # URL после успешной верификации
 
     def form_valid(self, form):
-        # if self.request.session.get('sms_attempts', 0) >= 3:
-        #     form.add_error(None, 'Превышено количество попыток. Попробуйте позже.')
-        #     return self.form_invalid(form)
-
-        # self.request.session['sms_attempts'] = self.request.session.get('sms_attempts', 0) + 1
-
         user_id = self.request.session.get("sms_user_id")
         code = form.cleaned_data["code"]
 
@@ -85,7 +82,7 @@ class SMSVerificationView(FormView):
 
             except SMSDevice.DoesNotExist:
                 logger.warning(f"Неверный код для пользователя ID {user_id}")
-                form.add_error("code", "Неверный код или срок действия истёк")
+                form.add_error(None, "Неверный код или срок действия истёк")
 
         return self.form_invalid(form)
 

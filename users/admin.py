@@ -1,7 +1,6 @@
-from typing import Set
 from django.contrib import admin
-from users.models import User, AllowedPerson
-from django.contrib.auth.admin import UserAdmin
+
+from users.models import AllowedPerson, User
 
 
 # Register your models here.

@@ -1,8 +1,10 @@
-from django.core.management import BaseCommand
-from users.models import User, AllowedPerson
 import os
-from dotenv import load_dotenv
 from pathlib import Path
+
+from django.core.management import BaseCommand
+from dotenv import load_dotenv
+
+from users.models import AllowedPerson, User
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

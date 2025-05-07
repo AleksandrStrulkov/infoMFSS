@@ -1,5 +1,6 @@
-import time
 import sys
+import time
+
 from django.core.management.base import BaseCommand
 from django.db import connections
 from django.db.utils import OperationalError
@@ -22,7 +23,7 @@ class Command(BaseCommand):
                 return
             except OperationalError as e:
                 self.stdout.write(
-                    f"Попытка {i + 1}/{max_retries}: База данных недоступна, ожидает {retry_delay}секунд..."
+                    f"Попытка {i + 1}/{max_retries}: База данных недоступна, ожидает {retry_delay}секунд...Ошибка: {e}"
                 )
                 time.sleep(retry_delay)
 

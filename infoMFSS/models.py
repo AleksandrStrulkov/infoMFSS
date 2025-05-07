@@ -33,7 +33,7 @@ class NumberMine(models.Model):
     @classmethod
     def truncate_table_restart_id(cls):
         with connection.cursor() as cursor:
-            cursor.execute(f"ALTER SEQUENCE infomfss_numbermine_id_seq RESTART WITH 1;")
+            cursor.execute("ALTER SEQUENCE infomfss_numbermine_id_seq RESTART WITH 1;")
 
 
 class InclinedBlocks(models.Model):

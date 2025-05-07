@@ -6,22 +6,10 @@ from django.db.models import Case, IntegerField, Value, When
 from django.utils import timezone
 
 from infoMFSS.castom_widgets_form import CustomModelChoiceField
-from infoMFSS.models import (
-    Beacon,
-    BranchesBox,
-    Cable,
-    CableMagazine,
-    DateUpdate,
-    Equipment,
-    EquipmentInstallation,
-    Execution,
-    InclinedBlocks,
-    NumberMine,
-    PointPhone,
-    Subsystem,
-    Violations,
-    Visual,
-)
+from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
+                             DateUpdate, Equipment, EquipmentInstallation,
+                             Execution, InclinedBlocks, NumberMine, PointPhone,
+                             Subsystem, Violations, Visual)
 
 
 class InfoFormMixin(forms.Form):
@@ -872,7 +860,7 @@ class CreateEquipmentInstallationForm(forms.ModelForm):
         if serial_number:
             for item in serial_number:
                 if not item.isdigit():
-                    self.add_error("serial_number", f"Заводской номер должен быть числом")
+                    self.add_error("serial_number", "Заводской номер должен быть числом")
 
         if point_phone is not None and (name or number_mine or tunnel or inclined_blocks or picket):
             if branches_box is None:
@@ -966,7 +954,6 @@ class CreateExecutionForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        equipment_install = cleaned_data.get("equipment_install")
         date_start = cleaned_data.get("date_start")
         date_end = cleaned_data.get("date_end")
 

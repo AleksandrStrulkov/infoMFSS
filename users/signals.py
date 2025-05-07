@@ -1,8 +1,10 @@
-from django.dispatch import Signal, receiver
-from .utilities import send_activation_notification
+import logging
+
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
-import logging
+from django.dispatch import Signal, receiver
+
+from .utilities import send_activation_notification
 
 post_register = Signal()
 

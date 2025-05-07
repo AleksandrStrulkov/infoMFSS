@@ -1,11 +1,11 @@
 import random
 
 import factory
-
-from infoMFSS.models import NumberMine, InclinedBlocks, Tunnel, Subsystem, Equipment, Cable, PointPhone
-from users.models import AllowedPerson, User
-
 import faker
+
+from infoMFSS.models import (Cable, Equipment, InclinedBlocks, NumberMine,
+                             PointPhone, Subsystem, Tunnel)
+from users.models import AllowedPerson, User
 
 fake = faker.Faker("ru_RU")
 
