@@ -9,28 +9,6 @@ NULLABLE = {"null": True, "blank": True}
 logger = logging.getLogger(__name__)
 
 
-# class CustomUserManager(BaseUserManager):
-#     def create_user(self, email, password=None, **extra_fields):
-#         if not email:
-#             raise ValueError('Необходимо установить поле Email')
-#         email = self.normalize_email(email)
-#         user = self.model(email=email, **extra_fields)
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
-#
-#     def create_superuser(self, email, password=None, **extra_fields):
-#         extra_fields.setdefault('is_staff', True)
-#         extra_fields.setdefault('is_superuser', True)
-#
-#         if extra_fields.get('is_staff') is not True:
-#             raise ValueError('Superuser must have is_staff=True.')
-#         if extra_fields.get('is_superuser') is not True:
-#             raise ValueError('Superuser must have is_superuser=True.')
-#
-#         return self.create_user(email, password, **extra_fields)
-
-
 class User(AbstractUser):
     username = None
 
@@ -46,7 +24,7 @@ class User(AbstractUser):
         max_length=50,
         verbose_name="Отчество",
     )
-    email = models.EmailField(unique=True, verbose_name="E-mail")
+    email = models.EmailField(unique=True, verbose_name="E-mail", **NULLABLE)
     phone = models.CharField(max_length=12, verbose_name="Номер телефона", **NULLABLE)
     telegram_id = models.CharField(max_length=50, unique=True, verbose_name="telegram_id", **NULLABLE)
     is_activated = models.BooleanField(default=True, db_index=True, verbose_name="Прошел активацию?")

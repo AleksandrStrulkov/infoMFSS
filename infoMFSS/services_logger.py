@@ -65,5 +65,5 @@ def logger_form_valid(self):
             extra={"classname": self.__class__.__name__},
         )
     return logger.error(
-        "Форма успешно обработана. Анонимный пользователь", extra={"classname": self.__class__.__name__}
+        "Ошибка обработки формы. Анонимный пользователь", extra={"classname": self.__class__.__name__}
     )

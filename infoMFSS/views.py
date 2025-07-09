@@ -461,7 +461,7 @@ class ViolationsListView(LoggingMixin, LoginRequiredMixin, ListView):
 
 class BeaconListView(LoggingMixin, LoginRequiredMixin, FormView):
     """
-    Вывод списка подключенных устройств
+    Вывод списка биконов
     """
 
     form_class = BeaconForm
@@ -502,17 +502,19 @@ class BeaconListView(LoggingMixin, LoginRequiredMixin, FormView):
         filter_params = FilterParams(self.request)
 
         try:
-            context["beacon_list"] = BeaconFilterService.get_filtered_queryset(filter_params)
+            # Получаем основной отфильтрованный QuerySet
+            beacon_queryset = BeaconFilterService.get_filtered_queryset(filter_params)
+            context["beacon_list"] = beacon_queryset
+            context["beacon_total"] = beacon_queryset.count()
+
+            # Подсчитываем количество записей с execution_bool=True
+            context["beacon_true_count"] = beacon_queryset.filter(execution_bool=True).count()
 
             # Добавляем параметры в контекст для отображения в шаблоне
             context.update(
                 {
-                    "mine": filter_params.get(
-                        "mine",
-                    ),
-                    "incl_blocks": filter_params.get(
-                        "incl_blocks",
-                    ),
+                    "mine": filter_params.get("mine",),
+                    "incl_blocks": filter_params.get("incl_blocks",),
                 }
             )
 
