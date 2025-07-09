@@ -52,10 +52,6 @@ class LoginView(LoggingMixin, BaseLoginView):
             logger.info(f"Код отправлен пользователю {username}")
             return redirect("users:verify_sms")  # Перенаправляем на страницу ввода кода
 
-        # # Логирование успешной авторизации
-        # logger.info(f'Пользователь {username} успешно авторизовался',
-        #             extra={'classname': self.__class__.__name__})
-
         logger.warning(f"Неудачная попытка входа для {username}")
         return super().form_invalid(form)
 
@@ -126,9 +122,7 @@ class RegisterDoneView(TemplateView):
 def user_activate(request, sign):
     try:
         email = signer.unsign(sign)
-        # logger.info("Активация прошла удачно", extra={'classname': __name__})
     except BadSignature:
-        # logger.info("Активация не прошла", extra={'classname': __name__})
         return render(request, "users/activation_failed.html")
 
     user = get_object_or_404(User, email=email)
