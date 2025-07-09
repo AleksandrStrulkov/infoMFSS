@@ -79,8 +79,6 @@ class Tunnel(models.Model):
     description = models.TextField(verbose_name="Краткое описание", **NULLABLE)
     name_slag = models.CharField(max_length=100, verbose_name="Генерация slag", **NULLABLE)
 
-    # slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
-
     def save(self, *args, **kwargs):
         # Генерируем name перед сохранением
         if self.inclined_blocks is not None:
@@ -175,22 +173,14 @@ class Cable(models.Model):
     """Перечень кабелей"""
 
     title = models.CharField(max_length=100, verbose_name="Кабель")
-    # subsystem = models.ForeignKey(
-    #         Subsystem, related_name='subsystem_cable', on_delete=models.CASCADE,
-    #         verbose_name='Подсистема', **NULLABLE
-    # )
     device_type = models.CharField(max_length=50, verbose_name="Тип", **NULLABLE)
     description = models.TextField(verbose_name="Краткое описание", **NULLABLE)
-    # slug = models.SlugField(max_length=150, unique=True, verbose_name='slug', **NULLABLE)
     file_pdf = models.FileField(upload_to="pdf", **NULLABLE, verbose_name="Руководство по эксплуатации")
     file_passport = models.FileField(upload_to="pdf_passport", **NULLABLE, verbose_name="Паспорт")
     file_certificate = models.FileField(upload_to="pdf_certificate", **NULLABLE, verbose_name="Сертификат")
 
     def __str__(self):
-        # if self.device_type is not None:
-        #     return f"{self.title}-{self.device_type}"
-        # else:
-        return f"{self.device_type}"
+        return f"{self.title}"
 
     def save(self, *args, **kwargs):
         is_new = self._state.adding  # Проверяем, что объект новый
@@ -305,7 +295,6 @@ class BranchesBox(models.Model):
 
     def __str__(self):
         return f"{self.title} (НШ-{self.number_mine.title[-1]})"
-        # return f'{self.title}({self.number_mine})'
 
     class Meta:
         verbose_name = "распред.коробка"
@@ -337,13 +326,6 @@ class CableMagazine(models.Model):
         default="Туффит",
         **NULLABLE,
     )
-    # track_from_box = models.ForeignKey(
-    #     BranchesBox,
-    #     related_name="box_from",
-    #     on_delete=models.CASCADE,
-    #     verbose_name="От распределительной коробки",
-    #     **NULLABLE,
-    # )
     track_from = models.ForeignKey(
         "EquipmentInstallation",
         related_name="track_from",
@@ -351,25 +333,6 @@ class CableMagazine(models.Model):
         verbose_name="От оборудования",
         **NULLABLE,
     )
-    # track_from = models.CharField(
-    #     max_length=100,
-    #     verbose_name="Начало трассы",
-    #     **NULLABLE,
-    # )
-    # track_to_box = models.ForeignKey(
-    #     BranchesBox,
-    #     related_name="box_to",
-    #     on_delete=models.CASCADE,
-    #     verbose_name="До распределительной коробки",
-    #     **NULLABLE,
-    # )
-    # track_to_phone = models.ForeignKey(
-    #     PointPhone,
-    #     related_name="phone_to",
-    #     on_delete=models.CASCADE,
-    #     verbose_name="До телефонной точки",
-    #     **NULLABLE,
-    # )
     track_to = models.ForeignKey(
         "EquipmentInstallation",
         related_name="track_to",
@@ -377,11 +340,6 @@ class CableMagazine(models.Model):
         verbose_name="До оборудования",
         **NULLABLE,
     )
-    # track_to = models.CharField(
-    #     max_length=100,
-    #     verbose_name="Конец трассы",
-    #     **NULLABLE,
-    # )
     distance = models.PositiveIntegerField(verbose_name="Протяженность")
     unit = models.ForeignKey(
         Unit, related_name="unit_magazines", on_delete=models.CASCADE, verbose_name="Единица измерения"
@@ -396,11 +354,7 @@ class CableMagazine(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name="slug", **NULLABLE)
 
     def save(self, *args, **kwargs):
-        # Генерируем name перед сохранением
-        # if self.track_to is not None:
         self.name = f"{self.track_from.name}/{self.track_to.name}"
-        # else:
-        #     self.name = f"{self.track_from_box.title}/{self.track_to_phone.title}"
         is_new = self._state.adding  # Проверяем, что объект новый
         super().save(*args, **kwargs)
         if is_new:
@@ -581,14 +535,10 @@ class Execution(models.Model):
 class DateUpdate(models.Model):
     """Дата последнего изменения"""
 
-    # update = models.DateField(default=timezone.now)
     update = models.DateTimeField(
         verbose_name="Дата обновления данных", auto_now=False, auto_now_add=False, default=timezone.now, **NULLABLE
     )
     description = models.TextField(verbose_name="Краткое описание", **NULLABLE)
-
-    # def formatted_datetime(self):
-    #     return formats.date_format(self.update, "H:M:s D, d/M/Y")
 
     def __str__(self) -> str:
         local_time = timezone.localtime(self.update)
