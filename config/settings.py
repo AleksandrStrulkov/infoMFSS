@@ -29,7 +29,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0']
+
+DEFAULT_ACTIVATION_HOST = "127.0.0.1:8000"
 
 # Application definition
 INSTALLED_APPS = [
@@ -270,7 +272,7 @@ LOGGING = {
                 'mail': {
                         'class': 'django.utils.log.AdminEmailHandler',
                         'level': 'ERROR',
-                        'include_html': False,
+                        'include_html': True,
                 }
         },
         'filters': {
