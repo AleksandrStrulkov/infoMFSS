@@ -96,7 +96,7 @@ class EquipmentAdmin(admin.ModelAdmin):
 
 # @admin.register(Cable)
 class CableAdmin(admin.ModelAdmin):
-    list_display = ("title", "description", "file_pdf", "file_passport", "file_certificate")
+    list_display = ("title", "device_type", "description", "file_pdf", "file_passport", "file_certificate")
     list_filter = ("title",)
     search_fields = ("title",)
 
