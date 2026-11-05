@@ -1,2 +1,52 @@
+# Игнорируем собранную статику (будет собрана в контейнере)
 static_collected/
+
+# Игнорируем переменные окружения
 .env
+.env.local
+
+# Игнорируем виртуальное окружение
+venv/
+env/
+.venv/
+
+# Игнорируем Python кэш
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Игнорируем базу данных
+db.sqlite3
+*.db
+
+# Игнорируем медиа файлы (будут в volume)
+media/
+
+# Игнорируем логи (будут в volume)
+logs/
+
+# Игнорируем Git
+.git/
+.gitignore
+
+# Игнорируем IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Игнорируем тесты и покрытие
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Игнорируем документацию
+*.md
+README.md
+
+# Игнорируем Docker файлы (чтобы не копировать в образ)
+docker-compose.yml
+Dockerfile
+.dockerignore

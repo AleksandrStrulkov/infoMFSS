@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
@@ -19,10 +19,10 @@ from infoMFSS.forms import (BeaconCreateForm, BeaconForm, BoxForm,
                             EquipmentForm, PercentForm, PointPhoneCreateForm,
                             ProjectCableForm, ProjectEquipmentForm,
                             QuantityEquipmentCableForm, ViolationsCreateForm,
-                            VisualCreateNewForm, VisualForm)
+                            VisualCreateNewForm, VisualForm, PercentManualForm)
 from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
                              DateUpdate, Equipment, EquipmentInstallation,
-                             Execution, PointPhone, Violations, Visual)
+                             Execution, PointPhone, Violations, Visual, DailyNumbersMine, Surface)
 from infoMFSS.services_logger import (LoggingMixin, logger_context_info,
                                       logger_context_warning,
                                       logger_form_valid)
@@ -32,7 +32,8 @@ from .services import (BeaconFilterService, BoxFilterService,
                        CableFilterService, EquipmentFilterService,
                        PercentService, ProjectCableFilterService,
                        ProjectEquipmentFilterService,
-                       QuantityEqCabFilterService, VisualFilterService)
+                       QuantityEqCabFilterService, VisualFilterService, PercentManualService)
+from django.views.decorators.http import require_GET
 
 logger = logging.getLogger(__name__)
 
@@ -75,10 +76,30 @@ class MFSSPercentTemplateView(TemplateView):
             # Последнее обновление
             context["update"] = PercentService.get_latest_update()
 
+            # ВРЕМЕННОЕ РЕШЕНИЕ: пытаемся получить DailyNumbersMine, если не получается - используем реальные проценты
+            try:
+                context['numbers'] = DailyNumbersMine.objects.latest('date')
+            except DailyNumbersMine.DoesNotExist:
+                # Если нет данных в DailyNumbersMine, создаем объект с реальными процентами
+                # Используем вычисленные проценты
+                context['numbers'] = type('obj', (object,), {
+                    'nsh1': context.get('percent_mine1', 0),
+                    'nsh2': context.get('percent_mine2', 0),
+                    'nsh3': context.get('percent_mine3', 0),
+                    'total': context.get('percent_mine123', 0),
+                })()
+
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
-            context["error_message"] = "Произошла ошибка в формировании данных"
+            context["error_message"] = f"Произошла ошибка в формировании данных: {str(e)}"
+            # В случае ошибки создаем пустой объект для numbers
+            context['numbers'] = type('obj', (object,), {
+                'nsh1': 0,
+                'nsh2': 0,
+                'nsh3': 0,
+                'total': 0,
+            })()
 
         return context
 
@@ -1526,3 +1547,68 @@ class DeleteExecutionView(LoggingMixin, LoginRequiredMixin, PermissionRequiredMi
     model = Execution
     permission_required = "infoMFSS.delete_execution"
     success_url = reverse_lazy("mfss:execution_list")
+
+
+# ВРЕМЕННОЕ РЕШЕНИЕ, УДАЛИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БД
+class PercentManualView(LoggingMixin, LoginRequiredMixin, FormView):
+    """
+    Вывод процентов выполнения c формой и фильтром с ручным заполнением
+    """
+
+    template_name = "infoMFSS/percents_manual.html"
+    form_class = PercentManualForm
+    extra_context = {
+        "title": "Процент выполнения",
+    }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        try:
+            # Добавляем дополнительные данные в контекст
+            context["update"] = PercentService.get_latest_update()
+            options = PercentService.get_mines_subsystems_incl_blocks()
+            context.update(
+                {
+                    "mines": options["mines"],
+                    "subsystems": options["subsystems"],
+                    "incl_blocks": options["incl_blocks"],
+                }
+            )
+
+            logger_context_info(self)
+        except Exception as e:
+            logger_context_warning(self, e)
+            context["error_message"] = "Произошла ошибка в формировании данных"
+
+        return context
+
+    def form_valid(self, form):
+        mine = form.cleaned_data.get('number_mines')
+        surface = form.cleaned_data.get('surface')
+        inclined_block = form.cleaned_data.get('inclined_blocks')
+        subsystem = form.cleaned_data.get('subsystems')
+
+        # Получаем названия для сервиса
+        mine_title = mine.title if mine else "Все шахты"
+        subsystem_title = subsystem.title if subsystem else "Все подсистемы"
+
+        # Вычисляем процент
+        percent = PercentManualService.calculate_percent(
+            mine=mine_title,
+            surface=surface,
+            subsystem=subsystem_title,
+            inclined_block=inclined_block
+        )
+
+        # Формируем контекст
+        context = self.get_context_data(
+            form=form,
+            percent=percent,
+            selected_mine=mine,
+            selected_surface=surface,
+            selected_inclined_block=inclined_block,
+            selected_subsystem=subsystem
+        )
+
+        return self.render_to_response(context)

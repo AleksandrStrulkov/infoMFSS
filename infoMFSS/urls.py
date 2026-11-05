@@ -27,7 +27,7 @@ from infoMFSS.views import (BeaconListView, BeaconView, BoxListView,
                             UpdateEquipmentView, UpdateExecutionView,
                             UpdatePointPhoneView, UpdateViolationsView,
                             UpdateVisualView, ViolationsListView,
-                            ViolationsView, VisualistView, VisualView)
+                            ViolationsView, VisualistView, VisualView, PercentManualView,)
 
 # from mfss.views import SubsystemTemplateView
 # from infoMFSS.views import index
@@ -36,7 +36,7 @@ app_name = InfomfssConfig.name
 
 urlpatterns = [
     path("", MFSSPercentTemplateView.as_view(), name="home"),
-    path("percents/", PercentView.as_view(), name="percents"),
+    # path("percents/", PercentView.as_view(), name="percents"), Включить после заполнения БД
     path("equipment_list/", EquipmentListView.as_view(), name="equipment"),
     path("cable_list/", CableListView.as_view(), name="cable"),
     path("box_list/", BoxListView.as_view(), name="box"),
@@ -117,4 +117,6 @@ urlpatterns = [
         name="equipment_installation_delete",
     ),
     path("moderator/delete/execution/<int:pk>", DeleteExecutionView.as_view(), name="execution_delete"),
+    path("percents_manual/", PercentManualView.as_view(), name="percents"),  # Удалить после заполнения БД
+    # path('load_surfaces/', load_surfaces, name='load_surfaces'),  # Удалить после заполнения БД
 ]

@@ -1,12 +1,48 @@
-from django.contrib import admin
+from infoMFSS.admin_mixins import ExcelImportMixin
+import logging
+
+from django.contrib import admin, messages
 from django.contrib.admin import AdminSite
 from django.contrib.auth.admin import GroupAdmin, UserAdmin
 from django.contrib.auth.models import Group, User
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+from django.urls import path, reverse
 
 from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
                              DateUpdate, Equipment, EquipmentInstallation,
                              Execution, InclinedBlocks, NumberMine, PointPhone,
-                             Subsystem, Tunnel, Unit, Violations, Visual)
+                             Subsystem, Tunnel, Unit, Violations, Visual, DailyNumbersMine, ManualPercentage, Surface)
+
+logger = logging.getLogger(__name__)
+
+# Условный импорт для избежания ошибок при отсутствии openpyxl
+try:
+    from infoMFSS.admin_import import (
+        import_beacons_from_excel,
+        import_tunnels_from_excel,
+        import_equipment_from_excel,
+        import_pointphones_from_excel,
+        import_branchesbox_from_excel,
+        import_equipmentinstallation_from_excel,
+        import_cablemagazine_from_excel,
+        import_execution_from_excel,
+        import_violations_from_excel,
+    )
+    OPENPYXL_AVAILABLE = True
+except ImportError:
+    OPENPYXL_AVAILABLE = False
+    logger.warning("openpyxl не установлен. Импорт Excel недоступен.")
+    # Определяем заглушки для функций, чтобы избежать NameError
+    import_beacons_from_excel = None
+    import_tunnels_from_excel = None
+    import_equipment_from_excel = None
+    import_pointphones_from_excel = None
+    import_branchesbox_from_excel = None
+    import_equipmentinstallation_from_excel = None
+    import_cablemagazine_from_excel = None
+    import_execution_from_excel = None
+    import_violations_from_excel = None
 
 
 class MyAdminSite(AdminSite):
@@ -54,7 +90,8 @@ class SubsystemAdmin(admin.ModelAdmin):
 
 
 # @admin.register(Tunnel)
-class TunnelAdmin(admin.ModelAdmin):
+class TunnelAdmin(ExcelImportMixin, admin.ModelAdmin):
+    import_function = import_tunnels_from_excel
     list_display = (
         "number_mine",
         "title",
@@ -88,7 +125,8 @@ class InclinedBlocksAdmin(admin.ModelAdmin):
 
 
 # @admin.register(Equipment)
-class EquipmentAdmin(admin.ModelAdmin):
+class EquipmentAdmin(ExcelImportMixin, admin.ModelAdmin):
+    import_function = import_equipment_from_excel
     list_display = ("title", "description", "subsystem", "file_pdf", "file_passport", "file_certificate")
     list_filter = ("title",)
     search_fields = ("title",)
@@ -102,7 +140,8 @@ class CableAdmin(admin.ModelAdmin):
 
 
 # @admin.register(PointPhone)
-class PointPhoneAdmin(admin.ModelAdmin):
+class PointPhoneAdmin(ExcelImportMixin, admin.ModelAdmin):
+    import_function = import_pointphones_from_excel
     list_display = (
         "id",
         "title",
@@ -124,7 +163,8 @@ class PointPhoneAdmin(admin.ModelAdmin):
 
 
 # @admin.register(BranchesBox)
-class BranchesBoxAdmin(admin.ModelAdmin):
+class BranchesBoxAdmin(ExcelImportMixin, admin.ModelAdmin):
+    import_function = import_branchesbox_from_excel
     list_display = (
         "title",
         "device_type",
@@ -166,7 +206,101 @@ class BeaconAdmin(admin.ModelAdmin):
         "data",
     )
     list_filter = ("designation", "number_mine", "tunnel", "inclined_blocks", "serial_number", "minor", "data")
-    search_fields = ("designation", "number_mine", "tunnel", "inclined_blocks", "serial_number", "minor", "data")
+    search_fields = (
+        "designation",
+        "number_mine__title",
+        "tunnel__title",
+        "inclined_blocks__title",
+        "picket",
+        "mac_address",
+        "serial_number",
+        "minor",
+    )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('import-excel/', self.admin_site.admin_view(self.import_excel_view), name='infoMFSS_beacon_import_excel'),
+        ]
+        return custom_urls + urls
+
+    def import_excel_view(self, request):
+        """
+        Представление для импорта биконов из Excel файла
+        """
+        if not OPENPYXL_AVAILABLE:
+            self.message_user(
+                request,
+                "Модуль openpyxl не установлен. Установите его командой: pip install openpyxl",
+                level=messages.ERROR
+            )
+            return HttpResponseRedirect(reverse('admin:infoMFSS_beacon_changelist'))
+
+        if request.method == 'POST':
+            excel_file = request.FILES.get('excel_file')
+            if not excel_file:
+                self.message_user(request, "Файл не выбран", level=messages.ERROR)
+                return HttpResponseRedirect(reverse('admin:infoMFSS_beacon_changelist'))
+
+            # Проверяем расширение файла
+            if not excel_file.name.endswith(('.xlsx', '.xls')):
+                self.message_user(request, "Поддерживаются только файлы Excel (.xlsx, .xls)", level=messages.ERROR)
+                return HttpResponseRedirect(reverse('admin:infoMFSS_beacon_changelist'))
+
+            # Проверяем размер файла (максимум 50 MB)
+            if excel_file.size > 50 * 1024 * 1024:
+                self.message_user(request, "Размер файла превышает 50 MB", level=messages.ERROR)
+                return HttpResponseRedirect(reverse('admin:infoMFSS_beacon_changelist'))
+
+            try:
+                # Импортируем данные
+                success_count, error_count, errors_list = import_beacons_from_excel(excel_file)
+            except Exception as e:
+                logger.error(f"Ошибка при импорте Excel файла: {str(e)}", exc_info=True)
+                self.message_user(
+                    request,
+                    f"Произошла ошибка при импорте файла: {str(e)}",
+                    level=messages.ERROR
+                )
+                return HttpResponseRedirect(reverse('admin:infoMFSS_beacon_changelist'))
+
+            # Формируем сообщения
+            if success_count > 0:
+                self.message_user(
+                    request,
+                    f"Успешно импортировано биконов: {success_count}",
+                    level=messages.SUCCESS
+                )
+
+            if error_count > 0:
+                error_msg = f"Ошибок при импорте: {error_count}"
+                if errors_list:
+                    error_msg += f". Первые ошибки: {', '.join(errors_list[:5])}"
+                self.message_user(request, error_msg, level=messages.WARNING)
+
+            if success_count == 0 and error_count == 0:
+                error_msg = "Не удалось импортировать данные."
+                if errors_list:
+                    error_msg += f" {errors_list[0]}"
+                else:
+                    error_msg += " Проверьте формат файла и наличие данных."
+                self.message_user(request, error_msg, level=messages.ERROR)
+
+            return HttpResponseRedirect(reverse('admin:infoMFSS_beacon_changelist'))
+
+        # GET запрос - показываем форму загрузки
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Импорт биконов из Excel',
+            'opts': self.model._meta,
+            'has_view_permission': self.has_view_permission(request, None),
+        }
+        return render(request, 'admin/infoMFSS/beacon/import_excel.html', context)
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_import_button'] = True
+        return super().changelist_view(request, extra_context)
 
 
 @admin.register(Visual)
@@ -184,7 +318,8 @@ class VisualAdmin(admin.ModelAdmin):
 
 
 # @admin.register(Violations)
-class ViolationsAdmin(admin.ModelAdmin):
+class ViolationsAdmin(ExcelImportMixin, admin.ModelAdmin):
+    import_function = import_violations_from_excel
     list_display = (
         "number_act",
         "date_act",
@@ -196,11 +331,12 @@ class ViolationsAdmin(admin.ModelAdmin):
         "file_notification",
     )
     list_filter = ("number_act", "date_act", "issued_by_act", "number_mine", "execution_bool")
-    search_fields = ("number_act", "date_act", "issued_by_act", "number_mine", "execution_bool")
+    search_fields = ("number_act", "date_act", "issued_by_act", "number_mine__title", "execution_bool")
 
 
 # @admin.register(CableMagazine)
-class CableMagazineAdmin(admin.ModelAdmin):
+class CableMagazineAdmin(ExcelImportMixin, admin.ModelAdmin):
+    import_function = import_cablemagazine_from_excel
     list_display = (
         "cable",
         "name",
@@ -232,7 +368,8 @@ class CableMagazineAdmin(admin.ModelAdmin):
 
 
 # @admin.register(EquipmentInstallation)
-class EquipmentInstallationAdmin(admin.ModelAdmin):
+class EquipmentInstallationAdmin(ExcelImportMixin, admin.ModelAdmin):
+    import_function = import_equipmentinstallation_from_excel
     list_display = (
         "title",
         "name",
@@ -254,7 +391,8 @@ class EquipmentInstallationAdmin(admin.ModelAdmin):
 
 
 # @admin.register(Execution)
-class ExecutionAdmin(admin.ModelAdmin):
+class ExecutionAdmin(ExcelImportMixin, admin.ModelAdmin):
+    import_function = import_execution_from_excel
     list_display = ("equipment_install", "cable_magazine", "execution_bool", "date_start", "date_end", "description")
     # prepopulated_fields = {'slug': ['description']}
     list_filter = ("equipment_install", "cable_magazine", "execution_bool", "date_start", "date_end")
@@ -266,6 +404,48 @@ class DateUpdateAdmin(admin.ModelAdmin):
     list_display = (
         "update",
         "description",
+    )
+
+
+# ВРЕМЕННОЕ РЕШЕНИЕ УДАЛИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БД
+class DailyNumbersMineMineAdmin(admin.ModelAdmin):
+    list_display = (
+        "date",
+        "nsh1",
+        "nsh2",
+        "nsh3",
+        "total",
+    )
+    readonly_fields = ('date',)
+    search_fields = ("date", "nsh1", "nsh2", "nsh3", "total",)
+
+    list_filter = ("date",)
+
+
+# ВРЕМЕННОЕ РЕШЕНИЕ УДАЛИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БД
+class ManualPercentageAdmin(admin.ModelAdmin):
+    list_display = (
+        "mine",
+        "surface",
+        "inclined_block",
+        "subsystem",
+        "percent",
+        "date",
+    )
+    search_fields = ("mine", "surface", "inclined_block", "subsystem", "percent", "date",)
+    list_filter = ("date",)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "incl_blocks":
+            kwargs["empty_label"] = "Отсутствует"
+            kwargs["required"] = False
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class SurfaceAdmin(admin.ModelAdmin):
+    list_display = (
+        "title",
+        "mine",
     )
 
 
@@ -285,6 +465,9 @@ admin.site.register(CableMagazine, CableMagazineAdmin)
 admin.site.register(EquipmentInstallation, EquipmentInstallationAdmin)
 admin.site.register(Execution, ExecutionAdmin)
 admin.site.register(DateUpdate, DateUpdateAdmin)
+admin.site.register(DailyNumbersMine, DailyNumbersMineMineAdmin)
+admin.site.register(ManualPercentage, ManualPercentageAdmin)
+admin.site.register(Surface, SurfaceAdmin)
 
 
 admin.site.register(Group, GroupAdmin)

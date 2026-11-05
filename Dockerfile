@@ -16,18 +16,20 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# Устанавливаем зависимости Python
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Копируем код приложения
-COPY . .
-
-# Назначаем права
-RUN chown -R info-mfss:info-mfss /app
-
-# Переключаем пользователя
-USER info-mfss
-
+# Копируем только необходимые файлы для сборки
+# Остальной код будет смонтирован через volume в docker-compose
+COPY entrypoint.sh uwsgi.ini ./
 RUN chmod +x ./entrypoint.sh
+
+# Создаем директории для логов и медиа
+RUN mkdir -p /app/logs /app/media /app/static_collected
+
+# Не переключаем пользователя здесь - entrypoint.sh будет запускаться от root
+# для установки прав на монтируемые директории, затем переключится на info-mfss
 
 ENTRYPOINT ["./entrypoint.sh"]

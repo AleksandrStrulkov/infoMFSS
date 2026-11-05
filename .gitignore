@@ -172,5 +172,15 @@ cython_debug/
 /celerybeat-schedule.dat
 /celerybeat-schedule.dir
 
+# frontend
+
+static_collected/
+media/
+logs/
+*.tar
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
 
 

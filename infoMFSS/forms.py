@@ -4,12 +4,15 @@ from crispy_forms.layout import HTML, Field, Layout
 from django import forms
 from django.db.models import Case, IntegerField, Value, When
 from django.utils import timezone
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field, Div, Submit
 
 from infoMFSS.castom_widgets_form import CustomModelChoiceField
 from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
                              DateUpdate, Equipment, EquipmentInstallation,
                              Execution, InclinedBlocks, NumberMine, PointPhone,
-                             Subsystem, Violations, Visual)
+                             Subsystem, Violations, Visual, Surface)
+from django.urls import reverse_lazy
 
 
 class InfoFormMixin(forms.Form):
@@ -230,11 +233,12 @@ class ContactForm(forms.Form):
     name = forms.CharField(max_length=100, label="Ваше имя")
     email = forms.EmailField(label="Ваш email")
     message = forms.CharField(widget=forms.Textarea, label="Сообщение")
-    captcha = CaptchaField(
-        label="Введите ответ",
-        generator="captcha.helpers.math_challenge",
-        error_messages={"invalid": "Неправильный ответ"},
-    )
+    # Капча закомментирована для упрощения
+    # captcha = CaptchaField(
+    #     label="Введите ответ",
+    #     generator="captcha.helpers.math_challenge",
+    #     error_messages={"invalid": "Неправильный ответ"},
+    # )
 
 
 class QuantityEquipmentCableForm(forms.Form):
@@ -978,3 +982,74 @@ class CreateDateUpdateForm(forms.ModelForm):
         # Устанавливаем текущую дату (без времени)
         now = timezone.localtime(timezone.now())  # Конвертирует UTC в локальное время
         self.fields["update"].initial = now
+
+
+#  Временное решение пока заполняется БД
+class PercentManualForm(forms.Form):
+    number_mines = forms.ModelChoiceField(
+            queryset=NumberMine.objects.all(),
+            label="Шахта",
+            required=False
+    )
+
+    surface = forms.ModelChoiceField(
+            queryset=Surface.objects.all(),
+            label="Поверхность",
+            required=False
+    )
+
+    inclined_blocks = forms.ChoiceField(
+            choices=[],
+            label="Уклонный блок",
+            required=False
+    )
+
+    subsystems = forms.ModelChoiceField(
+            queryset=Subsystem.objects.all(),
+            label="Подсистема",
+            required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Динамические choices для уклонных блоков
+        self.fields['inclined_blocks'].choices = [
+                ('', 'Все уклонные блоки'),
+                ('Отсутствует', 'Отсутствует'),
+                *[(b.title, b.title) for b in InclinedBlocks.objects.all()]
+        ]
+
+        # Обновляем queryset поверхностей если шахта выбрана
+        if 'number_mines' in self.data:
+            try:
+                mine_id = int(self.data.get('number_mines'))
+                self.fields['surface'].queryset = Surface.objects.filter(mine_id=mine_id)
+            except (ValueError, TypeError):
+                pass
+
+    def clean(self):
+        cleaned_data = super().clean()
+        mine = cleaned_data.get('number_mines')
+        surface = cleaned_data.get('surface')
+        inclined_block = cleaned_data.get('inclined_blocks')
+
+        # Если выбрана поверхность - автоматически подставляем шахту
+        if surface:
+            cleaned_data['number_mines'] = surface.mine
+
+        # if mine:
+        #     cleaned_data['inclined_block'] = inclined_block.number_mine
+
+        # Правило 1: Проверка соответствия поверхности и шахты
+        if surface and mine and surface.mine != mine:
+            self.add_error("surface", "Выбранная поверхность не принадлежит указанной шахте")
+            self.add_error("mine", "Выбранная шахта не соответствует выбранной поверхности")
+
+        # Правило 2: Блокировка уклонных блоков для поверхностей
+        if surface and inclined_block:
+            self.add_error("inclined_block", "Для поверхности нельзя выбирать уклонный блок")
+
+        return cleaned_data
+
+

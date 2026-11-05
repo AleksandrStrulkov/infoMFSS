@@ -2,6 +2,7 @@ import logging
 
 from django.db import connection, models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +52,10 @@ class InclinedBlocks(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name="slug", **NULLABLE)
 
     def __str__(self):
-        return self.title
+        if self.number_mine is not None:
+            return f"{self.title} (НШ-{self.number_mine.title[-1]})"
+        else:
+            return self.title
 
     class Meta:
         verbose_name = "уклонный блок"
@@ -72,7 +76,6 @@ class Tunnel(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Уклонный блок",
         **NULLABLE,
-        default="Туффит",
     )
     tuf_bool = models.BooleanField(verbose_name="Признак туффитового горизонта", default=False, **NULLABLE)
     inclined_bool = models.BooleanField(verbose_name="Признак уклонного блока", default=False, **NULLABLE)
@@ -323,7 +326,6 @@ class CableMagazine(models.Model):
         related_name="incl_magazines",
         on_delete=models.CASCADE,
         verbose_name="Уклонный блок",
-        default="Туффит",
         **NULLABLE,
     )
     track_from = models.ForeignKey(
@@ -354,7 +356,15 @@ class CableMagazine(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name="slug", **NULLABLE)
 
     def save(self, *args, **kwargs):
-        self.name = f"{self.track_from.name}/{self.track_to.name}"
+        # Генерируем name с проверкой на None
+        if self.track_from and self.track_to:
+            self.name = f"{self.track_from.name}/{self.track_to.name}"
+        elif self.track_from:
+            self.name = f"{self.track_from.name}/?"
+        elif self.track_to:
+            self.name = f"?/{self.track_to.name}"
+        else:
+            self.name = "?/?"
         is_new = self._state.adding  # Проверяем, что объект новый
         super().save(*args, **kwargs)
         if is_new:
@@ -425,7 +435,6 @@ class EquipmentInstallation(models.Model):
         related_name="incl_installs",
         on_delete=models.CASCADE,
         verbose_name="Уклонный блок",
-        default="Туффит",
         **NULLABLE,
     )
     equipment_bool = models.ForeignKey(
@@ -453,7 +462,11 @@ class EquipmentInstallation(models.Model):
             self.picket = self.point_phone.picket
             self.serial_number = self.point_phone.serial_number
             self.device_type = self.point_phone.device_type
-            self.subsystem = Subsystem.objects.get(title="АТС")
+            try:
+                self.subsystem = Subsystem.objects.get(title="АТС")
+            except Subsystem.DoesNotExist:
+                logger.warning("Подсистема 'АТС' не найдена в базе данных")
+                # Оставляем subsystem как есть (может быть уже установлен)
             if self.point_phone.inclined_blocks is not None:
                 self.inclined_blocks = self.point_phone.inclined_blocks
         if self.branches_box is not None:
@@ -639,13 +652,12 @@ class Beacon(models.Model):
         verbose_name="Уклонный блок",
         related_name="incl_beacons",
         on_delete=models.CASCADE,
-        default="Туффит",
         **NULLABLE,
     )
     picket = models.CharField(max_length=10, verbose_name="Пикет", **NULLABLE)
-    mac_address = models.CharField(max_length=17, verbose_name="MAC-адрес", unique=True, default="")
-    serial_number = models.CharField(max_length=10, verbose_name="Зав. №", unique=True, default="")
-    minor = models.CharField(max_length=10, verbose_name="МИНОР", unique=True, default="")
+    mac_address = models.CharField(max_length=17, verbose_name="MAC-адрес", unique=True, **NULLABLE)
+    serial_number = models.CharField(max_length=10, verbose_name="Зав. №", unique=True, **NULLABLE)
+    minor = models.CharField(max_length=10, verbose_name="МИНОР", unique=True, **NULLABLE)
     execution_bool = models.BooleanField(verbose_name="Установлен", default=False)
     data = models.DateField(verbose_name="Дата монтажа")
 
@@ -656,3 +668,83 @@ class Beacon(models.Model):
         verbose_name = "бикон"
         verbose_name_plural = "биконы"
         ordering = ["number_mine"]
+
+
+# ВРЕМЕННО, УДАЛИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БД
+class DailyNumbersMine(models.Model):
+    """Обновление процента выполнения вручную"""
+    date = models.DateTimeField(auto_now_add=True)
+    nsh1 = models.IntegerField(default=0)
+    nsh2 = models.IntegerField(default=0)
+    nsh3 = models.IntegerField(default=0)
+    total = models.IntegerField(default=0)
+
+    class Meta:
+        verbose_name_plural = "Ручное обновление процентов выполнения"
+        get_latest_by = 'date'
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"Numbers at {self.date}"
+
+
+# ВРЕМЕННО, УДАЛИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БД
+class ManualPercentage(models.Model):
+    mine = models.ForeignKey(NumberMine, on_delete=models.CASCADE, verbose_name="Шахта", **NULLABLE)
+    surface = models.ForeignKey('Surface', on_delete=models.CASCADE, verbose_name="Поверхность", **NULLABLE)
+    inclined_block = models.ForeignKey(InclinedBlocks, on_delete=models.CASCADE, verbose_name="Уклонный блок",
+                                       **NULLABLE)
+    subsystem = models.ForeignKey(Subsystem, on_delete=models.CASCADE, verbose_name="Подсистема")
+    percent = models.PositiveIntegerField(verbose_name="Процент выполнения", help_text="Значение от 0 до 100%")
+    date = models.DateField(verbose_name="Дата", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Ручной процент выполнения"
+        verbose_name_plural = "Ручные проценты выполнения"
+        unique_together = [['mine', 'inclined_block', 'subsystem', 'date']]
+
+    def __str__(self):
+        parts = []
+        if self.mine:
+            parts.append(f"Шахта: {self.mine.title}")
+        else:
+            parts.append("Все шахты")
+        if self.inclined_block:
+            parts.append(f"Уклон: {self.inclined_block.title}")
+        else:
+            parts.append("Все уклоны")
+        if self.subsystem:
+            parts.append(f"Подсистема: {self.subsystem.title}")
+        else:
+            parts.append("Все подсистемы")
+        return f"{' | '.join(parts)} → {self.percent}%"
+
+    def clean(self):
+        if not (self.mine or self.surface):
+            raise ValidationError("Должна быть выбрана либо шахта, либо поверхность")
+        if self.mine and self.surface:
+            raise ValidationError("Можно выбрать только что-то одно: шахту ИЛИ поверхность")
+
+
+# ВРЕМЕННО, УДАЛИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БД
+class Surface(models.Model):
+    """Поверхность, привязанная к конкретной шахте"""
+    mine = models.ForeignKey(
+        NumberMine,
+        on_delete=models.CASCADE,
+        verbose_name="Шахта",
+        related_name='surfaces'
+    )
+    title = models.CharField(
+        max_length=100,
+        default="Поверхность",
+        verbose_name="Название"
+    )
+
+    def __str__(self):
+        return f"{self.title} (НШ-{self.mine.title[-1]})"
+
+    class Meta:
+        verbose_name = "поверхность"
+        verbose_name_plural = "поверхности"
+        unique_together = [['mine', 'title',]]

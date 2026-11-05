@@ -1,0 +1,80 @@
+{% extends 'infoMFSS/base.html' %}
+{% load crispy_forms_tags %}
+{#{% load sass_tags %}#}
+
+{% block navbar %}
+    {% include 'infoMFSS/includes/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+    <div class="container text-center mt-5 mb-5">
+        <div class="mt-sm-5 mb-sm-5">
+            <div class="container mt-5 mb-5">
+                <h8>
+                    {{ title }}
+                </h8>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div class="container margin-auth-block">
+        <form method="post" action="">
+            <div class="row text-center mx-auto mt-4 mb-sm-5">
+                <div class="col-sm-4">
+                </div>
+                <div class="col-sm-4 card mb-3 box-shadow card-imad-auth border-none">
+                    <div class="card-body mt-2 text-center">
+                        <h4 class="my-0 font-weight-normal">
+                            Фильтр
+                        </h4>
+                    </div>
+                    <div class="card-body text-start">
+{#                        <form method="post" id="percent-form">#}
+                        {% csrf_token %}
+                        {% crispy form %}
+{#                        </form>#}
+                        <button type="submit" class="btn elem-button btn-md">
+                            Применить
+                        </button>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                </div>
+            </div>
+            <div class="container text-center mt-5 mb-5">
+                <div class="mt-sm-5 mb-sm-5">
+                    <div class="container mt-5 mb-5">
+                        {% if percent %}
+                            <h8>Выполнение: {{ percent }}%</h8>
+{#                            <h9>Сервис в процессе заполнения БД, обратитесь позже</h9>#}
+                            <br>
+                            <br>
+                            <h14>На дату: {{ update }}</h14>
+                            <br>
+                            <br>
+                        {% elif percent == 0 %}
+                            <h8>Данные отсутствуют</h8>
+                        {% else %}
+                            <h8>{{ error_message }}</h8>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="container">
+        </div>
+        <div class="container">
+        </div>
+    </div>
+{% endblock %}
+
+{#<div class="debug-info" style="display: none;">#}
+{#    <p>Current mine_id: <span id="current-mine"></span></p>#}
+{#    <pre id="response-data"></pre>#}
+{#</div>#}
+
+
+{% block footer %}
+    {% include 'users/includes/auth_footer.html' %}
+{% endblock %}
+

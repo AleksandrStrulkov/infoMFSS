@@ -66,35 +66,63 @@
                     Выполнение
                 </h8>
                 <br>
-                <br>
             </div>
         </div>
     </div>
     <div class="container-xxl">
+{#    ПРИМЕНИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БАЗЫ ДАННЫХ#}
+{#        <div class="container-xxl">#}
+{#            <div class="block-white text-center mt-sm-4">#}
+{#                <div class="container text-center mt-3">#}
+{#                    <h11>#}
+{#                        Нефтешахта №1: {{ percent_mine1 }} %#}
+{#                    </h11>#}
+{#                </div>#}
+{#                <div class="container text-center mt-5">#}
+{#                    <h11>#}
+{#                        Нефтешахта №2: {{ percent_mine2 }} %#}
+{#                    </h11>#}
+{#                </div>#}
+{#                <div class="container text-center mt-5">#}
+{#                    <h11>#}
+{#                        Нефтешахта №3: {{ percent_mine3 }} %#}
+{#                    </h11>#}
+{#                </div>#}
+{#                <div class="container text-center mt-5 mb-3">#}
+{#                    <h11>#}
+{#                        Общее: {{ percent_mine123 }} %#}
+{#                    </h11>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#        ВРЕМЕННОЕ РЕШЕНИЕ!!!#}
         <div class="container-xxl">
-            <div class="block-white text-center mt-sm-4">
+            <div class="block-white text-center mt-sm-3">
+{#                {% with numbers=DailyNumbersMine.objects.all.0 %}#}
                 <div class="container text-center mt-3">
                     <h11>
-                        Нефтешахта №1: {{ percent_mine1 }} %
+                        Нефтешахта №1: {{ numbers.nsh1 }} %
                     </h11>
                 </div>
                 <div class="container text-center mt-5">
                     <h11>
-                        Нефтешахта №2: {{ percent_mine2 }} %
+                        Нефтешахта №2: {{ numbers.nsh2 }} %
                     </h11>
                 </div>
                 <div class="container text-center mt-5">
                     <h11>
-                        Нефтешахта №3: {{ percent_mine3 }} %
+                        Нефтешахта №3: {{ numbers.nsh3 }} %
                     </h11>
                 </div>
-                <div class="container text-center mt-5 mb-3">
+                <div class="container text-center mt-5">
                     <h11>
-                        Общее: {{ percent_mine123 }} %
+                        Общее: {{ numbers.total }} %
                     </h11>
                 </div>
+{#                {% endwith %}#}
             </div>
         </div>
+
         <div class="container text-center mt-1">
             <h14>
                 Обновлено: {{ update }}
@@ -114,7 +142,6 @@
                 <h8>
                     Возможности ресурса
                 </h8>
-                <br>
                 <br>
             </div>
         </div>
@@ -180,7 +207,6 @@
                 <h8>
                     Дополнительно
                 </h8>
-                <br>
                 <br>
             </div>
         </div>

@@ -1,8 +1,9 @@
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Avg
+from django.utils import timezone
 
 from .models import (Beacon, BranchesBox, Cable, CableMagazine, DateUpdate,
                      Equipment, EquipmentInstallation, Execution,
-                     InclinedBlocks, NumberMine, Subsystem, Visual)
+                     InclinedBlocks, NumberMine, Subsystem, Visual, ManualPercentage)
 
 
 class BaseFilterService:
@@ -41,18 +42,31 @@ class PercentService:
     @staticmethod
     def calculate_percent(mine="Все шахты", subsystem="Все подсистемы", incl_blocks="Все уклонные блоки"):
         """Вычисляет процент выполнения на основе фильтров."""
-        filters = Q()
+        # Строим фильтры для equipment_install и cable_magazine отдельно
+        equipment_filters = Q(equipment_install__isnull=False)
+        cable_filters = Q(cable_magazine__isnull=False)
 
         if mine != "Все шахты":
-            filters &= Q(equipment_install__number_mine__title=mine) | Q(cable_magazine__number_mine__title=mine)
+            # Фильтруем по шахте
+            equipment_filters &= Q(equipment_install__number_mine__isnull=False,
+                                   equipment_install__number_mine__title=mine)
+            cable_filters &= Q(cable_magazine__number_mine__title=mine)
 
         if subsystem != "Все подсистемы":
-            filters &= Q(equipment_install__subsystem__title=subsystem) | Q(cable_magazine__subsystem__title=subsystem)
+            # Фильтруем по подсистеме
+            equipment_filters &= Q(equipment_install__subsystem__isnull=False,
+                                   equipment_install__subsystem__title=subsystem)
+            cable_filters &= Q(cable_magazine__subsystem__title=subsystem)
 
         if incl_blocks != "Все уклонные блоки":
-            filters &= Q(equipment_install__inclined_blocks__title=incl_blocks) | Q(
-                cable_magazine__inclined_blocks__title=incl_blocks
-            )
+            # Фильтруем по уклонному блоку
+            equipment_filters &= Q(equipment_install__inclined_blocks__isnull=False,
+                                   equipment_install__inclined_blocks__title=incl_blocks)
+            cable_filters &= Q(cable_magazine__inclined_blocks__isnull=False,
+                               cable_magazine__inclined_blocks__title=incl_blocks)
+
+        # Объединяем фильтры через OR
+        filters = equipment_filters | cable_filters
 
         # Общее количество записей
         total_count = Execution.objects.filter(filters).count()
@@ -61,7 +75,7 @@ class PercentService:
         true_count = Execution.objects.filter(filters, execution_bool=True).count()
 
         try:
-            percent = int(true_count * 100 / total_count)
+            percent = int(true_count * 100 / total_count) if total_count > 0 else 0
         except ZeroDivisionError:
             percent = 0
 
@@ -243,3 +257,78 @@ class QuantityEqCabFilterService:
     def get_latest_update():
         """Получает последнее обновление данных."""
         return DateUpdate.objects.latest("update")
+
+
+# ВРЕМЕННОЕ РЕШЕНИЕ, УДАЛИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БД
+class PercentManualService:
+
+    @staticmethod
+    def get_mines_subsystems_incl_blocks():
+        """Получает списки для формирования выборки."""
+        mines = [obj.title for obj in NumberMine.objects.exclude(title="Все шахты")]
+        subsystems = [obj.title for obj in Subsystem.objects.exclude(title="Все подсистемы")]
+        incl_blocks = [obj.title for obj in InclinedBlocks.objects.exclude(title="Все уклонные блоки")]
+
+        return {
+            "mines": mines,
+            "subsystems": subsystems,
+            "incl_blocks": incl_blocks,
+        }
+
+    @staticmethod
+    def get_latest_update():
+        """Получает последнюю дату обновления."""
+        try:
+            return DateUpdate.objects.latest("update")
+        except DateUpdate.DoesNotExist:
+            return DateUpdate.objects.create(update=timezone.now())
+
+    @staticmethod
+    def calculate_percent(mine="Все шахты", surface=None, subsystem="Все подсистемы", inclined_block=None):
+        """
+        Расчет процента с учетом всех комбинаций:
+        - Если выбрана поверхность: считаем только по поверхности (шахта берется автоматически)
+        - Если выбрана шахта без поверхности: считаем по всей шахте
+        - Если выбраны и шахта, и поверхность: считаем среднее между общим по шахте и по поверхности
+        """
+        filters_surface = Q()
+        filters_mine = Q()
+
+        # Базовые фильтры для подсистемы
+        if subsystem != "Все подсистемы":
+            filters_surface &= Q(subsystem__title=subsystem)
+            filters_mine &= Q(subsystem__title=subsystem)
+
+        # Случай 1: Выбрана поверхность (приоритет)
+        if surface:
+            filters_surface &= Q(surface=surface)
+            mine_title = surface.mine.title
+            filters_mine &= Q(mine__title=mine_title)
+
+            # Получаем проценты
+            percent_surface = ManualPercentage.objects.filter(
+                filters_surface).aggregate(avg=Avg('percent'))['avg'] or 0
+            percent_mine = ManualPercentage.objects.filter(filters_mine).aggregate(avg=Avg('percent'))['avg'] or 0
+
+            # Если выбрана ТОЛЬКО поверхность - возвращаем процент по поверхности
+            if mine == "Все шахты":
+                return round(percent_surface)
+
+            # Если выбраны и шахта, и поверхность - среднее значение
+            return round((percent_surface + percent_mine) / 2)
+
+        # Случай 2: Выбрана только шахта
+        if mine != "Все шахты":
+            filters_mine &= Q(mine__title=mine)
+
+            # Фильтр по уклонному блоку если не поверхность
+            if inclined_block:
+                if inclined_block == "Отсутствует":
+                    filters_mine &= Q(inclined_block__isnull=True)
+                else:
+                    filters_mine &= Q(inclined_block__title=inclined_block)
+
+            return round(ManualPercentage.objects.filter(filters_mine).aggregate(avg=Avg('percent'))['avg'] or 0)
+
+        # Случай 3: Все шахты (общий процент)
+        return round(ManualPercentage.objects.filter(filters_mine).aggregate(avg=Avg('percent'))['avg'] or 0)

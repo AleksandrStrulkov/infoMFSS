@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - '${POSTGRES_PORT}:5432'
+      - '5433:5432'  # Используем порт 5433 для внешнего доступа (5432 занят локальным PostgreSQL)
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]  # Используем переменную из .env
       interval: 5s
@@ -26,16 +26,19 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - static_volume:/app/static  # Выносим статику в отдельный volume
-      - media_volume:/app/media    # Выносим медиа в отдельный volume
- #   ports:
-  #    - '8000:8000'
+      - .:/app  # Монтируем весь проект для разработки
+      - ./static_collected:/app/static_collected  # Bind mount для статики
+      - ./media:/app/media  # Bind mount для медиа файлов
+      - ./logs:/app/logs  # Bind mount для логов
+    ports:
+      - '8001:8000'  # Используем порт 8001 для внешнего доступа (8000 занят)
     depends_on:
       db:
         condition: service_healthy
     env_file: .env
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings
+      - POSTGRES_HOST=db  # Явно указываем имя сервиса
     networks:
       - infoMFSS-networks
 
@@ -45,20 +48,18 @@ services:
       - '80:80'
       - '443:443'
     volumes:
-      - static_volume:/app/static_collected
-      - media_volume:/app/media
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro  # Важно!
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+      - ./static_collected:/app/static_collected:ro  # Bind mount для статики
+      - ./media:/app/media:ro  # Bind mount для медиа файлов
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
     depends_on:
       - web
     networks:
       - infoMFSS-networks
 
 volumes:
-  postgres_data:
-  static_volume:
-  media_volume:
+  postgres_data:  # Только для базы данных
 
 networks:
   infoMFSS-networks:

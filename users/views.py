@@ -8,6 +8,8 @@ from django.contrib.auth.views import LogoutView as BaseLogoutView
 from django.contrib.auth.views import (PasswordChangeDoneView,
                                        PasswordChangeView)
 from django.contrib.messages.views import SuccessMessageMixin
+import base64
+
 from django.core.signing import BadSignature
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -35,22 +37,36 @@ class LoginView(LoggingMixin, BaseLoginView):
         username = form.cleaned_data.get("username")
         user = authenticate(username=username, password=form.cleaned_data.get("password"))
         if user:
-            # Генерация и отправка кода
-            code = str(randint(1000, 9999))
-            response = send_sms_via_smsc(user.phone, code)
+            # SMS отправка временно отключена
+            # # Генерация и отправка кода
+            # code = str(randint(1000, 9999))
+            # response = send_sms_via_smsc(user.phone, code)
+            #
+            # # Проверка на ошибку (API может вернуть ошибку в разных форматах)
+            # if response.get("error"):
+            #     error_msg = response.get("error", "Неизвестная ошибка")
+            #     logger.error(f'Ошибка отправки СМС на номер телефона: {user.phone}: {error_msg}')
+            #     form.add_error(None, f"Ошибка отправки SMS: {error_msg}")
+            #     return self.form_invalid(form)
+            #
+            # # Проверка успешной отправки (API возвращает 'id' при успехе)
+            # if not response.get("id"):
+            #     logger.warning(f'Неожиданный ответ от SMS API для {user.phone}: {response}')
+            #     # Если нет явной ошибки, но и нет ID, все равно продолжаем
+            #     # (на случай, если API изменило формат ответа)
+            #
+            # # Сохранение кода в БД
+            # SMSDevice.objects.create(user=user, code=code)
+            # self.request.session["sms_user_id"] = user.id  # Сохраняем ID для верификации
+            # self.request.session["sms_user_phone"] = user.phone  # Сохраняем номер телефона для верификации
+            #
+            # logger.info(f"Код отправлен пользователю {username} (SMS ID: {response.get('id', 'N/A')})")
+            # return redirect("users:verify_sms")  # Перенаправляем на страницу ввода кода
 
-            if response.get("error"):
-                logger.error(f'Ошибка отправки СМС на номер телефона: {user.phone}: {response["error"]}')
-                form.add_error(None, "Ошибка отправки SMS. Попробуйте позже.")
-                return self.form_invalid(form)
-
-            # Сохранение кода в БД
-            SMSDevice.objects.create(user=user, code=code)
-            self.request.session["sms_user_id"] = user.id  # Сохраняем ID для верификации
-            self.request.session["sms_user_phone"] = user.phone  # Сохраняем номер телефона для верификации
-
-            logger.info(f"Код отправлен пользователю {username}")
-            return redirect("users:verify_sms")  # Перенаправляем на страницу ввода кода
+            # Временный вход без SMS верификации
+            login(self.request, user)
+            logger.info(f"Пользователь {username} успешно вошел в систему (SMS верификация отключена)")
+            return redirect("infoMFSS:home")  # Перенаправляем на главную страницу
 
         logger.warning(f"Неудачная попытка входа для {username}")
         return super().form_invalid(form)
@@ -121,8 +137,15 @@ class RegisterDoneView(TemplateView):
 
 def user_activate(request, sign):
     try:
-        email = signer.unsign(sign)
-    except BadSignature:
+        # Декодируем подпись из base64 (она была закодирована через base64.urlsafe_b64encode)
+        # Добавляем padding если нужно (base64 может обрезать = в конце)
+        padding = 4 - len(sign) % 4
+        if padding != 4:
+            sign += '=' * padding
+        decoded_sign = base64.urlsafe_b64decode(sign.encode('utf-8')).decode('utf-8')
+        email = signer.unsign(decoded_sign)
+    except (BadSignature, ValueError, UnicodeDecodeError) as e:
+        logger.error(f"Ошибка активации: {e}, sign: {sign}")
         return render(request, "users/activation_failed.html")
 
     user = get_object_or_404(User, email=email)
