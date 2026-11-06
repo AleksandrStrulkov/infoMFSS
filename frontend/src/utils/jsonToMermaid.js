@@ -9,27 +9,38 @@ function escapeLabel(value) {
     .trim()
 }
 
-function detectClass(name) {
+// Класс узла определяется по тексту названия (регистронезависимо).
+// Порядок проверок важен: "1ВК#16-БП" — это ВК (зелёный), а не БП;
+// "ШСУ#3.2-БП" — ШСУ (синий).
+function detectNodeMeta(name) {
   const lower = String(name).toLowerCase()
-  if (lower.includes('муфта')) return 'coupling'
-  if (lower.includes('бп') || lower.includes('лампа')) return 'power'
+  if (lower.includes('тшм') || lower.includes('муфта')) return { shape: 'rect', className: 'coupling' }
+  if (lower.includes('лампа')) return { shape: 'circle', className: 'lamp' }
+  if (lower.includes('сзв')) return { shape: 'circle', className: 'ssv' }
+  if (lower.includes('вк')) return { shape: 'rect', className: 'vk' }
+  if (lower.includes('шсу')) return { shape: 'rect', className: 'shsu' }
+  if (lower.includes('бп')) return { shape: 'rect', className: 'power' }
   if (
     lower.includes('ссм') ||
     lower.includes('ссв') ||
     lower.includes('сср') ||
     lower.includes('ссф') ||
-    lower.includes('ссп') ||
-    lower.includes('вк') ||
-    lower.includes('шсу')
+    lower.includes('ссп')
   ) {
-    return 'equipment'
+    return { shape: 'rect', className: 'equipment' }
   }
-  return 'neutral'
+  return { shape: 'rect', className: 'neutral' }
+}
+
+function nodeDefinition(id, name, meta) {
+  const label = escapeLabel(name)
+  if (meta.shape === 'circle') return `${id}(("${label}"))`
+  return `${id}["${label}"]`
 }
 
 function makeIdRegistry() {
   const idByName = new Map()
-  const classNameById = new Map()
+  const metaById = new Map()
 
   const getNodeId = (name) => {
     if (name === null || name === undefined) {
@@ -40,14 +51,15 @@ function makeIdRegistry() {
       throw new Error('В схеме встречается устройство с пустым названием — добавьте имя или удалите пустую запись.')
     }
     if (!idByName.has(label)) {
+      const meta = detectNodeMeta(label)
       const id = `node_${safeIdCounter++}`
       idByName.set(label, id)
-      classNameById.set(id, detectClass(label))
+      metaById.set(id, meta)
     }
     return idByName.get(label)
   }
 
-  return { getNodeId, idByName, classNameById }
+  return { getNodeId, idByName, metaById }
 }
 
 function normalizeConnections(schema) {
@@ -92,8 +104,10 @@ export function jsonToMermaid(schema, direction = 'TD') {
   }
 
   const flow = direction === 'LR' ? 'flowchart LR' : 'flowchart TD'
-  const { getNodeId, classNameById } = makeIdRegistry()
+  const { getNodeId, idByName, metaById } = makeIdRegistry()
   const lines = [flow]
+
+  const edgesInfo = []
 
   // --- locations ---
   const locations = schema.locations
@@ -107,7 +121,7 @@ export function jsonToMermaid(schema, direction = 'TD') {
     const id = getNodeId(name)
     if (emittedAtRoot.has(id)) return
     emittedAtRoot.add(id)
-    lines.push(`  ${id}["${escapeLabel(name)}"]`)
+    lines.push(`  ${nodeDefinition(id, name, metaById.get(id))}`)
   }
 
   const subgraphNodeIds = new Set()
@@ -143,7 +157,7 @@ export function jsonToMermaid(schema, direction = 'TD') {
           uniqueDevices.forEach(({ id }) => subgraphNodeIds.add(id))
           lines.push(`  subgraph ${locId}["${escapeLabel(locName)}"]`)
           for (const { id, name } of uniqueDevices) {
-            lines.push(`    ${id}["${escapeLabel(name)}"]`)
+            lines.push(`    ${nodeDefinition(id, name, metaById.get(id))}`)
           }
           lines.push('  end')
         }
@@ -199,17 +213,23 @@ export function jsonToMermaid(schema, direction = 'TD') {
             : `  ${fromId} -.-> ${toId}`,
         )
       }
+      edgesInfo.push({ from: fromId, to: toId })
     }
   }
 
   // --- раскраска ---
   const byClass = new Map()
-  for (const [id, className] of classNameById.entries()) {
+  for (const id of metaById.keys()) {
+    const className = metaById.get(id).className
     if (!byClass.has(className)) byClass.set(className, [])
     byClass.get(className).push(id)
   }
   if (byClass.size > 0) {
-    lines.push('  classDef coupling fill:#64748b,stroke:#cbd5e1,color:#f8fafc,rx:14,ry:14,stroke-width:2px;')
+    lines.push('  classDef coupling fill:#475569,stroke:#94a3b8,color:#f1f5f9,stroke-width:2px;')
+    lines.push('  classDef lamp fill:#dc2626,stroke:#fca5a5,color:#ffffff,stroke-width:2px;')
+    lines.push('  classDef ssv fill:#16a34a,stroke:#86efac,color:#ffffff,stroke-width:2px;')
+    lines.push('  classDef vk fill:#15803d,stroke:#4ade80,color:#ffffff,stroke-width:2px;')
+    lines.push('  classDef shsu fill:#1d4ed8,stroke:#93c5fd,color:#ffffff,stroke-width:2px;')
     lines.push('  classDef power fill:#b45309,stroke:#fbbf24,color:#fef3c7,stroke-width:2px;')
     lines.push('  classDef equipment fill:#0f766e,stroke:#5eead4,color:#ecfdf5,stroke-width:2px;')
     lines.push('  classDef neutral fill:#1e293b,stroke:#64748b,color:#e2e8f0,stroke-width:1px;')
@@ -218,5 +238,10 @@ export function jsonToMermaid(schema, direction = 'TD') {
     }
   }
 
-  return lines.join('\n')
+  const shapes = {}
+  for (const [id, meta] of metaById.entries()) {
+    shapes[id] = { shape: meta.shape, className: meta.className }
+  }
+
+  return { code: lines.join('\n'), shapes, edges: edgesInfo }
 }

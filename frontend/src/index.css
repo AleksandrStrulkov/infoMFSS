@@ -122,6 +122,46 @@ body {
   flex: 1 1 auto;
 }
 
+/* ---------- Выпадающее меню экспорта ---------- */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 30;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--btn-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.dropdown-menu button {
+  background: none;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dropdown-menu button:hover {
+  background: var(--btn-hover-bg);
+  color: var(--accent);
+}
+
+.hidden-input {
+  display: none;
+}
+
 /* ---------- Рабочая область ---------- */
 .workspace {
   flex: 1 1 auto;
@@ -150,6 +190,45 @@ body {
 .schema-svg svg {
   max-width: none !important;
   display: block;
+}
+
+/* ---------- Компактные сабграфы (секции) ---------- */
+.schema-svg .cluster-label text,
+.schema-svg .cluster-label span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Аккуратная рамка секции без лишних запасов сверху */
+.schema-svg .cluster rect {
+  rx: 10px;
+  ry: 10px;
+}
+
+/* ---------- Линии соединения ---------- */
+/* Ортогональный роутинг задан в mermaid (curve: stepAfter);
+   здесь — лёгкое скругление сгибов по всему пути */
+.schema-svg path.flowchart-link,
+.schema-svg .edgePath .path,
+.schema-svg .edgePaths path {
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Жирную линию 127В делаем чуть плотнее для читаемости на тёмном фоне */
+.schema-svg path.flowchart-link.LS-THICK,
+.schema-svg .edgePath.thick .path {
+  stroke-width: 3px;
+}
+
+.schema-svg .edgeLabels .edgeLabel {
+  font-size: 12px;
+}
+
+.schema-svg .edgeLabel rect,
+.schema-svg .edgeLabel .labelrect {
+  fill: var(--canvas-bg);
+  opacity: 0.85;
 }
 
 /* ---------- Ошибки ---------- */

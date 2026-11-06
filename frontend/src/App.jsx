@@ -2,6 +2,13 @@ import { useEffect, useMemo, useRef, useState, Component } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 import mermaid from 'mermaid'
 import { jsonToMermaid } from './utils/jsonToMermaid.js'
+import { postProcessMermaidSvg } from './utils/postProcessDiagram.js'
+import {
+  exportSvgFile,
+  exportPngFile,
+  exportPdfFile,
+  downloadText,
+} from './utils/exportDiagram.js'
 
 const rawSchemas = import.meta.glob('./data/schemas/*.json', {
   eager: true,
@@ -10,19 +17,34 @@ const rawSchemas = import.meta.glob('./data/schemas/*.json', {
 })
 
 function configureMermaid(theme) {
+  const dark = theme !== 'light'
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'loose',
-    flowchart: { useMaxWidth: false, htmlLabels: false },
-    theme: theme === 'light' ? 'default' : 'dark',
+    flowchart: {
+      useMaxWidth: false,
+      htmlLabels: false,
+      // ортогональный роутинг (строгие 90°) — скругление сгибов через CSS
+      curve: 'stepAfter',
+      // расслоение секций: быстрее, чтобы рамки групп не наезжали друг на друга
+      nodeSpacing: 34,
+      rankSpacing: 55,
+      padding: 12,
+      subGraphTitleMargin: { top: 0, bottom: 2 },
+      subGraphTitlePadding: 0,
+    },
+    theme: dark ? 'dark' : 'default',
     themeVariables: {
       fontFamily: 'Segoe UI, Arial, sans-serif',
       fontSize: '14px',
-      background: theme === 'light' ? '#f8fafc' : '#0b1220',
-      primaryColor: theme === 'light' ? '#e2e8f0' : '#1e293b',
-      primaryTextColor: theme === 'light' ? '#1e293b' : '#e2e8f0',
-      primaryBorderColor: theme === 'light' ? '#64748b' : '#64748b',
-      lineColor: theme === 'light' ? '#475569' : '#94a3b8',
+      background: dark ? '#0b1220' : '#f8fafc',
+      primaryColor: dark ? '#1e293b' : '#e2e8f0',
+      primaryTextColor: dark ? '#e2e8f0' : '#1e293b',
+      primaryBorderColor: '#64748b',
+      lineColor: dark ? '#94a3b8' : '#475569',
+      clusterBkg: dark ? 'rgba(30, 41, 59, 0.35)' : 'rgba(226, 232, 240, 0.55)',
+      clusterBorder: dark ? '#3b4f70' : '#94a3b8',
+      titleColor: dark ? '#e2e8f0' : '#1e293b',
     },
   })
 }
@@ -62,7 +84,7 @@ function parseSchemas() {
   return list
 }
 
-function SchemaViewer({ schemaFile, direction, theme }) {
+function SchemaViewer({ schemaFile, direction, theme, lastSvgRef }) {
   const [error, setError] = useState(null)
   const [svg, setSvg] = useState('')
 
@@ -74,15 +96,18 @@ function SchemaViewer({ schemaFile, direction, theme }) {
       try {
         configureMermaid(theme)
         const schema = JSON.parse(schemaFile.text)
-        const chartCode = jsonToMermaid(schema, direction)
-        const { svg: rendered } = await mermaid.render(`schema-render-${++renderCounter}`, chartCode)
+        const { code, shapes } = jsonToMermaid(schema, direction)
+        const { svg: rendered } = await mermaid.render(`schema-render-${++renderCounter}`, code)
+        const normalized = postProcessMermaidSvg(rendered, { shapes })
         if (!cancelled) {
-          setSvg(rendered)
+          setSvg(normalized)
+          if (lastSvgRef) lastSvgRef.current = normalized
           setError(null)
         }
       } catch (err) {
         if (!cancelled) {
           setSvg('')
+          if (lastSvgRef) lastSvgRef.current = null
           const detail = err?.message || String(err)
           setError(`Ошибка в схеме "${schemaFile.name}.json":\n${detail}`)
         }
@@ -93,7 +118,7 @@ function SchemaViewer({ schemaFile, direction, theme }) {
     return () => {
       cancelled = true
     }
-  }, [schemaFile, direction, theme])
+  }, [schemaFile, direction, theme, lastSvgRef])
 
   if (error) {
     return (
@@ -108,7 +133,7 @@ function SchemaViewer({ schemaFile, direction, theme }) {
     return (
       <div className="error-panel">
         <h2>Схемы не найдены</h2>
-        <p>Положите JSON-файлы в frontend/src/data/schemas/ — они подхватятся автоматически.</p>
+        <p>Положите JSON-файлы в frontend/src/data/schemas/ или загрузите их со страницы.</p>
       </div>
     )
   }
@@ -124,17 +149,79 @@ function SchemaViewer({ schemaFile, direction, theme }) {
 
 export default function App() {
   const schemaFiles = useMemo(parseSchemas, [])
-  const [selectedName, setSelectedName] = useState(() => schemaFiles[0]?.name ?? '')
+  const [selectedName, setSelectedName] = useState(() => {
+    const pending = sessionStorage.getItem('pendingSchema')
+    return pending ?? schemaFiles[0]?.name ?? ''
+  })
   const [direction, setDirection] = useState('TD')
-  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
+  const [theme, setTheme] = useState(() =>
+    document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
+  )
+  const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const transformRef = useRef(null)
+  const lastSvgRef = useRef(null)
+  const uploadInputRef = useRef(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
 
+  // Разовый выбор только что загруженной схемы: после перезагрузки страницы
+  // (файл добавился в import.meta.glob) sessionStorage уже не нужен
+  useEffect(() => {
+    sessionStorage.removeItem('pendingSchema')
+  }, [])
+
   const selected = schemaFiles.find((f) => f.name === selectedName) ?? null
-  const activeName = selected ? selected.name : (schemaFiles[0]?.name ?? '')
+  const activeName = selected ? selected.name : schemaFiles[0]?.name ?? ''
+
+  const handleExport = async (kind) => {
+    setExportMenuOpen(false)
+    if (!selected) return
+    try {
+      if (kind === 'json') {
+        const pretty = JSON.stringify(JSON.parse(selected.text), null, 2)
+        downloadText(pretty, `${selected.name}.json`, 'application/json')
+        return
+      }
+      const svgText = lastSvgRef.current
+      if (!svgText) {
+        window.alert('Схема ещё не отрисована — подождите, пока она построится.')
+        return
+      }
+      if (kind === 'svg') exportSvgFile(svgText, selected.name)
+      else if (kind === 'png') await exportPngFile(svgText, selected.name)
+      else if (kind === 'pdf') await exportPdfFile(svgText, selected.name)
+    } catch (err) {
+      window.alert(`Ошибка экспорта: ${err.message || err}`)
+    }
+  }
+
+  const handleUpload = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    try {
+      const text = await file.text()
+      JSON.parse(text) // проверяем до отправки, чтобы не плодить битые файлы
+      const response = await fetch('/api/upload-schema', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          'x-schema-filename': encodeURIComponent(file.name),
+        },
+        body: text,
+      })
+      const result = await response.json()
+      if (!result.ok) throw new Error(result.error || `HTTP ${response.status}`)
+      // После записи файла dev-сервер перезагрузит страницу
+      // (import.meta.glob подхватит новый файл) — спрашиваем ту самую схему
+      sessionStorage.setItem('pendingSchema', result.file.replace(/\.json$/i, ''))
+      window.location.reload()
+    } catch (err) {
+      window.alert(`Не удалось загрузить схему: ${err.message || err}`)
+    }
+  }
 
   return (
     <div className="app">
@@ -176,6 +263,48 @@ export default function App() {
           Тема: {theme === 'dark' ? 'тёмная' : 'светлая'}
         </button>
 
+        <div className="dropdown">
+          <button
+            type="button"
+            className="toolbar-btn"
+            onClick={() => setExportMenuOpen((open) => !open)}
+          >
+            Экспорт ▾
+          </button>
+          {exportMenuOpen && (
+            <div className="dropdown-menu">
+              <button type="button" onClick={() => handleExport('svg')}>
+                SVG (вектор)
+              </button>
+              <button type="button" onClick={() => handleExport('png')}>
+                PNG (2×)
+              </button>
+              <button type="button" onClick={() => handleExport('pdf')}>
+                PDF (альбом/книжный по размеру)
+              </button>
+              <button type="button" onClick={() => handleExport('json')}>
+                JSON (исходник)
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button
+          type="button"
+          className="toolbar-btn"
+          onClick={() => uploadInputRef.current?.click()}
+          title="Загрузить JSON-схему в проект"
+        >
+          Загрузить JSON…
+        </button>
+        <input
+          ref={uploadInputRef}
+          type="file"
+          accept=".json,application/json"
+          className="hidden-input"
+          onChange={handleUpload}
+        />
+
         <div className="toolbar-spacer" />
 
         <button type="button" className="toolbar-btn" onClick={() => transformRef.current?.zoomIn()}>
@@ -204,7 +333,12 @@ export default function App() {
             doubleClick={{ disabled: false, step: 1.3 }}
           >
             <TransformComponent wrapperClass="workspace-canvas" contentClass="workspace-content">
-              <SchemaViewer schemaFile={selected} direction={direction} theme={theme} />
+              <SchemaViewer
+                schemaFile={selected}
+                direction={direction}
+                theme={theme}
+                lastSvgRef={lastSvgRef}
+              />
             </TransformComponent>
           </TransformWrapper>
         </ErrorBoundary>
