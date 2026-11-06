@@ -16,35 +16,30 @@ const rawSchemas = import.meta.glob('./data/schemas/*.json', {
   import: 'default',
 })
 
-function configureMermaid(theme) {
-  const dark = theme !== 'light'
+function configureMermaid() {
+  // theme: 'default' и securityLevel: 'loose' — как в Mermaid Live Editor,
+  // цвета берутся из classDef (power/mufta/dev/info) в тексте диаграммы,
+  // никакие themeVariables их не перебивают
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'loose',
+    // обязательно на верхнем уровне: без этого mermaid рисует подписи
+    // foreignObject'ом, и пост-обработка (тексты кругов, надпись лампы
+    // над кругом) не находит <text> и не работает
+    htmlLabels: false,
+    theme: 'default',
     flowchart: {
       useMaxWidth: false,
       htmlLabels: false,
       // ортогональный роутинг (строгие 90°) — скругление сгибов через CSS
       curve: 'stepAfter',
-      // расслоение секций: быстрее, чтобы рамки групп не наезжали друг на друга
-      nodeSpacing: 34,
+      // расслоение секций: рамки subgraph растягиваются заголовками,
+      // поэтому горизонтальный зазор нужен большой, иначе кластеры наложатся
+      nodeSpacing: 120,
       rankSpacing: 55,
       padding: 12,
       subGraphTitleMargin: { top: 0, bottom: 2 },
       subGraphTitlePadding: 0,
-    },
-    theme: dark ? 'dark' : 'default',
-    themeVariables: {
-      fontFamily: 'Segoe UI, Arial, sans-serif',
-      fontSize: '14px',
-      background: dark ? '#0b1220' : '#f8fafc',
-      primaryColor: dark ? '#1e293b' : '#e2e8f0',
-      primaryTextColor: dark ? '#e2e8f0' : '#1e293b',
-      primaryBorderColor: '#64748b',
-      lineColor: dark ? '#94a3b8' : '#475569',
-      clusterBkg: dark ? 'rgba(30, 41, 59, 0.35)' : 'rgba(226, 232, 240, 0.55)',
-      clusterBorder: dark ? '#3b4f70' : '#94a3b8',
-      titleColor: dark ? '#e2e8f0' : '#1e293b',
     },
   })
 }
@@ -84,7 +79,7 @@ function parseSchemas() {
   return list
 }
 
-function SchemaViewer({ schemaFile, direction, theme, lastSvgRef }) {
+function SchemaViewer({ schemaFile, direction, lastSvgRef }) {
   const [error, setError] = useState(null)
   const [svg, setSvg] = useState('')
 
@@ -94,7 +89,7 @@ function SchemaViewer({ schemaFile, direction, theme, lastSvgRef }) {
     const renderChart = async () => {
       if (!schemaFile) return
       try {
-        configureMermaid(theme)
+        configureMermaid()
         const schema = JSON.parse(schemaFile.text)
         const { code, shapes } = jsonToMermaid(schema, direction)
         const { svg: rendered } = await mermaid.render(`schema-render-${++renderCounter}`, code)
@@ -118,7 +113,7 @@ function SchemaViewer({ schemaFile, direction, theme, lastSvgRef }) {
     return () => {
       cancelled = true
     }
-  }, [schemaFile, direction, theme, lastSvgRef])
+  }, [schemaFile, direction, lastSvgRef])
 
   if (error) {
     return (
@@ -336,7 +331,6 @@ export default function App() {
               <SchemaViewer
                 schemaFile={selected}
                 direction={direction}
-                theme={theme}
                 lastSvgRef={lastSvgRef}
               />
             </TransformComponent>

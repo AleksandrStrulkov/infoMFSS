@@ -84,14 +84,30 @@ export function postProcessMermaidSvg(svgText, meta) {
     if (circle) circle.setAttribute('r', String(CIRCLE_RADIUS))
     const text = node.g.querySelector('g.label text')
     if (!text) continue
-    const lines = splitNodeLines(text.textContent, 9)
-    const startY = -(lines.length - 1) * (CIRCLE_LINE_HEIGHT / 2) + CIRCLE_LINE_HEIGHT * 0.32
+    // У mermaid текст иерархический: tspan.row > tspan.word. Берём только
+    // строки верхнего уровня, иначе подписи задваиваются ("ТШМ ТШМ №87 №87")
+    const lines = [...text.children]
+      .filter((t) => t.tagName === 'tspan')
+      .map((t) => String(t.textContent || '').trim())
+      .filter(Boolean)
+    // Если у круга уже есть многострочная метка (муфта "ТШМ<br/>№87") —
+    // строки сохраняем как есть; однострочник (Лампа/СЗВ) переносим сами
+    const wrapped = lines.length > 1 ? lines : splitNodeLines(text.textContent, 9)
+    // mermaid сдвигает g.label на translate(0,-7) под свой шрифт —
+    // сбрасываем, иначе весь текст уезжает вверх от центра круга
+    for (const lg of node.g.querySelectorAll('g.label')) {
+      if (lg.contains(text)) {
+        lg.setAttribute('transform', 'translate(0, 0)')
+        break
+      }
+    }
+    const startY = -(wrapped.length - 1) * (CIRCLE_LINE_HEIGHT / 2) + CIRCLE_LINE_HEIGHT * 0.32
     while (text.firstChild) text.removeChild(text.firstChild)
     text.setAttribute('font-size', String(CIRCLE_FONT_SIZE))
     text.setAttribute('text-anchor', 'middle')
     text.setAttribute('x', '0')
     text.setAttribute('y', startY.toFixed(2))
-    lines.forEach((line, i) => {
+    wrapped.forEach((line, i) => {
       const tspan = doc.createElementNS(SVG_NS, 'tspan')
       tspan.setAttribute('x', '0')
       if (i > 0) tspan.setAttribute('dy', String(CIRCLE_LINE_HEIGHT))

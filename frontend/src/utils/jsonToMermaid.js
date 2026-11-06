@@ -1,5 +1,21 @@
 const INFO_KEY_PREFIX = 'информационно'
 
+// Пастельные полупрозрачные фоны локаций (8-значный hex: последние 2 — альфа)
+const ZONE_FILLS = [
+  '#ffcdd259',
+  '#c8e6c95c',
+  '#bbdefb52',
+  '#ffe0b252',
+  '#b2dfdb5c',
+  '#e1bee752',
+  '#fff9c45c',
+  '#e0e0e059',
+  '#d1c4e952',
+  '#b3e5fc52',
+  '#ffccbc5c',
+  '#c5cae952',
+]
+
 let safeIdCounter = 0
 
 function escapeLabel(value) {
@@ -9,33 +25,43 @@ function escapeLabel(value) {
     .trim()
 }
 
-// Класс узла определяется по тексту названия (регистронезависимо).
-// Порядок проверок важен: "1ВК#16-БП" — это ВК (зелёный), а не БП;
-// "ШСУ#3.2-БП" — ШСУ (синий).
+// Класс узла определяется строго по префиксам/именам элементов
+// (никаких названий подсистем в коде). Порядок проверок важен:
+// суффикс "-БП" у "1ССМ11-БП" не должен сделать блок оранжевым.
 function detectNodeMeta(name) {
   const lower = String(name).toLowerCase()
-  if (lower.includes('тшм') || lower.includes('муфта')) return { shape: 'rect', className: 'coupling' }
+  if (lower.startsWith(INFO_KEY_PREFIX)) return { shape: 'rect', className: 'info' }
+  if (lower.includes('тшм') || lower.includes('муфта')) return { shape: 'circle', className: 'mufta' }
   if (lower.includes('лампа')) return { shape: 'circle', className: 'lamp' }
-  if (lower.includes('сзв')) return { shape: 'circle', className: 'ssv' }
-  if (lower.includes('вк')) return { shape: 'rect', className: 'vk' }
-  if (lower.includes('шсу')) return { shape: 'rect', className: 'shsu' }
-  if (lower.includes('бп')) return { shape: 'rect', className: 'power' }
+  if (lower.includes('аош')) return { shape: 'rect', className: 'aosh' }
+  if (lower.includes('шсу')) return { shape: 'rect', className: 'orange' }
   if (
-    lower.includes('ссм') ||
-    lower.includes('ссв') ||
-    lower.includes('сср') ||
-    lower.includes('ссф') ||
-    lower.includes('ссп')
+    lower.includes('ссп') || lower.includes('ссм') || lower.includes('ссв') ||
+    lower.includes('сср') || lower.includes('ссф')
   ) {
-    return { shape: 'rect', className: 'equipment' }
+    return { shape: 'rect', className: 'blue' }
   }
-  return { shape: 'rect', className: 'neutral' }
+  if (lower.includes('вк') || lower.includes('сзв')) return { shape: 'rect', className: 'green' }
+  if (/^ft|\bft/i.test(String(name))) return { shape: 'rect', className: 'magenta' }
+  if (lower.includes('бп')) return { shape: 'rect', className: 'orange' }
+  return { shape: 'rect', className: 'other' }
+}
+
+// Название муфты переносим на вторую строку, чтобы круги были компактными
+// и одинаковыми: "ТШМ №87" -> "ТШМ<br/>№87"
+function muftaLabel(label) {
+  const m = /^(тшм|муфта)\s*(.+)$/i.exec(label)
+  if (!m) return label
+  let rest = m[2]
+  if (!rest.startsWith('№')) rest = `№${rest}`
+  return `${m[1]}<br/>${rest}`
 }
 
 function nodeDefinition(id, name, meta) {
-  const label = escapeLabel(name)
-  if (meta.shape === 'circle') return `${id}(("${label}"))`
-  return `${id}["${label}"]`
+  let label = escapeLabel(name)
+  if (meta.className === 'mufta') label = muftaLabel(label)
+  if (meta.shape === 'circle') return `${id}(("${label}")):::${meta.className}`
+  return `${id}["${label}"]:::${meta.className}`
 }
 
 function makeIdRegistry() {
@@ -71,7 +97,6 @@ function normalizeConnections(schema) {
     if (!Array.isArray(rawItems)) {
       throw new Error(`Поле "${key}" должно быть массивом связей, сейчас: ${typeof rawItems}.`)
     }
-    const isHighVoltage = /127/.test(key)
     const edges = []
     rawItems.forEach((item, index) => {
       if (!item || typeof item !== 'object' || Array.isArray(item)) {
@@ -93,7 +118,7 @@ function normalizeConnections(schema) {
         edges.push({ from: item.from.trim(), to: target.trim(), cable: item.cable })
       }
     })
-    groups.push({ key, isHighVoltage, edges })
+    groups.push({ key, edges })
   }
   return groups
 }
@@ -106,6 +131,17 @@ export function jsonToMermaid(schema, direction = 'TD') {
   const flow = direction === 'LR' ? 'flowchart LR' : 'flowchart TD'
   const { getNodeId, idByName, metaById } = makeIdRegistry()
   const lines = [flow]
+
+  // Шапка стилей: classDef сразу после заголовка диаграммы
+  lines.push('  classDef mufta fill:#e0e0e0b8,stroke:#666,stroke-width:2px,color:#000')
+  lines.push('  classDef lamp fill:#ffeb3bb3,stroke:#f9a825,stroke-width:2px,color:#000')
+  lines.push('  classDef aosh fill:#fff59db3,stroke:#f9a825,stroke-width:1.5px,color:#000')
+  lines.push('  classDef orange fill:#ffb74db3,stroke:#ef6c00,stroke-width:1.5px,color:#000')
+  lines.push('  classDef blue fill:#bbdefbb3,stroke:#1565c0,stroke-width:1.5px,color:#000')
+  lines.push('  classDef green fill:#a5d6a7b3,stroke:#2e7d32,stroke-width:1.5px,color:#000')
+  lines.push('  classDef magenta fill:#f48fb1b3,stroke:#ad1457,stroke-width:1.5px,color:#000')
+  lines.push('  classDef info fill:#f5f5f5b3,stroke:#9e9e9e,stroke-dasharray: 5 5,color:#333')
+  lines.push('  classDef other fill:#eceff1b3,stroke:#78909c,stroke-width:1px,color:#000')
 
   const edgesInfo = []
 
@@ -153,13 +189,16 @@ export function jsonToMermaid(schema, direction = 'TD') {
           }
         })
         if (uniqueDevices.length > 0) {
-          const locId = `loc_${subgraphIndex++}`
+          const zoneIdx = subgraphIndex++
+          const locId = `loc_${zoneIdx}`
           uniqueDevices.forEach(({ id }) => subgraphNodeIds.add(id))
           lines.push(`  subgraph ${locId}["${escapeLabel(locName)}"]`)
           for (const { id, name } of uniqueDevices) {
             lines.push(`    ${nodeDefinition(id, name, metaById.get(id))}`)
           }
           lines.push('  end')
+          // Пастельный полупрозрачный фон группы — свой цвет у каждой локации
+          lines.push(`  style ${locId} fill:${ZONE_FILLS[zoneIdx % ZONE_FILLS.length]},stroke:#9fb3c8`)
         }
       }
     }
@@ -194,47 +233,19 @@ export function jsonToMermaid(schema, direction = 'TD') {
     roots.forEach(emitRootNode)
   }
 
-  // --- связи ---
+  // --- связи: жирные стрелки ===> без дефолтных подписей;
+  // текст на стрелке — только если в JSON явно задан cable ---
   for (const group of connectionGroups) {
     for (const edge of group.edges) {
       const fromId = getNodeId(edge.from)
       const toId = getNodeId(edge.to)
       const hasCable = edge.cable !== undefined && edge.cable !== null && String(edge.cable).trim() !== ''
-      if (group.isHighVoltage) {
-        lines.push(
-          hasCable
-            ? `  ${fromId} ==>|"${escapeLabel(edge.cable)}"| ${toId}`
-            : `  ${fromId} ==> ${toId}`,
-        )
-      } else {
-        lines.push(
-          hasCable
-            ? `  ${fromId} -.->|"${escapeLabel(edge.cable)}"| ${toId}`
-            : `  ${fromId} -.-> ${toId}`,
-        )
-      }
+      lines.push(
+        hasCable
+          ? `  ${fromId} ==>|"${escapeLabel(edge.cable)}"| ${toId}`
+          : `  ${fromId} ==> ${toId}`,
+      )
       edgesInfo.push({ from: fromId, to: toId })
-    }
-  }
-
-  // --- раскраска ---
-  const byClass = new Map()
-  for (const id of metaById.keys()) {
-    const className = metaById.get(id).className
-    if (!byClass.has(className)) byClass.set(className, [])
-    byClass.get(className).push(id)
-  }
-  if (byClass.size > 0) {
-    lines.push('  classDef coupling fill:#475569,stroke:#94a3b8,color:#f1f5f9,stroke-width:2px;')
-    lines.push('  classDef lamp fill:#dc2626,stroke:#fca5a5,color:#ffffff,stroke-width:2px;')
-    lines.push('  classDef ssv fill:#16a34a,stroke:#86efac,color:#ffffff,stroke-width:2px;')
-    lines.push('  classDef vk fill:#15803d,stroke:#4ade80,color:#ffffff,stroke-width:2px;')
-    lines.push('  classDef shsu fill:#1d4ed8,stroke:#93c5fd,color:#ffffff,stroke-width:2px;')
-    lines.push('  classDef power fill:#b45309,stroke:#fbbf24,color:#fef3c7,stroke-width:2px;')
-    lines.push('  classDef equipment fill:#0f766e,stroke:#5eead4,color:#ecfdf5,stroke-width:2px;')
-    lines.push('  classDef neutral fill:#1e293b,stroke:#64748b,color:#e2e8f0,stroke-width:1px;')
-    for (const [className, ids] of byClass.entries()) {
-      lines.push(`  class ${ids.join(',')} ${className};`)
     }
   }
 
