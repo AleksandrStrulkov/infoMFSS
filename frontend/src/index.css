@@ -195,8 +195,8 @@ body {
 /* ---------- Компактные сабграфы (секции) ---------- */
 .schema-svg .cluster-label text,
 .schema-svg .cluster-label span {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
 }
 
 /* Аккуратная рамка секции без лишних запасов сверху */
