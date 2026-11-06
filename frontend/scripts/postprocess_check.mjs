@@ -17,7 +17,7 @@ mermaid.initialize({
   flowchart: {
     useMaxWidth: false,
     htmlLabels: false,
-    curve: 'stepAfter',
+    curve: 'basis',
     nodeSpacing: NODE_SPACING,
     rankSpacing: RANK_SPACING,
     padding: PAD,
@@ -33,11 +33,12 @@ const findings = []
 let lastOut = ''
 
 for (const schemaPath of schemaFiles) {
+  for (const dir of ['TB', 'LR']) {
   const schema = JSON.parse(fs.readFileSync(`src/data/schemas/${schemaPath}`, 'utf8'))
-  const { code, shapes } = jsonToMermaid(schema, 'TD')
-  console.log(`\n=== schema: ${schemaPath} ===`)
+  const { code, shapes } = jsonToMermaid(schema, dir)
+  console.log(`\n=== schema: ${schemaPath} (${dir}) ===`)
   console.log('пунктирные связи остались?', /-\.->/.test(code))
-  const { svg } = await mermaid.render(`pp-${schemaPath.replace(/\W+/g, '_')}`, code)
+  const { svg } = await mermaid.render(`pp-${dir}-${schemaPath.replace(/\W+/g, '_')}`, code)
   const out = postProcessMermaidSvg(svg, { shapes })
   lastOut = out
 
@@ -144,6 +145,7 @@ for (const schemaPath of schemaFiles) {
     .map((c) => /fill:([^;"']+)/.exec(c.rect.getAttribute('style') || c.rect.getAttribute('fill') || '')?.[1] ?? '?')
   console.log('фоны зон:', fills.join(' | '))
   if (new Set(fills).size < clusters.length) findings.push('фоны зон не уникальны')
+  }
 }
 
 console.log('PROBLEMS:', findings.length ? findings.join('\n') : 'none')

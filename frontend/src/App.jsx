@@ -18,21 +18,22 @@ const rawSchemas = import.meta.glob('./data/schemas/*.json', {
 
 function configureMermaid() {
   // theme: 'default' и securityLevel: 'loose' — как в Mermaid Live Editor,
-  // цвета берутся из classDef (power/mufta/dev/info) в тексте диаграммы,
+  // цвета берутся из classDef (mufta/lamp/... ) в тексте диаграммы,
   // никакие themeVariables их не перебивают
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'loose',
     // обязательно на верхнем уровне: без этого mermaid рисует подписи
-    // foreignObject'ом, и пост-обработка (тексты кругов, надпись лампы
-    // над кругом) не находит <text> и не работает
+    // foreignObject'ом, и пост-обработка (тексты кругов, надписи и т.п.)
+    // не находит <text> и не работает
     htmlLabels: false,
     theme: 'default',
     flowchart: {
       useMaxWidth: false,
       htmlLabels: false,
-      // ортогональный роутинг (строгие 90°) — скругление сгибов через CSS
-      curve: 'stepAfter',
+      // плавная интерполяция без ступенчатых ортогональных изломов;
+      // финальные кабели всё равно строго осевые ( rebuilt в postProcess)
+      curve: 'basis',
       // расслоение секций: рамки subgraph растягиваются заголовками,
       // поэтому горизонтальный зазор нужен большой, иначе кластеры наложатся
       nodeSpacing: 120,

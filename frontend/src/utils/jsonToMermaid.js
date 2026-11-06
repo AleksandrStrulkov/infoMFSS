@@ -206,13 +206,6 @@ export function jsonToMermaid(schema, direction = 'TD') {
 
   // --- связи (заодно регистрируем узлы, которых нет ни в одной локации) ---
   const connectionGroups = normalizeConnections(schema)
-  for (const group of connectionGroups) {
-    for (const edge of group.edges) {
-      getNodeId(edge.from)
-      getNodeId(edge.to)
-    }
-  }
-
   if (hasLocations) {
     // Узлы, встречающиеся только в связях, ставим на верхний уровень
     for (const group of connectionGroups) {
