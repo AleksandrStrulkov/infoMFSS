@@ -76,7 +76,9 @@ for (const schemaPath of schemaFiles) {
     return parseFloat(v || 0)
   }
 
-  // Все ребра: строго осевые линии (нет диагоналей), концы на полюсах торцов
+  // Все ребра: строго осевые линии (нет диагоналей), концы на торцах;
+  // у одного узла стрелки не сходятся в одной точке
+  const anchorKeys = new Set()
   for (const pathEl of doc.querySelectorAll('g.edgePaths path')) {
     const m = /L_(node_\d+)_(node_\d+)_(\d+)$/.exec(pathEl.getAttribute('id') || '')
     if (!m) continue
@@ -112,18 +114,24 @@ for (const schemaPath of schemaFiles) {
       const shapeMeta = shapes[nodeId]
       if (shapeMeta?.shape === 'circle') {
         const dist = Math.hypot(pt.x - center.x, pt.y - center.y)
-        if (Math.abs(dist - 33) > 2) findings.push(`circle edge ${nodeId} (${label}) dist=${dist.toFixed(1)}`)
+        if (dist < 31.5 || dist > 37) findings.push(`circle edge ${nodeId} (${label}) dist=${dist.toFixed(1)}`)
       } else {
         const rect = shapeEl.querySelector('rect.basic.label-container')
         if (!rect) continue
         const half = { hw: num(rect.getAttribute('width')) / 2, hh: num(rect.getAttribute('height')) / 2 }
         const rel = { x: pt.x - center.x, y: pt.y - center.y }
         const onFace =
-          (Math.abs(Math.abs(rel.x) - (half.hw + 2)) < 0.6 && Math.abs(rel.y) < 0.6) ||
-          (Math.abs(Math.abs(rel.y) - (half.hh + 2)) < 0.6 && Math.abs(rel.x) < 0.6)
+          (Math.abs(Math.abs(rel.y) - (half.hh + 2)) < 0.6 && Math.abs(rel.x) <= half.hw + 0.6) ||
+          (Math.abs(Math.abs(rel.x) - (half.hw + 2)) < 0.6 && Math.abs(rel.y) <= half.hh + 0.6)
         if (!onFace) {
-          findings.push(`rect edge ${nodeId} (${label}) точка не на полюсе торца: rel=${rel.x.toFixed(1)},${rel.y.toFixed(1)}`)
+          findings.push(`rect edge ${nodeId} (${label}) точка не на торце: rel=${rel.x.toFixed(1)},${rel.y.toFixed(1)}`)
         }
+        // стрелки от/к узла должны расходиться по торцу, а не сходиться в точке
+        const key = `${nodeId}:${pt.x.toFixed(1)}:${pt.y.toFixed(1)}`
+        if (anchorKeys.has(key)) {
+          findings.push(`${nodeId} (${label}): вторая стрелка в той же точке торца ${key}`)
+        }
+        anchorKeys.add(key)
       }
     }
   }

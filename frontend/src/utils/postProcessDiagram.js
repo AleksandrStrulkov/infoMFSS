@@ -116,10 +116,11 @@ export function postProcessMermaidSvg(svgText, meta) {
     })
   }
 
-  // --- Полная перестройка кабелей: выход из полюса торца источника,
+  // --- Полная перестройка кабелей: выход из торца источника,
   // тройниковая развилка на свободной полосе между строками, вход
   // строго ортогонально в центр торца приёмника ---
   const fmt = (p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`
+  const routed = []
   for (const edge of edges) {
     const s = nodes.get(edge.from)
     const t = nodes.get(edge.to)
@@ -137,9 +138,13 @@ export function postProcessMermaidSvg(svgText, meta) {
     // Полюс источника — грань, обращённая к приёмнику
     let source
     let target
+    let sSide
+    let tSide
     if (vertical) {
       const sideS = dy >= 0 ? 1 : -1
       const sideT = dy >= 0 ? -1 : 1
+      sSide = sideS
+      tSide = sideT
       source = {
         x: s.center.x,
         y: s.center.y + sideS * (s.half.hh + marginS),
@@ -151,6 +156,8 @@ export function postProcessMermaidSvg(svgText, meta) {
     } else {
       const sideS = dx >= 0 ? 1 : -1
       const sideT = dx >= 0 ? -1 : 1
+      sSide = sideS
+      tSide = sideT
       source = {
         x: s.center.x + sideS * (s.half.hw + marginS),
         y: s.center.y,
@@ -160,8 +167,48 @@ export function postProcessMermaidSvg(svgText, meta) {
         y: t.center.y,
       }
     }
+    routed.push({ edge, s, t, vertical, sSide, tSide, source, target })
+  }
 
-    // Тройниковая развилка на полосе между строками блоков
+  // --- Разнос якорей: у узла, откуда выходит или куда входит несколько
+  // стрелок в одну сторону, точки крепления распределяются по его торцу,
+  // чтобы стрелки не сходились в одном полюсе ---
+  const ANCHOR_GAP = 16
+  const groups = new Map()
+  for (const r of routed) {
+    const axis = r.vertical ? 'v' : 'h'
+    groups.set(`s:${r.edge.from}:${axis}${r.sSide}`, (groups.get(`s:${r.edge.from}:${axis}${r.sSide}`) ?? []).concat(r))
+    groups.set(`t:${r.edge.to}:${axis}${r.tSide}`, (groups.get(`t:${r.edge.to}:${axis}${r.tSide}`) ?? []).concat(r))
+  }
+  for (const [key, list] of groups.entries()) {
+    if (list.length < 2) continue
+    const [role, nodeId, axisSign] = key.split(':')
+    const node = nodes.get(nodeId)
+    const vertical = key.split(':')[2].startsWith('v')
+    const maxHalf = node.info.shape === 'circle'
+      ? 12
+      : Math.max((vertical ? node.half.hw : node.half.hh) - 6, 0)
+    // сортировка по позиции встречного узла — линии не перекрещиваются
+    const sortByOther = (r) => (vertical ? r.t.center.x : r.t.center.y)
+    const sortByFrom = (r) => (vertical ? r.s.center.x : r.s.center.y)
+    list.sort(role === 's' ? sortByOther : sortByFrom)
+    const n = list.length
+    const span = Math.min((n - 1) * ANCHOR_GAP, maxHalf * 2)
+    list.forEach((r, i) => {
+      const off = n === 1 ? 0 : -span / 2 + (span * i) / (n - 1)
+      if (role === 's') {
+        // торец источника: вертикальный — разброс по X, горизонтальный — по Y
+        if (vertical) r.source.x += off
+        else r.source.y += off
+      } else {
+        if (vertical) r.target.x += off
+        else r.target.y += off
+      }
+    })
+  }
+
+  // Сборка путей по разнесённым якорям
+  for (const { edge, vertical, source, target } of routed) {
     let d
     if (vertical) {
       const yJoin = (source.y + target.y) / 2
