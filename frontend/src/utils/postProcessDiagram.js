@@ -116,11 +116,49 @@ export function postProcessMermaidSvg(svgText, meta) {
     })
   }
 
-  // --- Полная перестройка кабелей: выход из торца источника,
-  // тройниковая развилка на свободной полосе между строками, вход
-  // строго ортогонально в центр торца приёмника ---
+  // --- Полная перестройка кабелей: ортогональные порты (4 стороны блока) ---
+  // У каждого блока ровно 4 порта: верх (0°), право (90°), низ (180°),
+  // лево (270°). Стрелки выходят и входят строго по нормали к грани.
+  // Каждое ответвление занимает свою грань: если желаемая сторона занята,
+  // берётся ближайшая свободная по направлению к встречному блоку.
   const fmt = (p) => `${p.x.toFixed(2)},${p.y.toFixed(2)}`
-  const routed = []
+  const SIDE_TOP = 0
+  const SIDE_RIGHT = 1
+  const SIDE_BOTTOM = 2
+  const SIDE_LEFT = 3
+
+  const sideTowards = (node, other) => {
+    const dx = other.center.x - node.center.x
+    const dy = other.center.y - node.center.y
+    if (Math.abs(dy) >= Math.abs(dx)) return dy >= 0 ? SIDE_BOTTOM : SIDE_TOP
+    return dx >= 0 ? SIDE_RIGHT : SIDE_LEFT
+  }
+
+  const sideAnchor = (node, side) => {
+    const margin = node.info.shape === 'circle' ? CIRCLE_MARGIN : RECT_MARGIN
+    if (side === SIDE_TOP) return { x: node.center.x, y: node.center.y - (node.half.hh + margin) }
+    if (side === SIDE_RIGHT) return { x: node.center.x + (node.half.hw + margin), y: node.center.y }
+    if (side === SIDE_BOTTOM) return { x: node.center.x, y: node.center.y + (node.half.hh + margin) }
+    return { x: node.center.x - (node.half.hw + margin), y: node.center.y }
+  }
+
+  // предпочесть при выборе свободной грани ту, куда «смотрит» встречный узел
+  const candidatesFor = (side, node, other) => {
+    const dx = other.center.x - node.center.x
+    const dy = other.center.y - node.center.y
+    if (side === SIDE_TOP || side === SIDE_BOTTOM) {
+      const near = dx >= 0 ? SIDE_RIGHT : SIDE_LEFT
+      const far = dx >= 0 ? SIDE_LEFT : SIDE_RIGHT
+      return [side, near, far, (side + 2) % 4]
+    }
+    const near = dy >= 0 ? SIDE_BOTTOM : SIDE_TOP
+    const far = dy >= 0 ? SIDE_TOP : SIDE_BOTTOM
+    return [side, near, far, (side + 2) % 4]
+  }
+
+  // концы связей: отдельный конец на выход (s) и на вход (t)
+  const ends = []
+  const routable = new Set() // edges, у которых есть оба конца
   for (const edge of edges) {
     const s = nodes.get(edge.from)
     const t = nodes.get(edge.to)
@@ -128,100 +166,101 @@ export function postProcessMermaidSvg(svgText, meta) {
       edge.pathEl.setAttribute('d', sanitizePath(edge.pathEl.getAttribute('d') || ''))
       continue
     }
-
-    const marginS = s.info.shape === 'circle' ? CIRCLE_MARGIN : RECT_MARGIN
-    const marginT = t.info.shape === 'circle' ? CIRCLE_MARGIN : RECT_MARGIN
-    const dx = t.center.x - s.center.x
-    const dy = t.center.y - s.center.y
-    const vertical = Math.abs(dy) >= Math.abs(dx)
-
-    // Полюс источника — грань, обращённая к приёмнику
-    let source
-    let target
-    let sSide
-    let tSide
-    if (vertical) {
-      const sideS = dy >= 0 ? 1 : -1
-      const sideT = dy >= 0 ? -1 : 1
-      sSide = sideS
-      tSide = sideT
-      source = {
-        x: s.center.x,
-        y: s.center.y + sideS * (s.half.hh + marginS),
-      }
-      target = {
-        x: t.center.x,
-        y: t.center.y + sideT * (t.half.hh + marginT),
-      }
-    } else {
-      const sideS = dx >= 0 ? 1 : -1
-      const sideT = dx >= 0 ? -1 : 1
-      sSide = sideS
-      tSide = sideT
-      source = {
-        x: s.center.x + sideS * (s.half.hw + marginS),
-        y: s.center.y,
-      }
-      target = {
-        x: t.center.x + sideT * (t.half.hw + marginT),
-        y: t.center.y,
-      }
-    }
-    routed.push({ edge, s, t, vertical, sSide, tSide, source, target })
+    routable.add(edge)
+    ends.push({ edge, role: 's', nodeId: edge.from, node: s, other: t })
+    ends.push({ edge, role: 't', nodeId: edge.to, node: t, other: s })
   }
 
-  // --- Разнос якорей: у узла, откуда выходит или куда входит несколько
-  // стрелок в одну сторону, точки крепления распределяются по его торцу,
-  // чтобы стрелки не сходились в одном полюсе ---
+  // Распределение по граням: чем однозначнее направление к встречному
+  // блоку (доминирующая ось), тем раньше конец связи встаёт на свою
+  // грань; занятые грани пропускаются, берётся ближайшая свободная
+  const taken = new Map() // nodeId -> Set(side)
+  for (const nodeId of nodes.keys()) {
+    if (nodes.get(nodeId).half) taken.set(nodeId, new Set())
+  }
+  const ambiguous = (e) => {
+    const dx = Math.abs(e.other.center.x - e.node.center.x)
+    const dy = Math.abs(e.other.center.y - e.node.center.y)
+    return Math.min(dx, dy) / (dx + dy + 1e-9)
+  }
+  const sideOf = new Map()
+  ;[...ends]
+    .sort((a, b) => ambiguous(a) - ambiguous(b))
+    .forEach((e) => {
+      const used = taken.get(e.nodeId)
+      const desired = sideTowards(e.node, e.other)
+      let side = null
+      for (const cand of candidatesFor(desired, e.node, e.other)) {
+        if (!used.has(cand)) {
+          side = cand
+          break
+        }
+      }
+      // все 4 порта заняты — порт всё равно нужен (сгруппируются ниже)
+      if (side === null) side = desired
+      used.add(side)
+      sideOf.set(e, side)
+    })
+
+  // Якорь — центр грани (строго по нормали). Если несколько концов
+  // делят одну грань (портов не хватило) — разнос вдоль грани
   const ANCHOR_GAP = 16
-  const groups = new Map()
-  for (const r of routed) {
-    const axis = r.vertical ? 'v' : 'h'
-    groups.set(`s:${r.edge.from}:${axis}${r.sSide}`, (groups.get(`s:${r.edge.from}:${axis}${r.sSide}`) ?? []).concat(r))
-    groups.set(`t:${r.edge.to}:${axis}${r.tSide}`, (groups.get(`t:${r.edge.to}:${axis}${r.tSide}`) ?? []).concat(r))
+  const faceGroups = new Map()
+  for (const e of ends) {
+    const key = `${e.nodeId}:${sideOf.get(e)}`
+    faceGroups.set(key, (faceGroups.get(key) ?? []).concat(e))
   }
-  for (const [key, list] of groups.entries()) {
-    if (list.length < 2) continue
-    const [role, nodeId, axisSign] = key.split(':')
-    const node = nodes.get(nodeId)
-    const vertical = key.split(':')[2].startsWith('v')
+  for (const [key, list] of faceGroups.entries()) {
+    const entityId = key.slice(0, key.lastIndexOf(':'))
+    const side = Number(key.slice(key.lastIndexOf(':') + 1))
+    const node = nodes.get(entityId)
+    const verticalFace = side === SIDE_TOP || side === SIDE_BOTTOM
     const maxHalf = node.info.shape === 'circle'
       ? 12
-      : Math.max((vertical ? node.half.hw : node.half.hh) - 6, 0)
+      : Math.max((verticalFace ? node.half.hw : node.half.hh) - 6, 0)
     // сортировка по позиции встречного узла — линии не перекрещиваются
-    const sortByOther = (r) => (vertical ? r.t.center.x : r.t.center.y)
-    const sortByFrom = (r) => (vertical ? r.s.center.x : r.s.center.y)
-    list.sort(role === 's' ? sortByOther : sortByFrom)
+    list.sort((a, b) => (verticalFace ? a.other.center.x - b.other.center.x : a.other.center.y - b.other.center.y))
     const n = list.length
     const span = Math.min((n - 1) * ANCHOR_GAP, maxHalf * 2)
-    list.forEach((r, i) => {
-      const off = n === 1 ? 0 : -span / 2 + (span * i) / (n - 1)
-      if (role === 's') {
-        // торец источника: вертикальный — разброс по X, горизонтальный — по Y
-        if (vertical) r.source.x += off
-        else r.source.y += off
-      } else {
-        if (vertical) r.target.x += off
-        else r.target.y += off
-      }
+    list.forEach((e, i) => {
+      e.offset = n === 1 ? 0 : -span / 2 + (span * i) / (n - 1)
+      e.anchor = sideAnchor(node, side)
+      if (verticalFace) e.anchor.x += e.offset
+      else e.anchor.y += e.offset
     })
   }
 
-  // Сборка путей по разнесённым якорям
-  for (const { edge, vertical, source, target } of routed) {
-    let d
-    if (vertical) {
-      const yJoin = (source.y + target.y) / 2
-      d = source.x === target.x
-        ? `M${fmt(source)}L${fmt(target)}`
-        : `M${fmt(source)}L${source.x.toFixed(2)},${yJoin.toFixed(2)}L${target.x.toFixed(2)},${yJoin.toFixed(2)}L${fmt(target)}`
+  // Сборка пути: строго ортогональные сегменты (0° / 90° / 180° / 270°)
+  for (const edge of routable) {
+    const sEnd = ends.find((e) => e.edge === edge && e.role === 's')
+    const tEnd = ends.find((e) => e.edge === edge && e.role === 't')
+    const S = sEnd.anchor
+    const T = tEnd.anchor
+    const sSide = sideOf.get(sEnd)
+    const tSide = sideOf.get(tEnd)
+    const aVert = sSide === SIDE_TOP || sSide === SIDE_BOTTOM
+    const bVert = tSide === SIDE_TOP || tSide === SIDE_BOTTOM
+    let pts
+    if (aVert && bVert) {
+      pts = S.x === T.x
+        ? [S, T]
+        : [S, { x: S.x, y: (S.y + T.y) / 2 }, { x: T.x, y: (S.y + T.y) / 2 }, T]
+    } else if (!aVert && !bVert) {
+      pts = S.y === T.y
+        ? [S, T]
+        : [S, { x: (S.x + T.x) / 2, y: S.y }, { x: (S.x + T.x) / 2, y: T.y }, T]
+    } else if (aVert) {
+      pts = [S, { x: S.x, y: T.y }, T]
     } else {
-      const xJoin = (source.x + target.x) / 2
-      d = source.y === target.y
-        ? `M${fmt(source)}L${fmt(target)}`
-        : `M${fmt(source)}L${xJoin.toFixed(2)},${source.y.toFixed(2)}L${xJoin.toFixed(2)},${target.y.toFixed(2)}L${fmt(target)}`
+      pts = [S, { x: T.x, y: S.y }, T]
     }
-    edge.pathEl.setAttribute('d', d)
+    // срез нулевых сегментов
+    const clean = []
+    for (const p of pts) {
+      const last = clean[clean.length - 1]
+      if (!last || Math.abs(last.x - p.x) > 0.01 || Math.abs(last.y - p.y) > 0.01) clean.push(p)
+    }
+    edge.pathEl.setAttribute('d', clean.map((p, i) => `${i === 0 ? 'M' : 'L'}${fmt(p)}`).join(''))
   }
 
   return new XMLSerializer().serializeToString(svg)
