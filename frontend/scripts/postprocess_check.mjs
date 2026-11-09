@@ -27,7 +27,11 @@ mermaid.initialize({
   theme: 'default',
 })
 
-const schemaFiles = fs.readdirSync('src/data/schemas').filter((f) => f.endsWith('.json'))
+// шахты лежат по папкам: src/data/schemas/mine_1/*.json, mine_2/...
+const schemaFiles = fs
+  .readdirSync('src/data/schemas')
+  .filter((d) => fs.statSync(`src/data/schemas/${d}`).isDirectory())
+  .flatMap((dir) => fs.readdirSync(`src/data/schemas/${dir}`).filter((f) => f.endsWith('.json')).map((f) => `${dir}/${f}`))
 
 const findings = []
 let lastOut = ''

@@ -21,8 +21,12 @@ export function exportSvgFile(svgText, name) {
   downloadText(xml, `${name}.svg`, 'image/svg+xml')
 }
 
-async function svgToCanvas(svgText, scale) {
-  const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' })
+async function svgToCanvas(svgText, scale, bg) {
+  // защита от переполнения canvas: размеры и координаты подъём
+  const xml = /xmlns=/.test(svgText)
+    ? svgText
+    : svgText.replace(/<svg([>\s])/, '<svg xmlns="http://www.w3.org/2000/svg"$1')
+  const blob = new Blob([xml], { type: 'image/svg+xml;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   try {
     const img = await new Promise((resolve, reject) => {
@@ -31,13 +35,20 @@ async function svgToCanvas(svgText, scale) {
       image.onerror = () => reject(new Error('Не удалось отрисовать SVG в bitmap.'))
       image.src = url
     })
-    const width = img.width || 800
-    const height = img.height || 600
+    const naturalW = img.width || 800
+    const naturalH = img.height || 600
+    // максимум canvas ~16384×16384 px (ограничение браузеров)
+    const fit = Math.min(1, 16384 / naturalW, 16384 / naturalH)
+    const effScale = Math.max(1, Math.min(scale, fit * scale, fit))
+    const width = naturalW
+    const height = naturalH
     const canvas = document.createElement('canvas')
-    canvas.width = Math.round(width * scale)
-    canvas.height = Math.round(height * scale)
+    canvas.width = Math.round(width * effScale)
+    canvas.height = Math.round(height * effScale)
     const ctx = canvas.getContext('2d')
-    ctx.scale(scale, scale)
+    ctx.fillStyle = bg || '#ffffff'
+    ctx.fillRect(0, 0, width, height)
+    ctx.scale(effScale, effScale)
     ctx.drawImage(img, 0, 0, width, height)
     return canvas
   } finally {
@@ -45,8 +56,9 @@ async function svgToCanvas(svgText, scale) {
   }
 }
 
-export async function exportPngFile(svgText, name, scale = 2) {
-  const canvas = await svgToCanvas(svgText, scale)
+// Фон экспорта всегда в теме, открытой на странице (PNG/PDF не прозрачны)
+export async function exportPngFile(svgText, name, scale = 2, bg = '#ffffff') {
+  const canvas = await svgToCanvas(svgText, scale, bg)
   const blob = await new Promise((resolve, reject) => {
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Не удалось получить PNG.'))), 'image/png')
   })
@@ -54,8 +66,8 @@ export async function exportPngFile(svgText, name, scale = 2) {
 }
 
 // Ориентация PDF — альбомная/книжная — подбирается по пропорциям схемы
-export async function exportPdfFile(svgText, name, scale = 2) {
-  const canvas = await svgToCanvas(svgText, scale)
+export async function exportPdfFile(svgText, name, scale = 2, bg = '#ffffff') {
+  const canvas = await svgToCanvas(svgText, scale, bg)
   const pngDataUrl = canvas.toDataURL('image/png')
   const width = canvas.width / scale
   const height = canvas.height / scale

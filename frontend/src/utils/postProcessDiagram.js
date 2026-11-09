@@ -72,9 +72,9 @@ export function postProcessMermaidSvg(svgText, meta) {
 
   const edges = []
   for (const pathEl of doc.querySelectorAll('g.edgePaths path')) {
-    const m = /L_(node_\d+)_(node_\d+)_(\d+)$/.exec(pathEl.getAttribute('id') || '')
+    const m = /L_(node_\d+)_(node_\d+)_(\d+)$/.exec(pathEl.getAttribute('data-id') || pathEl.getAttribute('id') || '')
     if (!m) continue
-    edges.push({ pathEl, from: m[1], to: m[2] })
+    edges.push({ pathEl, from: m[1], to: m[2], idx: Number(m[3]) })
   }
 
   // --- Круги (Лампа / СЗВ): единый радиус, компактный многострочный текст ---
@@ -261,6 +261,135 @@ export function postProcessMermaidSvg(svgText, meta) {
       if (!last || Math.abs(last.x - p.x) > 0.01 || Math.abs(last.y - p.y) > 0.01) clean.push(p)
     }
     edge.pathEl.setAttribute('d', clean.map((p, i) => `${i === 0 ? 'M' : 'L'}${fmt(p)}`).join(''))
+    edge.pts = clean
+  }
+
+  // --- Заголовки кабелей (ключ "cable" из JSON): единообразно — центр
+  // подписи точно на середине пути, чуть в стороне от линии (над
+  // горизонтальными сегментами, слева от вертикальных); длинные тексты
+  // переформируются в несколько коротких строк, чтобы плашка оставалась
+  // узкой и всегда сидела рядом со стрелкой ---
+  const LABEL_CLEAR = 12
+  const LABEL_FONT = 11
+  const LABEL_LINE = 12
+  const LABEL_MAX_ROW = 7
+  for (const outer of doc.querySelectorAll('g.edgeLabels g.edgeLabel')) {
+    const inner = outer.querySelector('g.label[data-id]')
+    if (!inner) continue
+    const fullText = String(outer.textContent || '').trim()
+    if (!fullText) continue
+    const dataId = inner.getAttribute('data-id') || ''
+    const m = /L_(node_\d+)_(node_\d+)_(\d+)$/.exec(dataId)
+    if (!m) continue
+    const edge = edges.find((e) => e.from === m[1] && e.to === m[2] && e.idx === Number(m[3]))
+    if (!edge?.pts || edge.pts.length < 2) continue
+
+    // переверстка длинной подписи в короткие строки
+    const rows = splitNodeLines(fullText, LABEL_MAX_ROW)
+    const charsPerRow = Math.max(...rows.map((r) => r.length))
+    const rectW = charsPerRow * 6 + 4
+    const rectH = rows.length * LABEL_LINE + 4
+    const text = outer.querySelector('text')
+    if (rows.length > 1 && text) {
+      while (text.firstChild) text.removeChild(text.firstChild)
+      text.setAttribute('font-size', String(LABEL_FONT))
+      text.setAttribute('text-anchor', 'middle')
+      text.setAttribute('x', '0')
+      text.setAttribute('y', (-rectH / 2 + 9).toFixed(2))
+      rows.forEach((line, i) => {
+        const tspan = doc.createElementNS(SVG_NS, 'tspan')
+        tspan.setAttribute('x', '0')
+        if (i > 0) tspan.setAttribute('dy', String(LABEL_LINE))
+        tspan.textContent = line
+        text.appendChild(tspan)
+      })
+      const bg = outer.querySelector('rect.background')
+      if (bg) {
+        bg.setAttribute('x', '-2')
+        bg.setAttribute('y', '-2')
+        bg.setAttribute('width', String(rectW))
+        bg.setAttribute('height', String(rectH))
+      }
+      // центр плашки должен совпадать с точкой крепления (origin метки)
+      inner.setAttribute('transform', `translate(${(2 - rectW / 2).toFixed(2)},${(2 - rectH / 2).toFixed(2)})`)
+    }
+
+    // середина пути по длине + касательная сегмента, где она лежит
+    const segments = []
+    let total = 0
+    for (let i = 1; i < edge.pts.length; i++) {
+      const a = edge.pts[i - 1]
+      const b = edge.pts[i]
+      const len = Math.hypot(b.x - a.x, b.y - a.y)
+      segments.push({ a, b, len })
+      total += len
+    }
+    let mid
+    let tang
+    let remin = total / 2
+    for (const seg of segments) {
+      if (remin <= seg.len) {
+        const k = seg.len > 0 ? remin / seg.len : 0
+        mid = { x: seg.a.x + (seg.b.x - seg.a.x) * k, y: seg.a.y + (seg.b.y - seg.a.y) * k }
+        tang = { x: (seg.b.x - seg.a.x) / (seg.len || 1), y: (seg.b.y - seg.a.y) / (seg.len || 1) }
+        break
+      }
+      remin -= seg.len
+    }
+    if (!mid || !tang) continue
+
+    // единый сдвиг от линии по нормали: подпись над линией / слева от неё,
+    // одинаковый зазор для любой длины текста
+    let n = { x: tang.y, y: -tang.x }
+    if (n.y > 1e-6 || (Math.abs(n.y) <= 1e-6 && n.x > 0)) n = { x: -n.x, y: -n.y }
+    const off = LABEL_CLEAR + rectH / 2
+    outer.setAttribute('transform', `translate(${(mid.x + n.x * off).toFixed(2)},${(mid.y + n.y * off).toFixed(2)})`)
+  }
+
+  // --- Габарит корня: пересчёт из фактической геометрии. Mermaid иногда
+  // ставит в root width/height мусорные значения (из-за чего ломаются
+  // экспорт PNG/PDF), поэтому рамку считаем сами по нормализованному
+  // содержимому: кластеры, узлы, ребра ---
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  const grow = (x0, y0, x1, y1) => {
+    if (!Number.isFinite(x0) || !Number.isFinite(y0) || !Number.isFinite(x1) || !Number.isFinite(y1)) return
+    minX = Math.min(minX, x0)
+    minY = Math.min(minY, y0)
+    maxX = Math.max(maxX, x1)
+    maxY = Math.max(maxY, y1)
+  }
+  for (const rect of doc.querySelectorAll('g.cluster rect')) {
+    grow(
+      parseFloat(rect.getAttribute('x') || '0'),
+      parseFloat(rect.getAttribute('y') || '0'),
+      parseFloat(rect.getAttribute('x') || '0') + parseFloat(rect.getAttribute('width') || '0'),
+      parseFloat(rect.getAttribute('y') || '0') + parseFloat(rect.getAttribute('height') || '0'),
+    )
+  }
+  for (const node of nodes.values()) {
+    if (!node.half) continue
+    grow(node.center.x - node.half.hw, node.center.y - node.half.hh, node.center.x + node.half.hw, node.center.y + node.half.hh)
+  }
+  for (const edge of edges) {
+    if (!edge.pts) continue
+    for (const p of edge.pts) grow(p.x, p.y, p.x, p.y)
+  }
+  for (const g of doc.querySelectorAll('g.edgeLabels g.edgeLabel')) {
+    if (!String(g.textContent || '').trim()) continue
+    const t = /translate\(\s*(-?[\d.]+)[,\s]+(-?[\d.]+)/.exec(g.getAttribute('transform') || '')
+    if (t) grow(parseFloat(t[1]), parseFloat(t[2]), parseFloat(t[1]), parseFloat(t[2]))
+  }
+  if (Number.isFinite(minX) && Number.isFinite(minY) && maxX > minX && maxY > minY) {
+    minX -= 8
+    minY -= 8
+    maxX += 8
+    maxY += 8
+    svg.setAttribute('width', (maxX - minX).toFixed(2))
+    svg.setAttribute('height', (maxY - minY).toFixed(2))
+    svg.setAttribute('viewBox', `${minX.toFixed(2)} ${minY.toFixed(2)} ${(maxX - minX).toFixed(2)} ${(maxY - minY).toFixed(2)}`)
   }
 
   return new XMLSerializer().serializeToString(svg)

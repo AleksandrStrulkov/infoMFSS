@@ -10,7 +10,7 @@ import {
   downloadText,
 } from './utils/exportDiagram.js'
 
-const rawSchemas = import.meta.glob('./data/schemas/*.json', {
+const rawSchemas = import.meta.glob('./data/schemas/*/*.json', {
   eager: true,
   query: '?raw',
   import: 'default',
@@ -47,6 +47,12 @@ function configureMermaid() {
 
 let renderCounter = 0
 
+// цвет фона экспорта = фон канвы страницы в текущей теме
+function themeBg() {
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--canvas-bg')
+  return v ? String(v).trim() : document.documentElement.dataset.theme === 'light' ? '#f8fafc' : '#0b1220'
+}
+
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props)
@@ -70,13 +76,34 @@ class ErrorBoundary extends Component {
   }
 }
 
-function parseSchemas() {
-  const list = []
+// Данные шахт лежат по папкам: src/data/schemas/mine_1/*.json, mine_2/...
+// Название шахты берём из поля "mine" верхнего уровня каждого JSON
+function parseMines() {
+  const folders = new Map() // mine_N -> { dir, files: [...] }
   for (const [path, text] of Object.entries(rawSchemas)) {
-    const name = path.split('/').pop().replace(/\.json$/i, '')
-    list.push({ name, path, text })
+    const parts = path.split('/')
+    const dir = parts[parts.length - 2]
+    const fileName = parts[parts.length - 1].replace(/\.json$/i, '')
+    if (!folders.has(dir)) folders.set(dir, { dir, files: [] })
+    folders.get(dir).files.push({ name: fileName, path, text })
   }
-  list.sort((a, b) => a.name.localeCompare(b.name))
+  const list = [...folders.values()]
+  for (const folder of list) {
+    folder.files.sort((a, b) => a.name.localeCompare(b.name))
+    const mineNames = folder.files
+      .map((f) => {
+        try {
+          const parsed = JSON.parse(f.text)
+          const mine = parsed?.mine
+          return typeof mine === 'string' && mine.trim() ? mine.trim() : null
+        } catch {
+          return null // битый/пустой файл — шахта именуется по папке
+        }
+      })
+      .filter(Boolean)
+    folder.mine = mineNames[0] ?? folder.dir
+  }
+  list.sort((a, b) => a.dir.localeCompare(b.dir, undefined, { numeric: true }))
   return list
 }
 
@@ -128,8 +155,8 @@ function SchemaViewer({ schemaFile, direction, lastSvgRef }) {
   if (!schemaFile) {
     return (
       <div className="error-panel">
-        <h2>Схемы не найдены</h2>
-        <p>Положите JSON-файлы в frontend/src/data/schemas/ или загрузите их со страницы.</p>
+        <h2>Схема не построена</h2>
+        <p>Схема для этой шахты ещё не загружена.</p>
       </div>
     )
   }
@@ -144,11 +171,44 @@ function SchemaViewer({ schemaFile, direction, lastSvgRef }) {
 }
 
 export default function App() {
-  const schemaFiles = useMemo(parseSchemas, [])
-  const [selectedName, setSelectedName] = useState(() => {
-    const pending = sessionStorage.getItem('pendingSchema')
-    return pending ?? schemaFiles[0]?.name ?? ''
+  const mines = useMemo(parseMines, [])
+  const [pendingDirs, setPendingDirs] = useState(() => {
+    // шахты без файлов (пустые папки) glob не видит — список берём у dev-сервера
+    const stored = sessionStorage.getItem('pendingMineDir')
+    return stored ? [stored] : []
   })
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/schema-dirs')
+      .then((r) => r.json())
+      .then((res) => {
+        if (!cancelled && Array.isArray(res?.dirs)) setPendingDirs(res.dirs)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  // объединяем: папки с файлами + папки, которые dev-сервер знает на диске
+  const mineList = useMemo(() => {
+    const seen = new Map(mines.map((m) => [m.dir, m]))
+    const list = [...mines]
+    for (const dir of pendingDirs) {
+      if (!seen.has(dir)) list.push({ dir, mine: dir, files: [] })
+    }
+    list.sort((a, b) => a.dir.localeCompare(b.dir, undefined, { numeric: true }))
+    return list
+  }, [mines, pendingDirs])
+  // по умолчанию — mine_1 и первый файл в нём (если там есть файлы)
+  const [activeDir, setActiveDir] = useState(
+    () => sessionStorage.getItem('pendingMineDir') || (mines[0]?.dir ?? ''),
+  )
+  const [activeFileName, setActiveFileName] = useState(
+    () => sessionStorage.getItem('pendingMineFile') || (mines[0]?.files[0]?.name ?? ''),
+  )
+  const mineFiles = mineList.find((m) => m.dir === activeDir)?.files ?? []
+  const selected = mineFiles.find((f) => f.name === activeFileName) ?? mineFiles[0] ?? null
+  const mineTitle = mineList.find((m) => m.dir === activeDir)?.mine ?? activeDir
   const [direction, setDirection] = useState('TD')
   const [theme, setTheme] = useState(() =>
     document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
@@ -166,10 +226,9 @@ export default function App() {
   // (файл добавился в import.meta.glob) sessionStorage уже не нужен
   useEffect(() => {
     sessionStorage.removeItem('pendingSchema')
+    sessionStorage.removeItem('pendingMineDir')
+    sessionStorage.removeItem('pendingMineFile')
   }, [])
-
-  const selected = schemaFiles.find((f) => f.name === selectedName) ?? null
-  const activeName = selected ? selected.name : schemaFiles[0]?.name ?? ''
 
   const handleExport = async (kind) => {
     setExportMenuOpen(false)
@@ -177,7 +236,7 @@ export default function App() {
     try {
       if (kind === 'json') {
         const pretty = JSON.stringify(JSON.parse(selected.text), null, 2)
-        downloadText(pretty, `${selected.name}.json`, 'application/json')
+        downloadText(pretty, `${mineTitle}-${selected.name}.json`, 'application/json')
         return
       }
       const svgText = lastSvgRef.current
@@ -185,9 +244,9 @@ export default function App() {
         window.alert('Схема ещё не отрисована — подождите, пока она построится.')
         return
       }
-      if (kind === 'svg') exportSvgFile(svgText, selected.name)
-      else if (kind === 'png') await exportPngFile(svgText, selected.name)
-      else if (kind === 'pdf') await exportPdfFile(svgText, selected.name)
+      if (kind === 'svg') exportSvgFile(svgText, `${mineTitle}-${selected.name}`)
+      else if (kind === 'png') await exportPngFile(svgText, `${mineTitle}-${selected.name}`, 2, themeBg())
+      else if (kind === 'pdf') await exportPdfFile(svgText, `${mineTitle}-${selected.name}`, 2, themeBg())
     } catch (err) {
       window.alert(`Ошибка экспорта: ${err.message || err}`)
     }
@@ -212,7 +271,9 @@ export default function App() {
       if (!result.ok) throw new Error(result.error || `HTTP ${response.status}`)
       // После записи файла dev-сервер перезагрузит страницу
       // (import.meta.glob подхватит новый файл) — спрашиваем ту самую схему
-      sessionStorage.setItem('pendingSchema', result.file.replace(/\.json$/i, ''))
+      const [dir, base] = String(result.file).split('/')
+      sessionStorage.setItem('pendingMineDir', dir)
+      sessionStorage.setItem('pendingMineFile', (base ?? '').replace(/\.json$/i, ''))
       window.location.reload()
     } catch (err) {
       window.alert(`Не удалось загрузить схему: ${err.message || err}`)
@@ -225,15 +286,36 @@ export default function App() {
         <div className="toolbar-title">infoMFSS · Инженерные схемы</div>
 
         <label className="toolbar-field">
-          Схема:
+          Шахта:
           <select
-            value={activeName}
+            value={activeDir}
             onChange={(e) => {
-              setSelectedName(e.target.value)
+              const dir = e.target.value
+              const folder = mineList.find((m) => m.dir === dir) ?? null
+              setActiveDir(dir)
+              // при смене шахты — её первый файл, схема пересобирается
+              setActiveFileName(folder?.files[0]?.name ?? '')
               transformRef.current?.resetTransform()
             }}
           >
-            {schemaFiles.map((file) => (
+            {mineList.map((m) => (
+              <option key={m.dir} value={m.dir}>
+                {m.mine}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="toolbar-field">
+          Схема:
+          <select
+            value={selected?.name ?? ''}
+            onChange={(e) => {
+              setActiveFileName(e.target.value)
+              transformRef.current?.resetTransform()
+            }}
+          >
+            {mineFiles.map((file) => (
               <option key={file.path} value={file.name}>
                 {file.name}.json
               </option>
