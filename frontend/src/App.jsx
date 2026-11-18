@@ -273,7 +273,9 @@ export default function App() {
   return (
     <div className="app">
       <header className="toolbar">
-        <div className="toolbar-title">infoMFSS · Инженерные схемы</div>
+        <div className="toolbar-title">
+          <a className="toolbar-home" href="/">InfoMFSS</a> · Схемы электроснабжения
+        </div>
 
         <label className="toolbar-field">
           Шахта:
@@ -390,7 +392,10 @@ export default function App() {
             ref={transformRef}
             minScale={0.1}
             maxScale={6}
-            centerOnInit
+            centerOnInit={false}
+            centerZoomedOut={false}
+            limitToBounds={false}
+            panning={{ velocityDisabled: true }}
             wheel={{ step: 0.15 }}
             doubleClick={{ disabled: false, step: 1.3 }}
           >
