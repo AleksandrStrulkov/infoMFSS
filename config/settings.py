@@ -10,12 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from urllib.parse import quote_plus
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pythonjsonlogger.jsonlogger import JsonFormatter
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,22 +21,28 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Загружаем переменные окружения с явным указанием кодировки UTF-8
 # Это помогает избежать проблем с кодировкой при чтении .env файла
 try:
-    load_dotenv(BASE_DIR / '.env', encoding='utf-8')
+    load_dotenv(BASE_DIR / ".env", encoding="utf-8")
 except Exception:
     # Если не получается загрузить с UTF-8, пробуем без указания кодировки
-    load_dotenv(BASE_DIR / '.env')
+    load_dotenv(BASE_DIR / ".env")
+
+_power_circuit_schema_dir = Path(os.getenv("POWERCIRCUITSCHEMASDIR") or "frontend/src/data/schemas")
+POWERCIRCUITSCHEMASDIR = (
+    _power_circuit_schema_dir if _power_circuit_schema_dir.is_absolute() else BASE_DIR / _power_circuit_schema_dir
+).resolve()
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0', 'web']  # 'web' для Docker сети
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "0.0.0.0", "web"]  # 'web' для Docker сети
 
-DEFAULT_ACTIVATION_HOST = os.getenv('DEFAULT_ACTIVATION_HOST', "127.0.0.1:8001")
+DEFAULT_ACTIVATION_HOST = os.getenv("DEFAULT_ACTIVATION_HOST", "127.0.0.1:8001")
 
 # Настройки для загрузки больших файлов
 DATA_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50 MB
@@ -46,54 +50,56 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 50 * 1024 * 1024  # 50 MB
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # Приложения проекта
-    'infoMFSS',
-    'users',
+    "infoMFSS",
+    "users",
     # Сторонние приложения из библиотек
-    'sass_processor',
-    'crispy_forms',
-    'crispy_bootstrap5',
-    'django_filters',
-    'captcha',
+    "sass_processor",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "django_filters",
+    "captcha",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR, ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            TEMPLATE_DIR,
+        ],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -106,72 +112,72 @@ def safe_decode(value):
     # Пробуем декодировать как UTF-8, если не получается - используем latin-1 и конвертируем
     try:
         if isinstance(value, bytes):
-            return value.decode('utf-8')
+            return value.decode("utf-8")
         # Если это строка, проверяем что она валидная UTF-8
-        value.encode('utf-8').decode('utf-8')
+        value.encode("utf-8").decode("utf-8")
         return value
     except (UnicodeDecodeError, UnicodeEncodeError):
         # Если есть проблемы, пробуем latin-1
         try:
             if isinstance(value, bytes):
-                return value.decode('latin-1')
-            return value.encode('latin-1').decode('utf-8', errors='replace')
+                return value.decode("latin-1")
+            return value.encode("latin-1").decode("utf-8", errors="replace")
         except Exception:
             # В крайнем случае возвращаем как есть
             return str(value)
 
 
 # Получаем параметры подключения с безопасной обработкой кодировки
-postgres_db = safe_decode(os.getenv('POSTGRES_DB'))
-postgres_user = safe_decode(os.getenv('POSTGRES_USER'))
-postgres_password = safe_decode(os.getenv('POSTGRES_PASSWORD'))
+postgres_db = safe_decode(os.getenv("POSTGRES_DB"))
+postgres_user = safe_decode(os.getenv("POSTGRES_USER"))
+postgres_password = safe_decode(os.getenv("POSTGRES_PASSWORD"))
 
 # Определяем окружение: Docker или локальная разработка
 # В Docker окружении POSTGRES_HOST обычно устанавливается через environment в docker-compose
 # Для локальной разработки используем localhost:5433 (согласно docker-compose.yml)
 # Для Docker/production используем 'db' (имя сервиса в docker-compose)
-is_docker = os.getenv('POSTGRES_HOST') == 'db' or os.path.exists('/.dockerenv')
+is_docker = os.getenv("POSTGRES_HOST") == "db" or os.path.exists("/.dockerenv")
 
 if is_docker:
     # В Docker окружении используем значения из environment или .env
-    postgres_host = safe_decode(os.getenv('POSTGRES_HOST', 'db'))
-    postgres_port = safe_decode(os.getenv('POSTGRES_PORT', '5432'))
+    postgres_host = safe_decode(os.getenv("POSTGRES_HOST", "db"))
+    postgres_port = safe_decode(os.getenv("POSTGRES_PORT", "5432"))
 else:
     # Локальная разработка
-    postgres_host = safe_decode(os.getenv('POSTGRES_HOST', 'localhost'))
-    postgres_port = safe_decode(os.getenv('POSTGRES_PORT', '5433'))
+    postgres_host = safe_decode(os.getenv("POSTGRES_HOST", "localhost"))
+    postgres_port = safe_decode(os.getenv("POSTGRES_PORT", "5433"))
 
 # Проверяем, нужно ли принудительно использовать SQLite (только для локальной разработки)
 # В production/Docker всегда используем PostgreSQL
-USE_SQLITE = os.getenv('USE_SQLITE', 'False').lower() == 'true' and not is_docker
+USE_SQLITE = os.getenv("USE_SQLITE", "False").lower() == "true" and not is_docker
 
 # Если параметры PostgreSQL не заданы или принудительно используется SQLite (только локально), используем SQLite
 if USE_SQLITE or (not is_docker and not all([postgres_db, postgres_user, postgres_password])):
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 else:
     # Настройки PostgreSQL с правильной обработкой кодировки
     # В production/Docker всегда используем PostgreSQL
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': postgres_db,
-            'USER': postgres_user,
-            'PASSWORD': postgres_password,
-            'HOST': postgres_host,
-            'PORT': postgres_port,
-            'OPTIONS': {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": postgres_db,
+            "USER": postgres_user,
+            "PASSWORD": postgres_password,
+            "HOST": postgres_host,
+            "PORT": postgres_port,
+            "OPTIONS": {
                 # Явно указываем кодировку для подключения
-                'client_encoding': 'UTF8',
+                "client_encoding": "UTF8",
                 # Дополнительные опции для стабильности подключения
-                'connect_timeout': 10,
+                "connect_timeout": 10,
             },
             # Настройки пула соединений
-            'CONN_MAX_AGE': 600,  # Время жизни соединения в секундах
+            "CONN_MAX_AGE": 600,  # Время жизни соединения в секундах
         }
     }
 # end
@@ -181,16 +187,16 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 # end
@@ -198,8 +204,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization настройка
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
-TIME_ZONE = 'Europe/Moscow'
+LANGUAGE_CODE = "ru-ru"
+TIME_ZONE = "Europe/Moscow"
 # USE_I18N = True
 # USE_L10N = True
 USE_TZ = True
@@ -211,41 +217,41 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 # Базовые настройки статики
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_collected')  # Для collectstatic
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static_collected")  # Для collectstatic
 
 # Исходные файлы (SCSS/JS/изображения)
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 # Настройки Sass Processor
 SASS_PROCESSOR_ROOT = STATIC_ROOT
 SASS_PROCESSOR_ENABLED = True
 SASS_PROCESSOR_INCLUDE_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Где искать SCSS-файлы
+    os.path.join(BASE_DIR, "static"),  # Где искать SCSS-файлы
 ]
 
 STATICFILES_FINDERS = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'sass_processor.finders.CssFinder',
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "sass_processor.finders.CssFinder",
 ]
 
-MEDIA_URL = '/media/'  # это пока не нужно
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # это пока не нужно
+MEDIA_URL = "/media/"  # это пока не нужно
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # это пока не нужно
 # end
 
 # Настройка отправки сообщений по электронной почте
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_HOST = "smtp.yandex.ru"
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-ADMINS = [('adminAS', 'info-mfss@ya.ru')]
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+ADMINS = [("adminAS", "info-mfss@ya.ru")]
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
@@ -253,41 +259,38 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 # end
 
 # Кэширование
-CASH_ENABLE = os.getenv('CACHE_ENABLED') == '1'
+CASH_ENABLE = os.getenv("CACHE_ENABLED") == "1"
 
 if CASH_ENABLE:
     CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": os.getenv("CACHE_LOCATION")
-        }
+        "default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": os.getenv("CACHE_LOCATION")}
     }
 # end
 
 # Защита от CSRF атак
 # Для локальной разработки (HTTP) установите в False
 # Для production (HTTPS) должно быть True
-CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'False').lower() == 'true'
-SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False").lower() == "true"
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "true"
 CSRF_USE_SESSION_ID = False
 # end
 
 # Конфигурация CORS
 
 CORS_ALLOWED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://127.0.0.1:8001',
-    'http://localhost:8000',
-    'http://localhost:8001',
-    'http://localhost:80',
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8001",
+    "http://localhost:8000",
+    "http://localhost:8001",
+    "http://localhost:80",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://127.0.0.1:8001',
-    'http://localhost:8000',
-    'http://localhost:8001',
-    'http://localhost:80',
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:8001",
+    "http://localhost:8000",
+    "http://localhost:8001",
+    "http://localhost:80",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False
@@ -297,18 +300,18 @@ CORS_ALLOW_ALL_ORIGINS = False
 # ]
 
 # Settings telegram
-TELEGRAM_URL = 'https://api.telegram.org/bot'
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-USER_ID_TELEGRAM = os.getenv('USER_ID_TELEGRAM')
+TELEGRAM_URL = "https://api.telegram.org/bot"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+USER_ID_TELEGRAM = os.getenv("USER_ID_TELEGRAM")
 # end
 
 # Настройка аутентификации
-AUTH_USER_MODEL = 'users.User'
-LOGOUT_REDIRECT_URL = '/'
-LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = 'users:login'
+AUTH_USER_MODEL = "users.User"
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "users:login"
 # end
-DATE_FORMAT = 'd E Y'
+DATE_FORMAT = "d E Y"
 # Настройка вывода формата времени
 TIME_INPUT_FORMATS = [
     "%H:%M",  # '14:30'
@@ -318,7 +321,7 @@ TIME_INPUT_FORMATS = [
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
@@ -329,75 +332,72 @@ JQUERY_URL = True
 
 # logging
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-
-    'formatters': {
-        'simple': {
-            'format': '{asctime} - {levelname} - {name} - {funcName} - {lineno} - {'
-            'message}',
-            'style': '{',
-            'datefmt': '%d.%m.%Y %H:%M:%S',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{asctime} - {levelname} - {name} - {funcName} - {lineno} - {" "message}",
+            "style": "{",
+            "datefmt": "%d.%m.%Y %H:%M:%S",
         },
     },
-
-    'handlers': {
-        'console_dev': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-            'level': 'INFO',
-            'filters': [],
+    "handlers": {
+        "console_dev": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": "INFO",
+            "filters": [],
         },
-        'console_prod': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-            'level': 'ERROR',
-            'filters': [],
+        "console_prod": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": "ERROR",
+            "filters": [],
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/infoMFSS.log'),
-            'level': 'INFO',
-            'formatter': 'simple',
-            'encoding': 'utf-8',
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "logs/infoMFSS.log"),
+            "level": "INFO",
+            "formatter": "simple",
+            "encoding": "utf-8",
         },
-        'mail': {
-            'class': 'django.utils.log.AdminEmailHandler',
-            'level': 'ERROR',
-            'include_html': True,
-        }
+        "mail": {
+            "class": "django.utils.log.AdminEmailHandler",
+            "level": "ERROR",
+            "include_html": True,
+        },
     },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
+    "filters": {
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse",
         },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        }
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
     },
-    'loggers': {
-        'infoMFSS': {
-            'handlers': ['console_dev', 'file', 'mail', 'console_prod'],
-            'level': 'INFO',
-            'propagate': True,
+    "loggers": {
+        "infoMFSS": {
+            "handlers": ["console_dev", "file", "mail", "console_prod"],
+            "level": "INFO",
+            "propagate": True,
         },
-        'users': {
-            'handlers': ['console_dev', 'file', 'mail', 'console_prod'],
-            'level': 'INFO',
-            'propagate': True,
+        "users": {
+            "handlers": ["console_dev", "file", "mail", "console_prod"],
+            "level": "INFO",
+            "propagate": True,
         },
-        'django.security': {
-            'handlers': ['file'],
-            'level': 'INFO',
+        "django.security": {
+            "handlers": ["file"],
+            "level": "INFO",
         },
-    }
+    },
 }
 # end
 
 # Настройки для смс отправки (API сервиса smsc.ru) подтверждения авторизации пользователя
-SMSC_LOGIN = os.getenv('SMSC_LOGIN')  # Email или ID из ЛК
-SMSC_PASSWORD = os.getenv('SMSC_PASSWORD')  # Пароль или API-ключ
-SMSC_SENDER = os.getenv('SMSC_SENDER')  # Например, "MyApp"
+SMSC_LOGIN = os.getenv("SMSC_LOGIN")  # Email или ID из ЛК
+SMSC_PASSWORD = os.getenv("SMSC_PASSWORD")  # Пароль или API-ключ
+SMSC_SENDER = os.getenv("SMSC_SENDER")  # Например, "MyApp"
 # end
 
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"

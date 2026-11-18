@@ -21,8 +21,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Копируем только необходимые файлы для сборки
-# Остальной код будет смонтирован через volume в docker-compose
+# Код и закрытые JSON-схемы доступны backend даже без bind mount.
+# Nginx получает только static_collected и media, не этот каталог.
+COPY . /app/
 COPY entrypoint.sh uwsgi.ini ./
 RUN chmod +x ./entrypoint.sh
 

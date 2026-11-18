@@ -5,6 +5,11 @@ static_collected/
 .env
 .env.local
 
+# Node-зависимости и необработанные dev-артефакты не нужны backend-образу
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
 # Игнорируем виртуальное окружение
 venv/
 env/

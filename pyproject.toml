@@ -36,30 +36,66 @@ pytest-factoryboy = "^2.7.0"
 pytest-cov = "^6.1.1"
 
 [tool.poetry.group.lint.dependencies]
-black = "^25.1.0"
-isort = "^6.0.1"
-flake8 = "^7.2.0"
+ruff = "^0.8.0"
+basedpyright = "^1.23.0"
 
-[build-system]
-requires = ["poetry-core", "setuptools>=65.5.1", "wheel"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.scripts]
+gate = "scripts.gate:main"
 
-[tool.black]
-# Максимальная длина строки
+[tool.ruff]
 line-length = 119
-# Файлы, которые не нужно форматировать
-exclude = '''
-(
-  /(
-      \.eggs         # Исключить несколько общих каталогов
-    | \.git          # в корне проекта
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | dist
-  )/
-  | foo.py           # Также отдельно исключить файл с именем foo.py
-                     # в корне проекта
-)
-'''
+target-version = "py312"
+exclude = [
+ ".git",
+ "migrations",
+ "static_collected",
+ "frontend",
+ ".venv",
+]
+
+[tool.ruff.lint]
+select = [
+ "E", # pycodestyle ошибки
+ "W", # pycodestyle предупреждения
+ "F", # Pyflakes (неиспользуемые импорты, переменные и т.д.)
+ "I", # isort (автоматическая сортировка импортов)
+ "B", # flake8-bugbear (типичные баги Python)
+ "DJ", # flake8-django (специфичные проверки Django)
+]
+ignore = [
+ "DJ008", # не требовать __str__ у всех без исключения моделей, если не нужно
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "infoMFSS", "users"]
+
+[tool.basedpyright]
+typeCheckingMode = "basic"
+pythonVersion = "3.12"
+include = ["config", "infoMFSS", "users"]
+exclude = ["**/migrations/**", "frontend/**", "static_collected/**"]
+reportMissingTypeStubs = false
+
+# --- Тестирование: Pytest ---
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings" # проверь, config или infoMFSS
+python_files = ["test_*.py", "*_test.py"]
+testpaths = ["tests"]
+addopts = "--strict-markers --no-migrations"
+
+# --- Метрики качества: Coverage ---
+
+[tool.coverage.run]
+source = ["infoMFSS", "users"]
+omit = [
+ "*/migrations/*",
+ "*/tests/*",
+ "manage.py",
+ "config/wsgi.py",
+ "config/asgi.py",
+]
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true

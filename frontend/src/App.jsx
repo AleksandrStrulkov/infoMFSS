@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, Component } from 'react'
+import { useEffect, useRef, useState, Component } from 'react'
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch'
 import mermaid from 'mermaid'
 import { jsonToMermaid } from './utils/jsonToMermaid.js'
@@ -10,11 +10,27 @@ import {
   downloadText,
 } from './utils/exportDiagram.js'
 
-const rawSchemas = import.meta.glob('./data/schemas/*/*.json', {
-  eager: true,
-  query: '?raw',
-  import: 'default',
-})
+const schemasBase = document.getElementById('root')?.dataset.schemasUrl || '/power-circuit/schemas/'
+
+async function fetchJson(url, signal) {
+  const response = await fetch(url, { credentials: 'same-origin', signal, redirect: 'manual' })
+  if (response.type === 'opaqueredirect' || response.status === 401 || response.status === 302) {
+    throw new Error('Сессия истекла. Войдите снова и обновите страницу.')
+  }
+  if (!response.ok) throw new Error(`Не удалось загрузить схему (HTTP ${response.status}).`)
+  if (!response.headers.get('content-type')?.toLowerCase().includes('application/json')) {
+    throw new Error('Сервер вернул не JSON. Возможно, требуется повторный вход.')
+  }
+  return response.json()
+}
+
+function schemaUrl(id) {
+  const [dir, filename, ...rest] = id.split('/')
+  if (rest.length || !/^mine_[1-9][0-9]*$/.test(dir) || !filename?.endsWith('.json')) {
+    throw new Error('Некорректный идентификатор схемы.')
+  }
+  return `${schemasBase}${encodeURIComponent(dir)}/${encodeURIComponent(filename)}/`
+}
 
 function configureMermaid() {
   // theme: 'default' и securityLevel: 'loose' — как в Mermaid Live Editor,
@@ -76,63 +92,45 @@ class ErrorBoundary extends Component {
   }
 }
 
-// Данные шахт лежат по папкам: src/data/schemas/mine_1/*.json, mine_2/...
-// Название шахты берём из поля "mine" верхнего уровня каждого JSON
-function parseMines() {
-  const folders = new Map() // mine_N -> { dir, files: [...] }
-  for (const [path, text] of Object.entries(rawSchemas)) {
-    const parts = path.split('/')
-    const dir = parts[parts.length - 2]
-    const fileName = parts[parts.length - 1].replace(/\.json$/i, '')
-    if (!folders.has(dir)) folders.set(dir, { dir, files: [] })
-    folders.get(dir).files.push({ name: fileName, path, text })
+function groupMines(schemas) {
+  const folders = new Map()
+  for (const schema of schemas) {
+    const dir = schema.id.split('/')[0]
+    if (!folders.has(dir)) folders.set(dir, { dir, mine: schema.mine, files: [] })
+    folders.get(dir).files.push(schema)
   }
-  const list = [...folders.values()]
-  for (const folder of list) {
-    folder.files.sort((a, b) => a.name.localeCompare(b.name))
-    const mineNames = folder.files
-      .map((f) => {
-        try {
-          const parsed = JSON.parse(f.text)
-          const mine = parsed?.mine
-          return typeof mine === 'string' && mine.trim() ? mine.trim() : null
-        } catch {
-          return null // битый/пустой файл — шахта именуется по папке
-        }
-      })
-      .filter(Boolean)
-    folder.mine = mineNames[0] ?? folder.dir
-  }
-  list.sort((a, b) => a.dir.localeCompare(b.dir, undefined, { numeric: true }))
-  return list
+  return [...folders.values()]
 }
 
 function SchemaViewer({ schemaFile, direction, lastSvgRef }) {
-  const [error, setError] = useState(null)
-  const [svg, setSvg] = useState('')
+  const [renderError, setRenderError] = useState(null)
+  const [rendered, setRendered] = useState(null)
+  const schema = schemaFile?.data
+  const schemaName = schemaFile?.name
+  const renderKey = `${schemaFile?.id}:${direction}`
 
   useEffect(() => {
     let cancelled = false
+    lastSvgRef.current = null
 
     const renderChart = async () => {
-      if (!schemaFile) return
+      if (!schema) return
       try {
         configureMermaid()
-        const schema = JSON.parse(schemaFile.text)
         const { code, shapes } = jsonToMermaid(schema, direction)
-        const { svg: rendered } = await mermaid.render(`schema-render-${++renderCounter}`, code)
-        const normalized = postProcessMermaidSvg(rendered, { shapes })
+        const { svg } = await mermaid.render(`schema-render-${++renderCounter}`, code)
+        const normalized = postProcessMermaidSvg(svg, { shapes })
         if (!cancelled) {
-          setSvg(normalized)
-          if (lastSvgRef) lastSvgRef.current = normalized
-          setError(null)
+          setRendered({ key: renderKey, svg: normalized })
+          lastSvgRef.current = { key: renderKey, svg: normalized }
+          setRenderError(null)
         }
       } catch (err) {
         if (!cancelled) {
-          setSvg('')
-          if (lastSvgRef) lastSvgRef.current = null
+          setRendered(null)
+          lastSvgRef.current = null
           const detail = err?.message || String(err)
-          setError(`Ошибка в схеме "${schemaFile.name}.json":\n${detail}`)
+          setRenderError({ key: renderKey, message: `Ошибка в схеме "${schemaName}.json":\n${detail}` })
         }
       }
     }
@@ -141,13 +139,13 @@ function SchemaViewer({ schemaFile, direction, lastSvgRef }) {
     return () => {
       cancelled = true
     }
-  }, [schemaFile, direction, lastSvgRef])
+  }, [schema, schemaName, direction, renderKey, lastSvgRef])
 
-  if (error) {
+  if (renderError?.key === renderKey && schemaFile) {
     return (
       <div className="error-panel">
         <h2>Схема не построена</h2>
-        <pre>{error}</pre>
+        <pre>{renderError.message}</pre>
       </div>
     )
   }
@@ -165,118 +163,110 @@ function SchemaViewer({ schemaFile, direction, lastSvgRef }) {
     <div
       className="schema-svg"
       // SVG сгенерирован локальным mermaid из пользовательского JSON
-      dangerouslySetInnerHTML={{ __html: svg }}
+      dangerouslySetInnerHTML={{ __html: rendered?.key === renderKey ? rendered.svg : '' }}
     />
   )
 }
 
 export default function App() {
-  const mines = useMemo(parseMines, [])
-  const [pendingDirs, setPendingDirs] = useState(() => {
-    // шахты без файлов (пустые папки) glob не видит — список берём у dev-сервера
-    const stored = sessionStorage.getItem('pendingMineDir')
-    return stored ? [stored] : []
-  })
-  useEffect(() => {
-    let cancelled = false
-    fetch('/api/schema-dirs')
-      .then((r) => r.json())
-      .then((res) => {
-        if (!cancelled && Array.isArray(res?.dirs)) setPendingDirs(res.dirs)
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [])
-  // объединяем: папки с файлами + папки, которые dev-сервер знает на диске
-  const mineList = useMemo(() => {
-    const seen = new Map(mines.map((m) => [m.dir, m]))
-    const list = [...mines]
-    for (const dir of pendingDirs) {
-      if (!seen.has(dir)) list.push({ dir, mine: dir, files: [] })
-    }
-    list.sort((a, b) => a.dir.localeCompare(b.dir, undefined, { numeric: true }))
-    return list
-  }, [mines, pendingDirs])
-  // по умолчанию — mine_1 и первый файл в нём (если там есть файлы)
-  const [activeDir, setActiveDir] = useState(
-    () => sessionStorage.getItem('pendingMineDir') || (mines[0]?.dir ?? ''),
-  )
-  const [activeFileName, setActiveFileName] = useState(
-    () => sessionStorage.getItem('pendingMineFile') || (mines[0]?.files[0]?.name ?? ''),
-  )
+  const [mineList, setMineList] = useState([])
+  const [catalogLoading, setCatalogLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState('')
+  const [activeDir, setActiveDir] = useState('')
+  const [activeFileId, setActiveFileId] = useState('')
+  const [loadedSchema, setLoadedSchema] = useState(null)
+  const transformRef = useRef(null)
+  const lastSvgRef = useRef(null)
+  const schemaData = loadedSchema?.id === activeFileId ? loadedSchema.data : null
+  const schemaReady = Boolean(schemaData) && !loading && !catalogLoading && !loadError
+  const requestIdRef = useRef(0)
   const mineFiles = mineList.find((m) => m.dir === activeDir)?.files ?? []
-  const selected = mineFiles.find((f) => f.name === activeFileName) ?? mineFiles[0] ?? null
+  const selected = mineFiles.find((file) => file.id === activeFileId) ?? null
   const mineTitle = mineList.find((m) => m.dir === activeDir)?.mine ?? activeDir
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchJson(schemasBase, controller.signal)
+      .then((catalog) => {
+        if (!Array.isArray(catalog.schemas)) throw new Error('Некорректный каталог схем.')
+        const folders = groupMines(catalog.schemas)
+        setMineList(folders)
+        setActiveDir(folders[0]?.dir ?? '')
+        setActiveFileId(folders[0]?.files[0]?.id ?? '')
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError') setLoadError(error.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCatalogLoading(false)
+      })
+    return () => controller.abort()
+  }, [])
+
+  useEffect(() => {
+    requestIdRef.current += 1
+    lastSvgRef.current = null
+    setLoadedSchema(null)
+    if (!activeFileId) {
+      setLoading(false)
+      return
+    }
+    setLoadError('')
+    const controller = new AbortController()
+    const requestId = requestIdRef.current
+    setLoading(true)
+    Promise.resolve()
+      .then(() => {
+        if (controller.signal.aborted || requestId !== requestIdRef.current) return null
+        return fetchJson(schemaUrl(activeFileId), controller.signal)
+      })
+      .then((data) => {
+        if (data && !controller.signal.aborted && requestId === requestIdRef.current) {
+          setLoadedSchema({ id: activeFileId, data })
+        }
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted && requestId === requestIdRef.current && error.name !== 'AbortError') {
+          setLoadError(error.message)
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted && requestId === requestIdRef.current) setLoading(false)
+      })
+    return () => controller.abort()
+  }, [activeFileId])
   const [direction, setDirection] = useState('TD')
+  const renderKey = `${activeFileId}:${direction}`
   const [theme, setTheme] = useState(() =>
     document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
   )
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
-  const transformRef = useRef(null)
-  const lastSvgRef = useRef(null)
-  const uploadInputRef = useRef(null)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
   }, [theme])
 
-  // Разовый выбор только что загруженной схемы: после перезагрузки страницы
-  // (файл добавился в import.meta.glob) sessionStorage уже не нужен
-  useEffect(() => {
-    sessionStorage.removeItem('pendingSchema')
-    sessionStorage.removeItem('pendingMineDir')
-    sessionStorage.removeItem('pendingMineFile')
-  }, [])
-
   const handleExport = async (kind) => {
     setExportMenuOpen(false)
-    if (!selected) return
+    if (!selected || !schemaReady) return
     try {
       if (kind === 'json') {
-        const pretty = JSON.stringify(JSON.parse(selected.text), null, 2)
+        const pretty = JSON.stringify(schemaData, null, 2)
         downloadText(pretty, `${mineTitle}-${selected.name}.json`, 'application/json')
         return
       }
-      const svgText = lastSvgRef.current
-      if (!svgText) {
+      const rendered = lastSvgRef.current
+      if (!rendered || rendered.key !== renderKey) {
         window.alert('Схема ещё не отрисована — подождите, пока она построится.')
         return
       }
+      const svgText = rendered.svg
       if (kind === 'svg') exportSvgFile(svgText, `${mineTitle}-${selected.name}`)
       else if (kind === 'png') await exportPngFile(svgText, `${mineTitle}-${selected.name}`, 2, themeBg())
       else if (kind === 'pdf') await exportPdfFile(svgText, `${mineTitle}-${selected.name}`, 2, themeBg())
     } catch (err) {
       window.alert(`Ошибка экспорта: ${err.message || err}`)
-    }
-  }
-
-  const handleUpload = async (event) => {
-    const file = event.target.files?.[0]
-    event.target.value = ''
-    if (!file) return
-    try {
-      const text = await file.text()
-      JSON.parse(text) // проверяем до отправки, чтобы не плодить битые файлы
-      const response = await fetch('/api/upload-schema', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json; charset=utf-8',
-          'x-schema-filename': encodeURIComponent(file.name),
-        },
-        body: text,
-      })
-      const result = await response.json()
-      if (!result.ok) throw new Error(result.error || `HTTP ${response.status}`)
-      // После записи файла dev-сервер перезагрузит страницу
-      // (import.meta.glob подхватит новый файл) — спрашиваем ту самую схему
-      const [dir, base] = String(result.file).split('/')
-      sessionStorage.setItem('pendingMineDir', dir)
-      sessionStorage.setItem('pendingMineFile', (base ?? '').replace(/\.json$/i, ''))
-      window.location.reload()
-    } catch (err) {
-      window.alert(`Не удалось загрузить схему: ${err.message || err}`)
     }
   }
 
@@ -292,9 +282,12 @@ export default function App() {
             onChange={(e) => {
               const dir = e.target.value
               const folder = mineList.find((m) => m.dir === dir) ?? null
+              requestIdRef.current += 1
+              lastSvgRef.current = null
+              setLoadedSchema(null)
+              setLoading(true)
               setActiveDir(dir)
-              // при смене шахты — её первый файл, схема пересобирается
-              setActiveFileName(folder?.files[0]?.name ?? '')
+              setActiveFileId(folder?.files[0]?.id ?? '')
               transformRef.current?.resetTransform()
             }}
           >
@@ -309,14 +302,18 @@ export default function App() {
         <label className="toolbar-field">
           Схема:
           <select
-            value={selected?.name ?? ''}
+            value={activeFileId}
             onChange={(e) => {
-              setActiveFileName(e.target.value)
+              requestIdRef.current += 1
+              lastSvgRef.current = null
+              setLoadedSchema(null)
+              setLoading(true)
+              setActiveFileId(e.target.value)
               transformRef.current?.resetTransform()
             }}
           >
             {mineFiles.map((file) => (
-              <option key={file.path} value={file.name}>
+              <option key={file.id} value={file.id}>
                 {file.name}.json
               </option>
             ))}
@@ -326,7 +323,10 @@ export default function App() {
         <button
           type="button"
           className="toolbar-btn"
-          onClick={() => setDirection((d) => (d === 'TD' ? 'LR' : 'TD'))}
+          onClick={() => {
+            lastSvgRef.current = null
+            setDirection((d) => (d === 'TD' ? 'LR' : 'TD'))
+          }}
           title="Ориентация схемы"
         >
           Ориентация: {direction === 'TD' ? 'сверху вниз' : 'слева направо'}
@@ -367,22 +367,6 @@ export default function App() {
           )}
         </div>
 
-        <button
-          type="button"
-          className="toolbar-btn"
-          onClick={() => uploadInputRef.current?.click()}
-          title="Загрузить JSON-схему в проект"
-        >
-          Загрузить JSON…
-        </button>
-        <input
-          ref={uploadInputRef}
-          type="file"
-          accept=".json,application/json"
-          className="hidden-input"
-          onChange={handleUpload}
-        />
-
         <div className="toolbar-spacer" />
 
         <button type="button" className="toolbar-btn" onClick={() => transformRef.current?.zoomIn()}>
@@ -411,11 +395,23 @@ export default function App() {
             doubleClick={{ disabled: false, step: 1.3 }}
           >
             <TransformComponent wrapperClass="workspace-canvas" contentClass="workspace-content">
-              <SchemaViewer
-                schemaFile={selected}
-                direction={direction}
-                lastSvgRef={lastSvgRef}
-              />
+              {catalogLoading || loading || (activeFileId && !schemaData && !loadError) ? (
+                <p>Загрузка схемы…</p>
+              ) : loadError ? (
+                <div className="error-panel">
+                  <h2>Не удалось загрузить схему</h2>
+                  <p>{loadError}</p>
+                </div>
+              ) : mineList.length === 0 ? (
+                <div className="error-panel"><p>Пока нет доступных схем.</p></div>
+              ) : (
+                <SchemaViewer
+                  key={activeFileId}
+                  schemaFile={schemaData ? { ...selected, data: schemaData } : null}
+                  direction={direction}
+                  lastSvgRef={lastSvgRef}
+                />
+              )}
             </TransformComponent>
           </TransformWrapper>
         </ErrorBoundary>

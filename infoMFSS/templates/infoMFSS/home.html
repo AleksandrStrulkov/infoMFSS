@@ -1,7 +1,5 @@
-{% extends 'infoMFSS/base.html' %}
-
+{% extends "infoMFSS/base.html" %}
 {% load static %}
-
 {% block content %}
     <br>
     <br>
@@ -10,338 +8,307 @@
         <div class="mt-sm-5 mb-sm-5">
             <div class="container mt-5 mb-5">
                 <h7>
-                    Информационный ресурс
+                Информационный ресурс
                 </h7>
                 <br>
-                {#                <br>#}
+                {# <br>#}
             </div>
             <div class="container">
                 <h7a>
-                    реализации внедрения
+                реализации внедрения
                 </h7a>
                 <h7a>
-                    <font color="#6d37ff">проекта МФСБ</font>
-                </h7a>
-            </div>
-            <div class="container">
-                <h7a>
-                    по нефтешахтам
-                </h7a>
-                <h7a>
-                    НШПП "Яреганефть"
+                <font color="#6d37ff">проекта МФСБ</font>
                 </h7a>
             </div>
             <div class="container">
                 <h7a>
-                    ООО "ЛУКОЙЛ-ПЕРМЬ"
+                по нефтешахтам
+                </h7a>
+                <h7a>
+                НШПП "Яреганефть"
+                </h7a>
+            </div>
+            <div class="container">
+                <h7a>
+                ООО "ЛУКОЙЛ-ПЕРМЬ"
                 </h7a>
             </div>
         </div>
     </div>
     <br>
     <br>
-    {#    <br>#}
+    {# <br>#}
     <div class="container">
         <div class="container mb-5 mt-5">
             <div class="row">
                 <div class="col-sm image-container">
-{#                    <img src="../../../static/images/first_project8.png" class="image-container" alt="...">#}
-                    <img src="{% static 'images/first_project8.png' %}" class="image-container" alt="...">
+                    {# <img src="../../../static/images/first_project8.png" class="image-container" alt="...">#}
+                    <img src="{% static 'images/first_project8.png' %}"
+                         class="image-container"
+                         alt="...">
                 </div>
             </div>
-
         </div>
     </div>
-    {#    </div>#}
+    {# </div>#}
     <br>
     <br>
     <br>
-
     <!-- Вставка кода для кнопок выбора нефтешахты -->
-
-    <div class="container text-center mt-5 mb-5">
-        <div class="mt-sm-5 mb-sm-5">
-            <div class="container mt-5 mb-5">
-                <h8>
-                    Выполнение
-                </h8>
-                <br>
-            </div>
+    {% comment %} <div class="container text-center mt-5 mb-5">
+    <div class="mt-sm-5 mb-sm-5">
+        <div class="container mt-5 mb-5">
+            <h8>
+                Выполнение
+            </h8>
+            <br>
         </div>
     </div>
-    <div class="container-xxl">
-{#    ПРИМЕНИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БАЗЫ ДАННЫХ#}
-{#        <div class="container-xxl">#}
-{#            <div class="block-white text-center mt-sm-4">#}
-{#                <div class="container text-center mt-3">#}
-{#                    <h11>#}
-{#                        Нефтешахта №1: {{ percent_mine1 }} %#}
-{#                    </h11>#}
-{#                </div>#}
-{#                <div class="container text-center mt-5">#}
-{#                    <h11>#}
-{#                        Нефтешахта №2: {{ percent_mine2 }} %#}
-{#                    </h11>#}
-{#                </div>#}
-{#                <div class="container text-center mt-5">#}
-{#                    <h11>#}
-{#                        Нефтешахта №3: {{ percent_mine3 }} %#}
-{#                    </h11>#}
-{#                </div>#}
-{#                <div class="container text-center mt-5 mb-3">#}
-{#                    <h11>#}
-{#                        Общее: {{ percent_mine123 }} %#}
-{#                    </h11>#}
-{#                </div>#}
-{#            </div>#}
-{#        </div>#}
-{#        ВРЕМЕННОЕ РЕШЕНИЕ!!!#}
-        <div class="container-xxl">
-            <div class="block-white text-center mt-sm-3">
-{#                {% with numbers=DailyNumbersMine.objects.all.0 %}#}
-                <div class="container text-center mt-3">
-                    <h11>
-                        Нефтешахта №1: {{ numbers.nsh1 }} %
-                    </h11>
-                </div>
-                <div class="container text-center mt-5">
-                    <h11>
-                        Нефтешахта №2: {{ numbers.nsh2 }} %
-                    </h11>
-                </div>
-                <div class="container text-center mt-5">
-                    <h11>
-                        Нефтешахта №3: {{ numbers.nsh3 }} %
-                    </h11>
-                </div>
-                <div class="container text-center mt-5">
-                    <h11>
-                        Общее: {{ numbers.total }} %
-                    </h11>
-                </div>
-{#                {% endwith %}#}
+</div>
+    <div class="container-xxl"> {% endcomment %}
+        {# ПРИМЕНИТЬ ПОСЛЕ ЗАПОЛНЕНИЯ БАЗЫ ДАННЫХ#}
+        {# <div class="container-xxl">#}
+        {# <div class="block-white text-center mt-sm-4">#}
+        {# <div class="container text-center mt-3">#}
+        {# <h11>#}
+        {# Нефтешахта №1: {{ percent_mine1 }} %#}
+        {# </h11>#}
+        {# </div>#}
+        {# <div class="container text-center mt-5">#}
+        {# <h11>#}
+        {# Нефтешахта №2: {{ percent_mine2 }} %#}
+        {# </h11>#}
+        {# </div>#}
+        {# <div class="container text-center mt-5">#}
+        {# <h11>#}
+        {# Нефтешахта №3: {{ percent_mine3 }} %#}
+        {# </h11>#}
+        {# </div>#}
+        {# <div class="container text-center mt-5 mb-3">#}
+        {# <h11>#}
+        {# Общее: {{ percent_mine123 }} %#}
+        {# </h11>#}
+        {# </div>#}
+        {# </div>#}
+        {# </div>#}
+        {# ВРЕМЕННОЕ РЕШЕНИЕ!!!#}
+        {% comment %} <div class="container-xxl">
+        <div class="block-white text-center mt-sm-3">
+            {# {% with numbers=DailyNumbersMine.objects.all.0 %}#}
+            <div class="container text-center mt-3">
+                <h11>
+                    Нефтешахта №1: {{ numbers.nsh1 }} %
+                </h11>
             </div>
-        </div>
-
-        <div class="container text-center mt-1">
-            <h14>
-                Обновлено: {{ update }}
-            </h14>
+            <div class="container text-center mt-5">
+                <h11>
+                    Нефтешахта №2: {{ numbers.nsh2 }} %
+                </h11>
+            </div>
+            <div class="container text-center mt-5">
+                <h11>
+                    Нефтешахта №3: {{ numbers.nsh3 }} %
+                </h11>
+            </div>
+            <div class="container text-center mt-5">
+                <h11>
+                    Общее: {{ numbers.total }} %
+                </h11>
+            </div>
+            {# {% endwith %}#}
         </div>
     </div>
 
-    <br>
-    <br>
-    <br>
-
-    <!-- Вставка кода для показа возможностей приложения -->
-
-    <div class="container text-center mt-5 mb-5">
-        <div class="mt-sm-5 mb-sm-5">
-            <div class="container mt-5 mb-5">
-                <h8>
+    <div class="container text-center mt-1">
+        <h14>
+            Обновлено: {{ update }}
+        </h14>
+        </div> {% endcomment %}
+        {% comment %}
+        </div> {% endcomment %}
+        {% comment %} <br>
+<br>
+        <br> {% endcomment %}
+        <!-- Вставка кода для показа возможностей приложения -->
+        <div class="container text-center mt-5 mb-5">
+            <div class="mt-sm-5 mb-sm-5">
+                <div class="container mt-5 mb-5">
+                    <h8>
                     Возможности ресурса
-                </h8>
-                <br>
-            </div>
-        </div>
-    </div>
-    <div class="block-all-white mt-sm-3">
-        <div class="container-xxl mt-5">
-            <div class="row row-cols-1 row-cols-xxl-3 g-4">
-                <div class="col">
-                    <div class="card h-100 border-light border-none">
-{#                        <img src="../../../static/images/svg/percent3.svg" class="card-grey card-radius icon"#}
-                        <img src="{% static 'images/svg/percent3.svg' %}" class="card-grey card-radius icon"
-                             width="390" height="200" alt="#">
-
-                        <div class="card-body">
-                            <h3 class="card-title h3-block-card-head">Процент выполнения</h3>
-                            <p class="card-text h3-block-card-footer">Просмотр процента выполнения с выбранным
-                                критерием.
-                            </p>
-                            <a href="{% url 'mfss:percents' %}" class="stretched-link"></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100 border-light border-none icons--gradient">
-{#                        <img src="../../../static/images/svg/equipment.svg" class="card-grey card-radius icon"#}
-                        <img src="{% static 'images/svg/equipment.svg' %}" class="card-grey card-radius icon"
-                             width="390" height="200" alt="#">
-
-                        <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Оборудование</h5>
-                            <p class="card-text h3-block-card-footer">Просмотр установленного оборудования
-                                с выбором по фильтру.</p>
-                            <a href="{% url 'mfss:equipment' %}" class="stretched-link"></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100 border-light border-none icons--gradient">
-{#                        <img src="../../../static/images/svg/cable.svg" class="card-grey card-radius icon"#}
-                        <img src="{% static 'images/svg/cable.svg' %}" class="card-grey card-radius icon"
-                             width="390" height="200" alt="#">
-
-                        <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Кабельная продукция</h5>
-                            <p class="card-text h3-block-card-footer">Просмотр смонтированных кабельных линий
-                                с возможностью фильтрации запроса</p>
-                            <a href="{% url 'mfss:cable' %}" class="stretched-link"></a>
-                        </div>
-                    </div>
+                    </h8>
+                    <br>
                 </div>
             </div>
         </div>
-    </div>
-    <br>
-    <br>
-    <br>
-
-    <!-- Вставка кода для показа дополнительных возможностей приложения -->
-
-    <div class="container text-center">
-        <div class="mt-sm-5">
-            <div class="container mt-5">
-                <h8>
+        <div class="block-all-white mt-sm-3">
+            <div class="container-xxl mt-5">
+                <div class="row row-cols-1 row-cols-xxl-3 g-4">
+                    <div class="col">
+                        <div class="card h-100 border-light border-none icons--gradient">
+                            {# <img src="../../../static/images/svg/equipment.svg" class="card-grey card-radius icon" #}
+                            <img src="{% static 'images/svg/equipment.svg' %}"
+                                 class="card-grey card-radius icon"
+                                 width="390"
+                                 height="200"
+                                 alt="#">
+                            <div class="card-body">
+                                <h5 class="card-title h3-block-card-head">Оборудование</h5>
+                                <p class="card-text h3-block-card-footer">
+                                    Просмотр установленного оборудования
+                                    с выбором по фильтру.
+                                </p>
+                                <a href="{% url 'mfss:equipment' %}" class="stretched-link"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100 border-light border-none icons--gradient">
+                            {# <img src="../../../static/images/svg/cable.svg" class="card-grey card-radius icon" #}
+                            <img src="{% static 'images/svg/cable.svg' %}"
+                                 class="card-grey card-radius icon"
+                                 width="390"
+                                 height="200"
+                                 alt="#">
+                            <div class="card-body">
+                                <h5 class="card-title h3-block-card-head">Кабельная продукция</h5>
+                                <p class="card-text h3-block-card-footer">
+                                    Просмотр смонтированных кабельных линий
+                                    с возможностью фильтрации запроса
+                                </p>
+                                <a href="{% url 'mfss:cable' %}" class="stretched-link"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card h-100 border-light border-none">
+                            {# <img src="../../../static/images/svg/percent3.svg" class="card-grey card-radius icon" #}
+                            <img src="{% static 'images/svg/subsystem.svg' %}"
+                                 class="card-grey card-radius icon"
+                                 width="390"
+                                 height="200"
+                                 alt="#">
+                            <div class="card-body">
+                                <h3 class="card-title h3-block-card-head">Схемы электроснабжения 127В</h3>
+                                <p class="card-text h3-block-card-footer">
+                                    Древовидная схема распределения питания от источника
+                                    127В через
+                                    разветвительные муфты до конечных источников питания подсистем.
+                                </p>
+                                <a href="{% url 'mfss:power_circuit' %}" class="stretched-link"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <!-- Вставка кода для показа дополнительных возможностей приложения -->
+        <div class="container text-center">
+            <div class="mt-sm-5">
+                <div class="container mt-5">
+                    <h8>
                     Дополнительно
-                </h8>
-                <br>
+                    </h8>
+                    <br>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="block-all-grey">
-        <div class="container mt-5">
-            <div class="row row-cols-1 row-cols-xxl-3 g-4">
-                <div class="col">
-                    <div class="card h-100 border-light border-none col-grey">
-{#                        <img src="../../../static/images/svg/bezier.svg"#}
-                        <img src="{% static 'images/svg/bezier.svg' %}"
-                             class="card-grey card-radius icon card-white"
-                             width="416" height="200" alt="#">
-                        <div class="card-body">
-                            <h3 class="card-title h3-block-card-head">Распределительное оборудование</h3>
-                            <p class="card-text h3-block-card-footer">Просмотр
-                                мест монтажа распределительных устройств и подключенного к ним оборудования</p>
-                            <a href="{% url 'mfss:box' %}" class="stretched-link"></a>
+        <div class="block-all-grey">
+            <div class="container mt-5">
+                <div class="row row-cols-1 row-cols-lg-3 g-4">
+                    <div class="col">
+                        <div class="card h-100 border-light border-none col-grey">
+                            <img src="{% static 'images/svg/filetype-pdf.svg' %}"
+                                 class="card-grey card-radius icon card-white"
+                                 width="390"
+                                 height="200"
+                                 alt="#">
+                            <div class="card-body">
+                                <h5 class="card-title h3-block-card-head">Документация на оборудование</h5>
+                                <p class="card-text h3-block-card-footer">
+                                    Просмотр документации на оборудование и кабельную
+                                    продукцию
+                                </p>
+                                <a href="{% url 'mfss:equipment_file' %}" class="stretched-link"></a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100 border-light border-none col-grey">
-{#                        <img src="../../../static/images/svg/filetype-pdf.svg"#}
-                        <img src="{% static 'images/svg/filetype-pdf.svg' %}"
-                             class="card-grey card-radius icon card-white"
-                             width="390" height="200" alt="#">
-                        <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Документация на оборудование</h5>
-                            <p class="card-text h3-block-card-footer">Просмотр
-                                документации на оборудование и кабельную продукцию</p>
-                            <a href="{% url 'mfss:equipment_file' %}" class="stretched-link"></a>
+                    <div class="col">
+                        <div class="card h-100 border-light border-none col-grey">
+                            <img src="{% static 'images/svg/binocle.svg' %}"
+                                 class="card-grey card-radius icon card-white"
+                                 width="416"
+                                 height="200"
+                                 alt="#">
+                            <div class="card-body">
+                                <h3 class="card-title h3-block-card-head">Места установки оборудования</h3>
+                                <p class="card-text h3-block-card-footer">
+                                    Просмотр мест установленного оборудования с
+                                    визуализацией
+                                </p>
+                                <a href="{% url 'mfss:visual' %}" class="stretched-link"></a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100 border-light border-none col-grey">
-{#                        <img src="../../../static/images/svg/check-square.svg"#}
-                        <img src="{% static 'images/svg/check-square.svg' %}"
-                             class="card-grey card-radius icon card-white"
-                             width="390" height="200" alt="#">
-                        <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Отчет исправления замечаний</h5>
-                            <p class="card-text h3-block-card-footer">Просмотр
-                                выданных замечаний и ознакомление
-                                с отчетом об их исправлении</p>
-                            <a href="{% url 'mfss:violations' %}" class="stretched-link"></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row row-cols-1 row-cols-xxl-3 g-4">
-                <div class="col">
-                    <div class="card h-100 border-light border-none col-grey">
-{#                        <img src="../../../static/images/svg/binocle.svg"#}
-                        <img src="{% static 'images/svg/binocle.svg' %}"
-                             class="card-grey card-radius icon card-white"
-                             width="416" height="200" alt="#">
-
-                        <div class="card-body">
-                            <h3 class="card-title h3-block-card-head">Места установки оборудования</h3>
-                            <p class="card-text h3-block-card-footer">Просмотр мест установленного оборудования
-                                с визуализацией в файле PDF</p>
-                            <a href="{% url 'mfss:visual' %}" class="stretched-link"></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100 border-light border-none col-grey">
-{#                        <img src="../../../static/images/svg/subsystem.svg"#}
-                        <img src="{% static 'images/svg/subsystem.svg' %}"
-                             class="card-grey card-radius icon card-white"
-                             width="390" height="200" alt="#">
-                        <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Общий просмотр</h5>
-                            <p class="card-text h3-block-card-footer">Выполните просмотр всего оборудования или кабельной
-                            продукции с указанием выполнения</p>
-                            <a href="{% url 'mfss:project_equipment' %}" class="stretched-link"></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card h-100 border-light border-none col-grey">
-{#                        <img src="../../../static/images/svg/chat-left-text.svg"#}
-                        <img src="{% static 'images/svg/chat-left-text.svg' %}"
-                             class="card-grey card-radius icon card-white"
-                             width="390" height="200" alt="#">
-                        <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Всего установлено</h5>
-                            <p class="card-text h3-block-card-footer">Осуществите просмотр общего количества
-                                установленного оборудования или кабельной
-                                продукции</p>
-                            <a href="{% url 'mfss:quantity_equipment_cable' %}" class="stretched-link"></a>
+                    <div class="col">
+                        <div class="card h-100 border-light border-none col-grey">
+                            <img src="{% static 'images/svg/chat-left-text.svg' %}"
+                                 class="card-grey card-radius icon card-white"
+                                 width="390"
+                                 height="200"
+                                 alt="#">
+                            <div class="card-body">
+                                <h5 class="card-title h3-block-card-head">Всего установлено</h5>
+                                <p class="card-text h3-block-card-footer">
+                                    Осуществите просмотр общего количества установленного
+                                    оборудования или кабельной продукции
+                                </p>
+                                <a href="{% url 'mfss:quantity_equipment_cable' %}"
+                                   class="stretched-link"></a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <br>
-    <br>
-    <br>
-
-    <!-- Вставка кода для показа возможностей приложения -->
-
-    <div class="container text-center mb-5">
-        <div class="mt-sm-5 mb-sm-5">
+        <br>
+        <br>
+        <br>
+        <!-- Вставка кода для показа возможностей приложения -->
+        <div class="container text-center mb-5">
+            <div class="mt-sm-5 mb-sm-5"></div>
         </div>
-    </div>
-    <div class="block-all-white mt-sm-3">
-        <div class="container-xxl mt-5">
-            <div class="row row-cols-1 row-cols-xxl-3 g-4">
-                <div class="col">
-                </div>
-                <div class="col">
-                    <div class="card h-100 border-light border-none icons--gradient">
-{#                        <img src="../../../static/images/svg/envelope-at.svg" class="card-grey card-radius icon"#}
-                        <img src="{% static 'images/svg/envelope-at.svg' %}" class="card-grey card-radius icon"
-                             width="390" height="200" alt="#">
-                        <div class="card-body">
-                            <h5 class="card-title h3-block-card-head">Обратная связь</h5>
-                            <p class="card-text h3-block-card-footer">В случае обнаружения ошибки в данных
-                            напишите письмо администратору ресурса, в случае просьбы включить Вас в
-                                список разрешенных пользователей для регистрации укажите ваше место работы и
-                                должность в сообщении
-                            </p>
-                            <a href="{% url 'mfss:contact' %}" class="stretched-link"></a>
+        <div class="block-all-white mt-sm-3">
+            <div class="container-xxl mt-5">
+                <div class="row row-cols-1 row-cols-xxl-3 g-4">
+                    <div class="col"></div>
+                    <div class="col">
+                        <div class="card h-100 border-light border-none icons--gradient">
+                            {# <img src="../../../static/images/svg/envelope-at.svg" class="card-grey card-radius icon" #}
+                            <img src="{% static 'images/svg/envelope-at.svg' %}"
+                                 class="card-grey card-radius icon"
+                                 width="390"
+                                 height="200"
+                                 alt="#">
+                            <div class="card-body">
+                                <h5 class="card-title h3-block-card-head">Обратная связь</h5>
+                                <p class="card-text h3-block-card-footer">
+                                    В случае обнаружения ошибки в данных
+                                    напишите письмо администратору ресурса, в случае просьбы включить Вас в
+                                    список разрешенных пользователей для регистрации укажите ваше место работы и
+                                    должность в сообщении
+                                </p>
+                                <a href="{% url 'mfss:contact' %}" class="stretched-link"></a>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="col">
+                    <div class="col"></div>
                 </div>
             </div>
         </div>
-    </div>
-    <br>
-    <br>
+        <br>
+        <br>
 {% endblock %}
