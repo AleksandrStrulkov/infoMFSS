@@ -39,14 +39,13 @@
                                 Функционал
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'mfss:percents' %}">Процент
-                                    выполнения</a></li>
-                                <li>
+                                {% comment %} <li>
+                                    <a class="dropdown-item" href="{% url 'mfss:percents' %}">Процент
+                                    выполнения</a></li> {% endcomment %}
+                                {% comment %} <li>
                                     <hr class="dropdown-divider">
-                                </li>
-                                <li><p class="p-3 mb-1" href="#">Установлено:</p></li>
-                                <li>
-                                    {#                                    <hr class="dropdown-divider">#}
+                                </li> {% endcomment %}
+                                {% comment %} <li><p class="p-3 mb-1" href="#">Установлено:</p></li> {% endcomment %}
                                 <li><a class="dropdown-item" href="{% url 'mfss:equipment' %}">Оборудование</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
@@ -65,19 +64,18 @@
                                 Дополнительно
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'mfss:box' %}">Распределительное
-                                    оборудование
+                                <li><a class="dropdown-item" href="{% url 'mfss:power_circuit' %}">Схемы электроснабжения
                                 </a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li><a class="dropdown-item" href="{% url 'mfss:equipment_file' %}">Документация</a>
                                 </li>
-                                <li>
+                                {% comment %} <li>
                                     <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="{% url 'mfss:violations' %}">Отчет по замечаниям</a>
-                                </li>
+                                </li> {% endcomment %}
+                                {% comment %} <li><a class="dropdown-item" href="{% url 'mfss:violations' %}">Отчет по замечаниям</a>
+                                </li> {% endcomment %}
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
