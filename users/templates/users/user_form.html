@@ -6,66 +6,79 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container margin-auth-block">
-        <form method="post">
-            <div class="row mx-auto mt-sm-4 mb-sm-4">
-                <div class="col-sm-3">
-                </div>
-                <div class="col-sm-6 card mb-4 box-shadow card-imad-auth border-none">
-                    <div class="card-body mb-3 mt-3">
-                        {% load crispy_forms_tags %}
-                        {% csrf_token %}
-                        {% crispy form %}
-                        <div class="row">
-                            <div class="col">
-                                <button type="submit" class="btn elem-button btn-md mx-2">
-                                    Изменить данные
-                                </button>
+    <div class="container margin-auth-block mb-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card card-imad-auth shadow-sm border-0">
+                    <div class="card-body p-4">
+                        <h1 class="h4 mb-4">Данные профиля</h1>
+                        <form method="post">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3">
+                                <button type="submit" class="btn elem-button">Изменить данные</button>
+                                <a class="color-text-violet underline-none" href="{% url 'users:profile_edit' %}">Сменить пароль</a>
                             </div>
-                            <div class="col text-end mt-3">
-                                <a class="color-text-violet underline-none text-end"
-                                   href="{% url 'users:profile_edit' %}">Сменить пароль</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-3">
+                        </form>
                     </div>
                 </div>
+
+                <section class="card card-imad-auth shadow-sm border-0 mt-4" aria-labelledby="invitations-title">
+                    <div class="card-body p-4">
+                        <h2 id="invitations-title" class="h4 mb-3">Приглашения</h2>
+                        {% for message in messages %}
+                            <div class="alert {% if 'error' in message.tags %}alert-danger{% else %}alert-success{% endif %} mb-3" role="status">{{ message }}</div>
+                        {% endfor %}
+                        <form method="post" action="{% url 'users:invite_create' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn elem-button">+ Создать приглашение</button>
+                        </form>
+
+                        <h3 class="h5 mt-4 mb-3">Действующие ссылки</h3>
+                        <ul class="list-group list-group-flush">
+                            {% for url, invitation in active_invitations %}
+                                <li class="list-group-item px-0">
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                        <span class="badge bg-success">Активен</span>
+                                        <small class="text-muted">Действует до {{ invitation.expires_at|date:"d.m.Y H:i" }}</small>
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" readonly value="{{ url }}" aria-label="Ссылка-приглашение">
+                                        <button type="button" class="btn btn-outline-secondary" data-copy-invite>Копировать</button>
+                                    </div>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item px-0 text-muted">Действующих ссылок нет.</li>
+                            {% endfor %}
+                        </ul>
+
+                        <h3 class="h5 mt-4 mb-3">Приглашённые коллеги</h3>
+                        <ul class="list-group list-group-flush">
+                            {% for invitation in redeemed_invitations %}
+                                <li class="list-group-item px-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <span>{{ invitation.registered_user.get_full_name|default:invitation.registered_user.email }}</span>
+                                    <span class="d-flex flex-wrap align-items-center gap-2">
+                                        <span class="badge bg-secondary">Использован</span>
+                                        <small class="text-muted">{{ invitation.registered_user.date_joined|date:"d.m.Y H:i" }}</small>
+                                    </span>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item px-0 text-muted">Пока никто не зарегистрировался.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </section>
             </div>
-        </form>
+        </div>
     </div>
-    <section class="container mt-4 mb-5">
-        <h2>Приглашения</h2>
-        {% for message in messages %}<p role="status">{{ message }}</p>{% endfor %}
-        <form method="post" action="{% url 'users:invite_create' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn elem-button">Создать ссылку-приглашение</button>
-        </form>
-        <h3 class="mt-4">Действующие ссылки</h3>
-        {% for url, invitation in active_invitations %}
-            <div class="mb-3">
-                <input type="text" class="form-control" readonly value="{{ url }}" aria-label="Ссылка-приглашение">
-                <button type="button" class="btn btn-outline-secondary mt-1" data-copy-invite="{{ url }}">Копировать</button>
-                <span>Действует до {{ invitation.expires_at|date:"d.m.Y H:i" }}</span>
-            </div>
-        {% empty %}<p>Действующих ссылок нет.</p>{% endfor %}
-        <h3 class="mt-4">Приглашённые коллеги</h3>
-        <ul>
-        {% for invitation in redeemed_invitations %}
-            <li>{{ invitation.registered_user.get_full_name|default:invitation.registered_user.email }} —
-                {{ invitation.registered_user.date_joined|date:"d.m.Y H:i" }}</li>
-        {% empty %}<li>Пока никто не зарегистрировался.</li>{% endfor %}
-        </ul>
-    </section>
     <script>
         document.querySelectorAll('[data-copy-invite]').forEach(button => {
             button.addEventListener('click', async () => {
-                const url = button.dataset.copyInvite;
+                const field = button.parentElement.querySelector('input');
                 try {
-                    await navigator.clipboard.writeText(url);
+                    await navigator.clipboard.writeText(field.value);
                     button.textContent = 'Скопировано';
                 } catch (_) {
-                    const field = button.parentElement.querySelector('input');
                     field.focus();
                     field.select();
                     button.textContent = 'Скопируйте выделенную ссылку';
