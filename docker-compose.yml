@@ -30,8 +30,6 @@ services:
       - ./static_collected:/app/static_collected  # Bind mount для статики
       - ./media:/app/media  # Bind mount для медиа файлов
       - ./logs:/app/logs  # Bind mount для логов
-    ports:
-      - '8001:8000'  # Используем порт 8001 для внешнего доступа (8000 занят)
     depends_on:
       db:
         condition: service_healthy

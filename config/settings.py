@@ -40,7 +40,16 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", os.getenv("DEBUG", "False")).lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = ["info-mfss.ru", "www.info-mfss.ru", "127.0.0.1", "localhost", "0.0.0.0", "web"]  # 'web' для Docker сети
+ALLOWED_HOSTS = [
+    "info-mfss.ru",
+    "www.info-mfss.ru",
+    "127.0.0.1",
+    "localhost",
+    "0.0.0.0",
+    "web",
+]  # 'web' для Docker сети
+# Доверять X-Forwarded-Proto только от настроенного HTTPS-прокси (nginx перезаписывает заголовок).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 DEFAULT_ACTIVATION_HOST = os.getenv("DEFAULT_ACTIVATION_HOST", "127.0.0.1:8001")
 
@@ -286,10 +295,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
- "https://info-mfss.ru",
- "https://www.info-mfss.ru",
- "http://info-mfss.ru",
- "http://www.info-mfss.ru",
+    "https://info-mfss.ru",
+    "https://www.info-mfss.ru",
+    "http://info-mfss.ru",
+    "http://www.info-mfss.ru",
     "http://127.0.0.1:8000",
     "http://127.0.0.1:8001",
     "http://localhost:8000",

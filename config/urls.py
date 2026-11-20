@@ -14,21 +14,33 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
 from infoMFSS import views
+from users.urls import urlpatterns as users_patterns
+from users.views import LoginView
+
+# Mount account routes under /users/ and login under /login/ in one namespace.
+users_namespace = (
+    [
+        *[path(f"users/{pattern.pattern}", pattern.callback, name=pattern.name) for pattern in users_patterns],
+        path("login/", LoginView.as_view(), name="login"),
+    ],
+    "users",
+)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('sass_page', views.sass_page_handler),
+    path("", include(users_namespace, namespace="users")),
+    path("admin/", admin.site.urls),
+    path("sass_page", views.sass_page_handler),
     # path(r'^chaining/', include('smart_selects.urls')),
-    path('chaining/', include('smart_selects.urls')),
-    path('', include('infoMFSS.urls', namespace='mfss')),
-    path('users/', include('users.urls', namespace='users')),
-    path('captcha/', include('captcha.urls')),
+    path("chaining/", include("smart_selects.urls")),
+    path("", include("infoMFSS.urls", namespace="mfss")),
+    path("captcha/", include("captcha.urls")),
 ]
 
 if settings.DEBUG:

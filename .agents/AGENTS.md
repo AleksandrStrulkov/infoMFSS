@@ -117,19 +117,23 @@
 
 ## 3. Конвейер разработки и роли
 1. Роли:
- - Кодер:.agents/agents/coder.md — пишет код по спеке, сдает через poetry run gate == 0.
+ - Планировщик:.agents/agents/planner.md — анализирует требования, проектирует архитектуру, декомпозирует задачу на шаги и формирует готовую спеку в specs/ без написания продакшн-кода.
+ - Кодер:.agents/agents/coder.md — пишет код строго по спеке от Планировщика, сдаёт через poetry run gate == 0.
  - Ревьюер:.agents/agents/reviewer.md — проверяет diff, заполняет reviews/review-*.md.
- - Техлид:.agents/agents/techlead.md — финальная приемка по 5 рубрикам.
+ - Техлид:.agents/agents/techlead.md — финальная приёмка по 5 рубрикам, выносит итоговый вердикт в verdicts/verdict-*.md.
 
 2. Порядок работы (Pipeline):
- - Спека задачи лежит в specs/ (по шаблону specs/task-template.md).
- - Сдача от Кодера: reviews/handoff-*.md (по шаблону reviews/handoff-template.md).
- - Отчет Ревьюера: reviews/review-*.md (по шаблону reviews/review-template.md).
- - Приемка Техлидом: вердикт READY, REWORK или ESCALATE.
+ - Старт: Планировщик формирует спеку задачи specs/SPEC-XX-*.md (по шаблону specs/task-template.md).
+ - Разработка: Кодер реализует задачу по утверждённой спеке.
+ - Сдача от Кодера: handoffs/handoff-*.md (по шаблону handoffs/handoff-template.md).
+ - Отчёт Ревьюера: reviews/review-*.md (по шаблону reviews/review-template.md).
+ - Приёмка Техлидом: формирует verdicts/verdict-*.md (по шаблону verdicts/verdict-template.md) с итоговой резолюцией READY, REWORK или ESCALATE.
 
 ## 4. Главный закон
 Код считается неготовым, если:
-- Упал `poetry run gate` (код возврата не 0).
-- Затронута логика `EquipmentInstallation.save()` или `CableMagazine.save()` без учёта хуков.
+- Нет утверждённой спеки от Планировщика в specs/.
+- Упал poetry run gate (код возврата не 0) без явного применения правила изоляции легаси.
+- Затронута логика EquipmentInstallation.save() или CableMagazine.save() без учёта хуков.
 - Отсутствует или не заполнен handoff-пакет.
-- Есть хотя бы одно блокирующее замечание от Ревьюера или вето Техлида.
+- Есть хотя бы одно блокирующее замечание от Ревьюера.
+- Отсутствует вердикт Техлида со статусом READY в verdicts/.

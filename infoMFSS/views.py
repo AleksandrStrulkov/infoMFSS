@@ -1,39 +1,66 @@
 import logging
 
 from django.conf import settings
-from django.contrib.auth.mixins import (LoginRequiredMixin,
-                                        PermissionRequiredMixin)
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import (CreateView, DeleteView, FormView, ListView,
-                                  TemplateView, UpdateView)
+from django.views.generic import CreateView, DeleteView, FormView, ListView, TemplateView, UpdateView
 
-from infoMFSS.forms import (BeaconCreateForm, BeaconForm, BoxForm,
-                            BranchesBoxCreateForm, CableCreateForm, CableForm,
-                            CableMagazineCreateForm, ContactForm,
-                            CreateDateUpdateForm,
-                            CreateEquipmentInstallationForm,
-                            CreateExecutionForm, EquipmentCreateForm,
-                            EquipmentForm, PercentForm, PointPhoneCreateForm,
-                            ProjectCableForm, ProjectEquipmentForm,
-                            QuantityEquipmentCableForm, ViolationsCreateForm,
-                            VisualCreateNewForm, VisualForm, PercentManualForm)
-from infoMFSS.models import (Beacon, BranchesBox, Cable, CableMagazine,
-                             DateUpdate, Equipment, EquipmentInstallation,
-                             Execution, PointPhone, Violations, Visual, DailyNumbersMine, Surface)
-from infoMFSS.services_logger import (LoggingMixin, logger_context_info,
-                                      logger_context_warning,
-                                      logger_form_valid)
+from infoMFSS.forms import (
+    BeaconCreateForm,
+    BeaconForm,
+    BoxForm,
+    BranchesBoxCreateForm,
+    CableCreateForm,
+    CableForm,
+    CableMagazineCreateForm,
+    ContactForm,
+    CreateDateUpdateForm,
+    CreateEquipmentInstallationForm,
+    CreateExecutionForm,
+    EquipmentCreateForm,
+    EquipmentForm,
+    PercentForm,
+    PercentManualForm,
+    PointPhoneCreateForm,
+    ProjectCableForm,
+    ProjectEquipmentForm,
+    QuantityEquipmentCableForm,
+    ViolationsCreateForm,
+    VisualCreateNewForm,
+    VisualForm,
+)
+from infoMFSS.models import (
+    Beacon,
+    BranchesBox,
+    Cable,
+    CableMagazine,
+    DailyNumbersMine,
+    DateUpdate,
+    Equipment,
+    EquipmentInstallation,
+    Execution,
+    PointPhone,
+    Violations,
+    Visual,
+)
+from infoMFSS.services_logger import LoggingMixin, logger_context_info, logger_context_warning, logger_form_valid
 
 from .params import FilterParams
-from .services import (BeaconFilterService, BoxFilterService,
-                       CableFilterService, EquipmentFilterService,
-                       PercentService, ProjectCableFilterService,
-                       ProjectEquipmentFilterService,
-                       QuantityEqCabFilterService, VisualFilterService, PercentManualService)
-from django.views.decorators.http import require_GET
+from .services import (
+    BeaconFilterService,
+    BoxFilterService,
+    CableFilterService,
+    EquipmentFilterService,
+    PercentManualService,
+    PercentService,
+    ProjectCableFilterService,
+    ProjectEquipmentFilterService,
+    QuantityEqCabFilterService,
+    VisualFilterService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +72,7 @@ def sass_page_handler(request):
 """Чтение и вывод данных по формам и фильтрам зарегистрированным пользователям"""
 
 
-class MFSSPercentTemplateView(TemplateView):
+class MFSSPercentTemplateView(LoginRequiredMixin, TemplateView):
     """ "
     Вывод процентов выполнения по шахтам
     """
@@ -78,28 +105,36 @@ class MFSSPercentTemplateView(TemplateView):
 
             # ВРЕМЕННОЕ РЕШЕНИЕ: пытаемся получить DailyNumbersMine, если не получается - используем реальные проценты
             try:
-                context['numbers'] = DailyNumbersMine.objects.latest('date')
+                context["numbers"] = DailyNumbersMine.objects.latest("date")
             except DailyNumbersMine.DoesNotExist:
                 # Если нет данных в DailyNumbersMine, создаем объект с реальными процентами
                 # Используем вычисленные проценты
-                context['numbers'] = type('obj', (object,), {
-                    'nsh1': context.get('percent_mine1', 0),
-                    'nsh2': context.get('percent_mine2', 0),
-                    'nsh3': context.get('percent_mine3', 0),
-                    'total': context.get('percent_mine123', 0),
-                })()
+                context["numbers"] = type(
+                    "obj",
+                    (object,),
+                    {
+                        "nsh1": context.get("percent_mine1", 0),
+                        "nsh2": context.get("percent_mine2", 0),
+                        "nsh3": context.get("percent_mine3", 0),
+                        "total": context.get("percent_mine123", 0),
+                    },
+                )()
 
             logger_context_info(self)
         except Exception as e:
             logger_context_warning(self, e)
             context["error_message"] = f"Произошла ошибка в формировании данных: {str(e)}"
             # В случае ошибки создаем пустой объект для numbers
-            context['numbers'] = type('obj', (object,), {
-                'nsh1': 0,
-                'nsh2': 0,
-                'nsh3': 0,
-                'total': 0,
-            })()
+            context["numbers"] = type(
+                "obj",
+                (object,),
+                {
+                    "nsh1": 0,
+                    "nsh2": 0,
+                    "nsh3": 0,
+                    "total": 0,
+                },
+            )()
 
         return context
 
@@ -534,8 +569,12 @@ class BeaconListView(LoggingMixin, LoginRequiredMixin, FormView):
             # Добавляем параметры в контекст для отображения в шаблоне
             context.update(
                 {
-                    "mine": filter_params.get("mine",),
-                    "incl_blocks": filter_params.get("incl_blocks",),
+                    "mine": filter_params.get(
+                        "mine",
+                    ),
+                    "incl_blocks": filter_params.get(
+                        "incl_blocks",
+                    ),
                 }
             )
 
@@ -1584,10 +1623,10 @@ class PercentManualView(LoggingMixin, LoginRequiredMixin, FormView):
         return context
 
     def form_valid(self, form):
-        mine = form.cleaned_data.get('number_mines')
-        surface = form.cleaned_data.get('surface')
-        inclined_block = form.cleaned_data.get('inclined_blocks')
-        subsystem = form.cleaned_data.get('subsystems')
+        mine = form.cleaned_data.get("number_mines")
+        surface = form.cleaned_data.get("surface")
+        inclined_block = form.cleaned_data.get("inclined_blocks")
+        subsystem = form.cleaned_data.get("subsystems")
 
         # Получаем названия для сервиса
         mine_title = mine.title if mine else "Все шахты"
@@ -1595,10 +1634,7 @@ class PercentManualView(LoggingMixin, LoginRequiredMixin, FormView):
 
         # Вычисляем процент
         percent = PercentManualService.calculate_percent(
-            mine=mine_title,
-            surface=surface,
-            subsystem=subsystem_title,
-            inclined_block=inclined_block
+            mine=mine_title, surface=surface, subsystem=subsystem_title, inclined_block=inclined_block
         )
 
         # Формируем контекст
@@ -1608,7 +1644,7 @@ class PercentManualView(LoggingMixin, LoginRequiredMixin, FormView):
             selected_mine=mine,
             selected_surface=surface,
             selected_inclined_block=inclined_block,
-            selected_subsystem=subsystem
+            selected_subsystem=subsystem,
         )
 
         return self.render_to_response(context)

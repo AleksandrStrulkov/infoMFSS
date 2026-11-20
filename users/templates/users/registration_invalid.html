@@ -1,0 +1,8 @@
+{% extends 'users/base.html' %}
+{% block content %}
+<div class="container margin-auth-block text-center">
+    <h1>Регистрация по приглашению</h1>
+    <p>Ссылка недействительна или срок её действия истёк. Попросите новое приглашение.</p>
+    <a href="{% url 'mfss:contact' %}">Запросить доступ</a>
+</div>
+{% endblock %}

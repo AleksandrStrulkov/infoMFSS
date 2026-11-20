@@ -34,6 +34,45 @@
             </div>
         </form>
     </div>
+    <section class="container mt-4 mb-5">
+        <h2>Приглашения</h2>
+        {% for message in messages %}<p role="status">{{ message }}</p>{% endfor %}
+        <form method="post" action="{% url 'users:invite_create' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn elem-button">Создать ссылку-приглашение</button>
+        </form>
+        <h3 class="mt-4">Действующие ссылки</h3>
+        {% for url, invitation in active_invitations %}
+            <div class="mb-3">
+                <input type="text" class="form-control" readonly value="{{ url }}" aria-label="Ссылка-приглашение">
+                <button type="button" class="btn btn-outline-secondary mt-1" data-copy-invite="{{ url }}">Копировать</button>
+                <span>Действует до {{ invitation.expires_at|date:"d.m.Y H:i" }}</span>
+            </div>
+        {% empty %}<p>Действующих ссылок нет.</p>{% endfor %}
+        <h3 class="mt-4">Приглашённые коллеги</h3>
+        <ul>
+        {% for invitation in redeemed_invitations %}
+            <li>{{ invitation.registered_user.get_full_name|default:invitation.registered_user.email }} —
+                {{ invitation.registered_user.date_joined|date:"d.m.Y H:i" }}</li>
+        {% empty %}<li>Пока никто не зарегистрировался.</li>{% endfor %}
+        </ul>
+    </section>
+    <script>
+        document.querySelectorAll('[data-copy-invite]').forEach(button => {
+            button.addEventListener('click', async () => {
+                const url = button.dataset.copyInvite;
+                try {
+                    await navigator.clipboard.writeText(url);
+                    button.textContent = 'Скопировано';
+                } catch (_) {
+                    const field = button.parentElement.querySelector('input');
+                    field.focus();
+                    field.select();
+                    button.textContent = 'Скопируйте выделенную ссылку';
+                }
+            });
+        });
+    </script>
 {% endblock %}
 
 {% block footer %}

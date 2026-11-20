@@ -1,8 +1,6 @@
 import pytest
-from django.urls import reverse
 
 from tests.factories import CableFactory, UserFactory
-from users.utilities import signer
 
 
 @pytest.mark.django_db
@@ -14,25 +12,13 @@ def test_multiple_allowed_persons(allowed_person_factory):
 
 
 @pytest.mark.django_db
-def test_user_activation(client):
-    # Создаём пользователя
+def test_legacy_user_activation_is_disabled(client):
     user = UserFactory()
-
-    # Подписываем email
-    signed_email = signer.sign(user.email)
-
-    # Проверяем, что пользователь ещё не активирован
+    response = client.get("/users/accounts/activate/obsolete-signature")
+    user.refresh_from_db()
+    assert response.status_code == 404
     assert not user.is_active
     assert not user.is_activated
-
-    # Имитируем переход по ссылке активации
-    response = client.get(reverse("users:activate", kwargs={"sign": signed_email}))
-
-    user.refresh_from_db()
-
-    assert user.is_active
-    assert user.is_activated
-    assert response.status_code == 200
 
 
 @pytest.mark.django_db

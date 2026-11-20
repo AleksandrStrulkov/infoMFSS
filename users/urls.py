@@ -1,24 +1,36 @@
-from django.contrib.auth.views import (PasswordResetCompleteView,
-                                       PasswordResetConfirmView,
-                                       PasswordResetDoneView,
-                                       PasswordResetView)
+from django.contrib.auth.views import (
+    PasswordResetCompleteView,
+    PasswordResetConfirmView,
+    PasswordResetDoneView,
+    PasswordResetView,
+)
 from django.urls import path, reverse_lazy
 
 from users.apps import UsersConfig
-from users.views import (LoginView, LogoutView, PasswordEditDoneView,
-                         PasswordEditView, RegisterDoneView, RegisterView,
-                         SMSVerificationView, UserUpdateView, user_activate)
+from users.views import (
+    CreateInvitationView,
+    LegacyLoginRedirectView,
+    LoginView,
+    LogoutView,
+    PasswordEditDoneView,
+    PasswordEditView,
+    RegisterView,
+    RegisterWithoutTokenView,
+    SMSVerificationView,
+    UserUpdateView,
+)
 
 app_name = UsersConfig.name
 
 urlpatterns = [
-    path("", LoginView.as_view(), name="login"),
+    path("", LegacyLoginRedirectView.as_view(), name="legacy_login"),
+    path("login/", LoginView.as_view(), name="login"),
     path("verify-sms/", SMSVerificationView.as_view(), name="verify_sms"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("accounts/register/", RegisterView.as_view(), name="register"),
-    path("accounts/register/done/", RegisterDoneView.as_view(), name="register_done"),
-    path("accounts/activate/<path:sign>", user_activate, name="activate"),  # Используем path вместо str для обработки закодированных символов
+    path("accounts/register/", RegisterWithoutTokenView.as_view(), name="register_without_token"),
+    path("accounts/register/<str:token>/", RegisterView.as_view(), name="register"),
     path("accounts/profile/", UserUpdateView.as_view(), name="profile"),
+    path("accounts/invites/", CreateInvitationView.as_view(), name="invite_create"),
     # path('profile/genpassword/', generate_new_password, name='generate_new_password'),
     path(
         "accounts/profile/edit/",
