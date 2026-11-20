@@ -38,7 +38,7 @@ POWERCIRCUITSCHEMASDIR = (
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.getenv("DJANGO_DEBUG", os.getenv("DEBUG", "False")).lower() in ("true", "1", "yes")
 
 ALLOWED_HOSTS = ["info-mfss.ru", "www.info-mfss.ru", "127.0.0.1", "localhost", "0.0.0.0", "web"]  # 'web' для Docker сети
 
