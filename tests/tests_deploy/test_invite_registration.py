@@ -3,12 +3,13 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
 from html.parser import HTMLParser
+from typing import cast
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.db import IntegrityError, connection
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.test import Client, override_settings
 from django.urls import reverse
@@ -16,6 +17,7 @@ from django.utils import timezone
 
 from config.views import csrf_failure
 from users.forms import RegisterForm
+from users.models import User
 from users.services import (
     InvalidInvitation,
     InvitationLimitReached,
@@ -50,6 +52,7 @@ class FormStructureParser(HTMLParser):
         self.form_depth = 0
         self.nested_forms = False
         self.csrf_inside_form = False
+        self.csrf_token: str | None = None
         self.submit_inside_form = False
         self.form_count = 0
         self.registration_form_count = 0
@@ -67,6 +70,7 @@ class FormStructureParser(HTMLParser):
                 self.registration_form_open = True
         elif tag == "input" and attributes.get("name") == "csrfmiddlewaretoken" and self.registration_form_open:
             self.csrf_inside_form = True
+            self.csrf_token = attributes.get("value")
         elif tag == "button" and attributes.get("type") == "submit" and self.registration_form_open:
             self.submit_inside_form = True
 
@@ -138,6 +142,69 @@ def test_registration_form_contains_csrf_and_submit_in_one_form(client: Client, 
     assert response.context["form"].errors
 
 
+def test_https_registration_accepts_same_origin_referer(inviter: User) -> None:
+    invitation = create_invitation(inviter)
+    url = reverse("users:register", kwargs={"token": invitation.token})
+    csrf_client = Client(enforce_csrf_checks=True)
+
+    get_response = cast(HttpResponse, csrf_client.get(url, secure=True))
+    assert get_response.status_code == 200
+    assert get_response["Referrer-Policy"] == "same-origin"
+    assert get_response["Cache-Control"] == "private, no-store"
+    parser = FormStructureParser()
+    parser.feed(get_response.content.decode())
+    assert parser.csrf_inside_form
+    assert parser.csrf_token
+    assert "csrftoken" in csrf_client.cookies
+
+    response = cast(
+        HttpResponseRedirect,
+        csrf_client.post(
+            url,
+            {**registration_data(), "csrfmiddlewaretoken": parser.csrf_token},
+            secure=True,
+            HTTP_REFERER=f"https://testserver{url}",
+        ),
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse("mfss:home")
+    assert response["Referrer-Policy"] == "same-origin"
+    assert response["Cache-Control"] == "private, no-store"
+    assert get_user_model().objects.filter(email="new@example.test").count() == 1
+    user = get_user_model().objects.get(email="new@example.test")
+    assert user.is_active and user.is_activated
+    assert csrf_client.session["_auth_user_id"] == str(user.pk)
+    invitation.refresh_from_db()
+    assert invitation.registered_user == user
+    assert invitation.used_at is not None
+
+
+def test_https_registration_rejects_missing_referer_and_origin(inviter: User) -> None:
+    invitation = create_invitation(inviter)
+    url = reverse("users:register", kwargs={"token": invitation.token})
+    csrf_client = Client(enforce_csrf_checks=True)
+
+    get_response = cast(HttpResponse, csrf_client.get(url, secure=True))
+    assert get_response.status_code == 200
+    parser = FormStructureParser()
+    parser.feed(get_response.content.decode())
+    assert parser.csrf_token
+    assert "csrftoken" in csrf_client.cookies
+    response = cast(
+        HttpResponse,
+        csrf_client.post(url, {**registration_data(), "csrfmiddlewaretoken": parser.csrf_token}, secure=True),
+    )
+
+    assert response.status_code == 403
+    assert not get_user_model().objects.filter(email="new@example.test").exists()
+    assert "_auth_user_id" not in csrf_client.session
+    invitation.refresh_from_db()
+    assert invitation.is_valid()
+    assert invitation.registered_user is None
+    assert invitation.used_at is None
+
+
 def test_csrf_failure_renders_recovery_page() -> None:
     response = csrf_failure(HttpRequest(), reason="secret diagnostics")
     assert response.status_code == 403
@@ -154,14 +221,16 @@ def test_error_pages_render_without_request_context() -> None:
 def test_http_success_and_inviter_history(client: Client, inviter):
     invitation = create_invitation(inviter)
     url = reverse("users:register", kwargs={"token": invitation.token})
-    response = client.get(url)
+    response = cast(HttpResponse, client.get(url))
     assert response.status_code == 200
+    assert response["Referrer-Policy"] == "same-origin"
+    assert response["Cache-Control"] == "private, no-store"
     assert "Петрова" in response.content.decode()
     assert b'name="password1"' in response.content
     response = client.post(url, registration_data())
     assert response.status_code == 302
     assert response.url == reverse("mfss:home")
-    assert response["Referrer-Policy"] == "no-referrer"
+    assert response["Referrer-Policy"] == "same-origin"
     assert response["Cache-Control"] == "private, no-store"
     user = get_user_model().objects.get(email="new@example.test")
     assert user.is_active and user.is_activated
@@ -203,6 +272,9 @@ def test_guest_paths_and_invalid_registration(client: Client, inviter):
         response = client.get(url)
         assert response.status_code == 200
         assert response.templates[0].name == "users/registration_invalid.html"
+        if url != reverse("users:register_without_token"):
+            assert cast(HttpResponse, response)["Referrer-Policy"] == "same-origin"
+            assert cast(HttpResponse, response)["Cache-Control"] == "private, no-store"
         assert reverse("mfss:contact") in response.content.decode()
     assert client.post(reverse("users:register_without_token"), registration_data()).status_code == 405
     assert client.post(reverse("users:invite_create")).status_code == 302
@@ -278,7 +350,7 @@ def test_form_errors_do_not_redeem(client: Client, inviter):
     assert client.post(url, registration_data()).status_code == 302
     second = client.post(url, registration_data("another@example.test"))
     assert second.templates[0].name == "users/registration_invalid.html"
-    assert second["Referrer-Policy"] == "no-referrer"
+    assert second["Referrer-Policy"] == "same-origin"
     assert second["Cache-Control"] == "private, no-store"
     assert get_user_model().objects.filter(email="another@example.test").count() == 0
 
@@ -325,7 +397,7 @@ def test_parallel_redemption_uses_only_one_account():
         outcomes = list(pool.map(submit, ["first@example.test", "second@example.test"]))
     assert sorted(status for status, *_ in outcomes) == [200, 302]
     assert sum(user_id is not None for _, user_id, *_ in outcomes) == 1
-    assert all(referrer == "no-referrer" and cache == "private, no-store" for _, _, referrer, cache in outcomes)
+    assert all(referrer == "same-origin" and cache == "private, no-store" for _, _, referrer, cache in outcomes)
     assert get_user_model().objects.filter(email__in=["first@example.test", "second@example.test"]).count() == 1
     invitation.refresh_from_db()
     assert invitation.registered_user is not None

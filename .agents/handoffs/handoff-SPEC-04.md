@@ -1,0 +1,30 @@
+# Handoff: SPEC-04 — HTTPS/CSRF при регистрации по приглашению
+
+## 1. Метаданные
+- Дата: 2026-11-21; повторная сдача после замечания Ревьюера к строке 274
+- Ветка: `fix/vps-deploy-and-activation`
+- Базовый commit SHA: `bb3c6a66d20ad85eb091793e1dd3ef3ccfa45373`
+- Спецификация: `.agents/specs/SPEC-04-invite-registration-https-csrf.md` (существовавший до начала работы untracked-файл; не изменялся)
+
+## 2. Что сделано
+- Только в `RegisterView.dispatch` заменена политика ответа на `Referrer-Policy: same-origin`; сохранён `Cache-Control: private, no-store` для валидной и невалидной ссылки.
+- Обновлены ожидания заголовков, включая конкурентный сценарий PostgreSQL; проверены GET валидной и невалидной ссылки.
+- Добавлены два теста через Django `Client(enforce_csrf_checks=True)`: HTTPS GET получает CSRF-cookie и HTML-токен, извлечённый из скрытого поля регистрационной формы HTML-парсером; именно HTML-токен отправляется при HTTPS POST. POST с same-origin `Referer` и без `Origin` создаёт одного пользователя, аутентифицирует его и погашает приглашение; POST с действительными cookie/HTML-токеном без обоих заголовков получает 403 без изменения данных. Возвращаемые ответы в новых тестах и валидный GET в существующем тесте типизированы через `cast(HttpResponse/HttpResponseRedirect, ...)` из-за ошибочной аннотации `Client.get/post` в доступных Django-типах. В цикле невалидных GET весь `response` оставлен результатом `client.get(url)`, а `cast(HttpResponse, response)` применён только к каждому чтению заголовка: это не создаёт новую диагностику `HttpResponse.templates` и устраняет `reportIndexIssue` на строках 276–277. Проверка `response.templates[0].name` сохранена без подавления диагностики; прежняя ошибка для `WSGIRequest.templates` остаётся легаси.
+- Это интеграционные тесты Django Client, не браузерный E2E. CSRF-настройки, middleware, модели, миграции и прочая логика не менялись.
+
+## 3. Затронутые файлы
+- Добавлено: `.agents/handoffs/handoff-SPEC-04.md`.
+- Изменено: `users/views.py`, `tests/tests_deploy/test_invite_registration.py`.
+- Миграции: нет.
+
+## 4. Пакет доказательств (Quality Gate)
+После исправления замечания по строке 274 повторный `poetry run gate` на хосте — **exit 1**, остановлен на Ruff; подтверждения `gate == 0` нет. Форматирование, basedpyright, pytest и coverage **как этапы gate не запускались**; ниже приведены отдельные проверки с фактическими кодами возврата.
+- `poetry run ruff check .`: **exit 1, 111 ошибок**; JSON-диагностики не содержат `users/views.py` и `tests/tests_deploy/test_invite_registration.py`. Примеры незатронутых файлов: `infoMFSS/admin.py`, `infoMFSS/admin_import.py`. `poetry run ruff check users/views.py tests/tests_deploy/test_invite_registration.py`: **exit 0**, 0 ошибок. Локальные `cast` для чтения заголовков не добавили ошибок Ruff.
+- `poetry run ruff format --check .`: **exit 1**, 19 файлов требуют форматирования, оба изменённых файла отсутствуют в списке; `poetry run ruff format --check users/views.py tests/tests_deploy/test_invite_registration.py`: **exit 0**, оба файла отформатированы.
+- `poetry run basedpyright tests/tests_deploy/test_invite_registration.py users/views.py --outputjson`: **exit 1, 67 ошибок, 0 предупреждений** (basedpyright 1.40.2; 2 файла). На строке 274 теперь только прежняя `reportAttributeAccessIssue` для `WSGIRequest.templates`, соответствующая выражению на базовой строке 205; новой диагностики для `HttpResponse.templates` нет. На строках 276–277 диагностик нет. Возврат двух старых диагностик для `WSGIRequest.status_code` (строка 273) и `WSGIRequest.content` (строка 278) объясняет изменение счётчика с 65 до 67 при снятии общего `cast`; это прежние выражения базового кода (строки 204 и 206). Шесть оставшихся `reportIndexIssue` относятся к ранее существовавшим POST-проверкам (233–234, 353–354, 392–393). В предыдущем ревью для базовых байтов зафиксировано 70 ошибок; текущая числовая дельта **−3**, но полный повторный прогон диагностики на базовых байтах и исчерпывающее сопоставление всех 67 выражений/правил/сообщений в этой итерации **не выполнены**. Строгое отсутствие всех новых диагностик пока не доказано. Ранее проведённый полный `poetry run basedpyright --outputjson` по проекту: **exit 1, 390 ошибок, 1 предупреждение** (45 файлов; тестовый файл не анализировался); в этой итерации не повторялся.
+- Повторный `docker compose exec -T web pytest -q tests/tests_deploy --no-cov`: **exit 0, 34 passed**, включая тесты регистрации. `docker compose exec -T web pytest -q tests/tests_deploy`: **exit 1, 34 passed**, общее покрытие **32.58%** при пороге 70% (coverage измеряет `infoMFSS`, не изменённый здесь `users/views.py`). `docker compose exec -T web pytest -q --no-cov`: **exit 1, 41 passed, 3 failed, 1 error**: `tests/test_forms.py::test_contact_form_valid`, `tests/test_models.py::test_equipment_str` — прежняя несовместимость EquipmentFactory с моделью; `tests/test_models.py::test_inclined_block_str`, `tests/test_models.py::test_cable_str` — ожидания строк моделей. Эти файлы не затронуты SPEC-04. Полный pytest с coverage не запускался, поэтому полный показатель покрытия не установлен.
+- `git diff --check`: **exit 0** (предупреждения Git о возможной конвертации LF/CRLF не являются ошибками whitespace). Отдельная компиляция не запускалась; контейнерный набор тестов проходит.
+
+## 5. Известные ограничения / Вопросы
+- Полный gate красный; несвязанные ошибки Ruff/форматирования и pytest не исправлялись из-за ограничений scope. Статическая типизация двух изменённых файлов также красная (**67 против ранее зафиксированных 70 на базе**). Замечание Ревьюера к `HttpResponse.templates` исправлено; для доказательства отсутствия любых других новых ошибок нужен повторный базовый прогон и полное сопоставление диагностик по выражению, правилу и сообщению, а не только общий счётчик. Handoff передаётся Ревьюеру на сверку базы и Техлиду для решения о применимости исключения для легаси; **не считать это вердиктом READY или ACCEPTED**.
+- Не запускались Django `manage.py test` (существующие плоские pytest-тесты требуют pytest); браузерный E2E не выполнялся.

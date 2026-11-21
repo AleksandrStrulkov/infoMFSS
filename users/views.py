@@ -104,7 +104,7 @@ class RegisterView(FormView):
             response = render(request, "users/registration_invalid.html")
         else:
             response = super().dispatch(request, *args, **kwargs)
-        response["Referrer-Policy"] = "no-referrer"
+        response["Referrer-Policy"] = "same-origin"
         response["Cache-Control"] = "private, no-store"
         return response
 
