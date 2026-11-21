@@ -13,9 +13,10 @@
 - Сообщения выпуска приглашений оформлены стандартными Bootstrap alerts; инлайн-стили не добавлялись.
 
 ## 3. Затронутые файлы
-- Изменено: `users/forms.py`, `users/views.py`, `users/templates/users/user_form.html`.
+- Изменено: `users/forms.py`, `users/views.py`, `users/admin.py`, `users/templates/users/user_form.html`.
 - Обновлено: `.agents/handoffs/handoff-SPEC-03.md`.
 - Добавлена презентационная `InviteDisplayForm`; ссылка приглашения теперь рендерится через crispy-forms, выпуск вынесен в отдельную POST-форму без вложенности.
+- Добавлен `InvitationAdmin`: ссылка, создатель, даты, статус, фильтры, поиск и readonly-токен/ссылка.
 - Миграции: нет.
 
 ## 4. Пакет доказательств (Quality Gate)
@@ -23,7 +24,10 @@
 - `poetry run python manage.py check`: PASSED, 0 замечаний; предупреждение об отсутствующем openpyxl.
 - `docker compose exec -T web python -m pytest -q -o addopts= tests/tests_deploy/test_invite_registration.py`: **14 passed, 1 warning**. Warning касается удаления тестовой PostgreSQL БД при оставшихся соединениях. Порог покрытия этим изолированным запуском отключён.
 - `poetry run gate`: **FAILED** на существующих ошибках Ruff вне скоупа SPEC-03 (`infoMFSS/admin.py`, `infoMFSS/admin_import.py` и другие); до следующих стадий gate не дошёл.
-- Ruff для изменённого Python: не применимо. Отдельного HTML/JS-линтера в задаче не запускалось. basedpyright и полный pytest: не запускались. Coverage: не измерялось.
+- `poetry run ruff check users/admin.py`: **PASSED**.
+- `poetry run basedpyright users/admin.py`: **PASSED**.
+- `poetry run pytest tests/tests_deploy/test_invite_registration.py`: **FAILED на окружении** — PostgreSQL соединение завершается `UnicodeDecodeError`; также coverage падает из-за неполного запуска (`30% < 70%`).
+- Отдельного HTML/JS-линтера не запускалось. Coverage не измерялось.
 
 ## 5. Известные ограничения / Вопросы
 - Backend выдаёт только активные и использованные приглашения; истёкшие ссылки не передаются в шаблон, поэтому бейдж «Истёк» не отображается. Изменение выборки потребовало бы вмешательства в backend и не входило в эту UI-задачу.
