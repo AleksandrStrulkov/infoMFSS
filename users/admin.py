@@ -34,7 +34,8 @@ class UsersAdmin(admin.ModelAdmin):
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ("invite_link", "created_by", "created_at", "expires_at", "is_used")
+    list_display = ("id", "invite_link", "created_by", "created_at", "expires_at", "is_used")
+    list_display_links = ("id",)
     list_filter = ("used_at", "created_at")
     search_fields = (
         "token",
@@ -43,7 +44,7 @@ class InvitationAdmin(admin.ModelAdmin):
         "registered_user__email",
         "registered_user__username",
     )
-    readonly_fields = ("token", "invite_link")
+    readonly_fields = ("id", "token", "invite_link")
 
     @admin.display(description="Ссылка-приглашение")
     def invite_link(self, obj: Invitation):
