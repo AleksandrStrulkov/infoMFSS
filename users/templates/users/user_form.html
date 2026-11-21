@@ -23,7 +23,7 @@
 
                 <section class="card card-imad-auth shadow-sm border-0" aria-labelledby="invitations-title">
                     <div class="card-body p-4">
-                        <h2 id="invitations-title" class="h4 mb-4">Приглашения</h2>
+                        <h1 id="invitations-title" class="h4 mb-4 fw-semibold">Приглашения</h1>
                         {% for message in messages %}
                             <div class="alert {% if 'error' in message.tags %}alert-danger{% else %}alert-success{% endif %} small mb-4" role="status">{{ message }}</div>
                         {% endfor %}
