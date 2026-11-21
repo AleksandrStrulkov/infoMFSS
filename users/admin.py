@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.sites import AlreadyRegistered
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -62,3 +63,14 @@ class AllowedPersonAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UsersAdmin)
 admin.site.register(AllowedPerson, AllowedPersonAdmin)
+
+# infoMFSS.admin replaces django.contrib.admin.site with the custom site used by /admin/.
+# Importing this module before that replacement must still register Invitation there.
+def register_invitation_admin() -> None:
+    try:
+        admin.site.register(Invitation, InvitationAdmin)
+    except AlreadyRegistered:
+        pass
+
+
+register_invitation_admin()

@@ -62,6 +62,10 @@ class MyAdminSite(AdminSite):
 
 admin.site = MyAdminSite()
 
+# Import after replacing admin.site so users models are registered in the
+# custom AdminSite mounted at /admin/.
+import users.admin  # noqa: E402, F401
+
 
 # @admin.register(NumberMine)
 class NumberMineAdmin(admin.ModelAdmin):
