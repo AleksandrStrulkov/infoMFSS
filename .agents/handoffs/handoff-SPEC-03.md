@@ -13,9 +13,10 @@
 - Сообщения выпуска приглашений оформлены стандартными Bootstrap alerts; инлайн-стили не добавлялись.
 
 ## 3. Затронутые файлы
-- Изменено: `users/templates/users/user_form.html`.
-- Добавлено: `.agents/handoffs/handoff-SPEC-03.md`.
-- Миграции: нет. Python-код не менялся.
+- Изменено: `users/forms.py`, `users/views.py`, `users/templates/users/user_form.html`.
+- Обновлено: `.agents/handoffs/handoff-SPEC-03.md`.
+- Добавлена презентационная `InviteDisplayForm`; ссылка приглашения теперь рендерится через crispy-forms, выпуск вынесен в отдельную POST-форму без вложенности.
+- Миграции: нет.
 
 ## 4. Пакет доказательств (Quality Gate)
 - `git diff --check`: PASSED (Git предупреждает о настройке преобразования LF/CRLF).

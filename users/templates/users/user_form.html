@@ -7,7 +7,6 @@
     <div class="container margin-auth-block mb-5">
         <div class="row justify-content-center">
             <div class="col-12 col-md-10 col-lg-8">
-                <!-- Карточка 1: Профиль -->
                 <div class="card card-imad-auth shadow-sm border-0 mb-4">
                     <div class="card-body p-4 p-md-5">
                         <h1 class="h4 mb-4 fw-semibold">Данные профиля</h1>
@@ -16,70 +15,40 @@
                             {{ form|crispy }}
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-4 pt-2 border-top">
                                 <button type="submit" class="btn elem-button">Изменить данные</button>
-                                <a class="color-text-violet underline-none small"
-                                   href="{% url 'users:profile_edit' %}">Сменить пароль</a>
+                                <a class="color-text-violet underline-none small" href="{% url 'users:profile_edit' %}">Сменить пароль</a>
                             </div>
                         </form>
                     </div>
                 </div>
-                <!-- Карточка 2: Приглашения -->
-                <section class="card card-imad-auth shadow-sm border-0"
-                         aria-labelledby="invitations-title">
-                    <div class="card-body p-4 p-md-5">
-                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-                            <div>
-                                <h2 id="invitations-title" class="h4 mb-1 fw-semibold">Приглашения</h2>
-                                <p class="text-muted small mb-0">Создавайте персональные ссылки для регистрации новых коллег</p>
-                            </div>
-                            <form method="post" action="{% url 'users:invite_create' %}" class="m-0">
-                                {% csrf_token %}
-                                <button type="submit" class="btn elem-button btn-sm px-3">+ Создать ссылку</button>
-                            </form>
-                        </div>
+
+                <section class="card card-imad-auth shadow-sm border-0" aria-labelledby="invitations-title">
+                    <div class="card-body p-4">
+                        <h2 id="invitations-title" class="h4 mb-4">Приглашения</h2>
                         {% for message in messages %}
-                            <div class="alert {% if 'error' in message.tags %}alert-danger{% else %}alert-success{% endif %} small mb-4"
-                                 role="status">{{ message }}</div>
+                            <div class="alert {% if 'error' in message.tags %}alert-danger{% else %}alert-success{% endif %} small mb-4" role="status">{{ message }}</div>
                         {% endfor %}
-                        <!-- Блок действующих ссылок -->
+
                         <div class="mb-4">
-                            <label class="form-label text-muted text-uppercase small fw-bold mb-2">Активные ссылки</label>
-                            {% if active_invitations %}
-                                <div class="d-flex flex-column gap-3">
-                                    {% for url, invitation in active_invitations %}
-                                        <div class="p-3 rounded border bg-light bg-opacity-50">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Активна</span>
-                                                <small class="text-muted">Истекает {{ invitation.expires_at|date:"d.m.Y H:i" }}</small>
-                                            </div>
-                                            <div class="input-group">
-                                                <input type="text"
-                                                       class="form-control form-control-sm bg-white"
-                                                       readonly
-                                                       value="{{ url }}"
-                                                       aria-label="Ссылка-приглашение">
-                                                <button type="button"
-                                                        class="btn elem-button btn-sm px-3"
-                                                        data-copy-invite>Копировать</button>
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <div class="p-3 rounded border bg-light bg-opacity-25 text-muted small">
-                                    Нет активных ссылок. Нажмите «+ Создать ссылку», чтобы сгенерировать новую.
-                                </div>
+                            {{ invite_form|crispy }}
+                            {% if invite_form.invite_url.value %}
+                                <button type="button" class="btn elem-button btn-sm mt-2" data-copy-invite>Копировать</button>
                             {% endif %}
                         </div>
-                        <!-- Блок истории -->
+
+                        <div class="pt-3 border-top mb-4">
+                            <form method="post" action="{% url 'users:invite_create' %}" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="btn elem-button">+ Создать ссылку</button>
+                            </form>
+                        </div>
+
                         <div class="pt-3 border-top">
-                            <label class="form-label text-muted text-uppercase small fw-bold mb-2">Принятые приглашения</label>
+                            <h3 class="h6 text-muted text-uppercase fw-bold mb-3">Принятые приглашения</h3>
                             {% if redeemed_invitations %}
                                 <div class="d-flex flex-column gap-2">
                                     {% for invitation in redeemed_invitations %}
                                         <div class="d-flex justify-content-between align-items-center p-2 px-3 rounded border bg-light bg-opacity-25 small">
-                                            <span class="fw-medium text-dark">
-                                                {{ invitation.registered_user.get_full_name|default:invitation.registered_user.email }}
-                                            </span>
+                                            <span class="fw-medium text-dark">{{ invitation.registered_user.get_full_name|default:invitation.registered_user.email }}</span>
                                             <div class="d-flex align-items-center gap-2">
                                                 <span class="badge bg-light text-secondary border">Зарегистрирован</span>
                                                 <small class="text-muted">{{ invitation.registered_user.date_joined|date:"d.m.Y H:i" }}</small>
@@ -88,9 +57,7 @@
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                <div class="text-muted small py-1">
-                                    Пока никто не зарегистрировался по вашим ссылкам.
-                                </div>
+                                <div class="text-muted small py-1">Пока никто не зарегистрировался по вашим ссылкам.</div>
                             {% endif %}
                         </div>
                     </div>
@@ -99,25 +66,21 @@
         </div>
     </div>
     <script>
- document.querySelectorAll('[data-copy-invite]').forEach(button => {
- button.addEventListener('click', async () => {
- const field = button.parentElement.querySelector('input');
- const originalText = button.textContent;
- try {
- await navigator.clipboard.writeText(field.value);
- button.textContent = 'Скопировано!';
- button.classList.add('btn-success');
- setTimeout(() => {
- button.textContent = originalText;
- button.classList.remove('btn-success');
- }, 2000);
- } catch (_) {
- field.focus();
- field.select();
- button.textContent = 'Выделите Ctrl+C';
- }
- });
- });
+        document.querySelectorAll('[data-copy-invite]').forEach(button => {
+            button.addEventListener('click', async () => {
+                const field = document.getElementById('invite-url-field');
+                const originalText = button.textContent;
+                try {
+                    await navigator.clipboard.writeText(field.value);
+                    button.textContent = 'Скопировано!';
+                    setTimeout(() => { button.textContent = originalText; }, 2000);
+                } catch (_) {
+                    field.focus();
+                    field.select();
+                    button.textContent = 'Выделите Ctrl+C';
+                }
+            });
+        });
     </script>
 {% endblock %}
 {% block footer %}

@@ -92,6 +92,32 @@ class RegisterForm(StyleFormMixin, UserCreationForm):
         return cleaned_data
 
 
+class InviteDisplayForm(forms.Form):
+    """Презентационная форма для отображения действующего приглашения."""
+
+    invite_url = forms.CharField(
+        label="Действующая ссылка-приглашение",
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "readonly": "readonly",
+                "class": "form-control",
+                "id": "invite-url-field",
+            }
+        ),
+    )
+
+    def __init__(self, *args, active_invitation=None, invite_url="", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["invite_url"].initial = invite_url
+        if active_invitation is not None:
+            self.fields["invite_url"].help_text = (
+                f"Ссылка действует до {active_invitation.expires_at:%d.%m.%Y %H:%M}."
+            )
+        else:
+            self.fields["invite_url"].help_text = "Активных ссылок нет. Создайте новую ссылку ниже."
+
+
 class SMSVerificationForm(forms.Form):
     code = forms.CharField(
         label=False,

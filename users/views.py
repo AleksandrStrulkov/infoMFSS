@@ -20,7 +20,7 @@ from django.views.generic import FormView, UpdateView
 from django.views.generic.base import TemplateView
 
 from infoMFSS.services_logger import LoggingMixin, logger_form_valid
-from users.forms import RegisterForm, SMSVerificationForm, UserProfileForm
+from users.forms import InviteDisplayForm, RegisterForm, SMSVerificationForm, UserProfileForm
 from users.models import SMSDevice, User
 from users.services import (
     InvalidInvitation,
@@ -151,6 +151,12 @@ class UserUpdateView(LoggingMixin, LoginRequiredMixin, UpdateView):
             (self.request.build_absolute_uri(reverse("users:register", kwargs={"token": invite.token})), invite)
             for invite in active_invitations(self.request.user)
         ]
+        active_invitation = context["active_invitations"][0][1] if context["active_invitations"] else None
+        invite_url = context["active_invitations"][0][0] if context["active_invitations"] else ""
+        context["invite_form"] = InviteDisplayForm(
+            active_invitation=active_invitation,
+            invite_url=invite_url,
+        )
         context["redeemed_invitations"] = redeemed_invitations(self.request.user)
         return context
 
