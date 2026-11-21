@@ -2,16 +2,19 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
+from html.parser import HTMLParser
 
 import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.db import IntegrityError, connection
+from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.test import Client, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from config.views import csrf_failure
 from users.forms import RegisterForm
 from users.services import (
     InvalidInvitation,
@@ -39,6 +42,38 @@ def inviter(db: object):
         last_name="Петрова",
     )
     return user
+
+
+class FormStructureParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.form_depth = 0
+        self.nested_forms = False
+        self.csrf_inside_form = False
+        self.submit_inside_form = False
+        self.form_count = 0
+        self.registration_form_count = 0
+        self.registration_form_open = False
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        if tag == "form":
+            if self.form_depth:
+                self.nested_forms = True
+            self.form_depth += 1
+            self.form_count += 1
+            if attributes.get("id") != "logout-form":
+                self.registration_form_count += 1
+                self.registration_form_open = True
+        elif tag == "input" and attributes.get("name") == "csrfmiddlewaretoken" and self.registration_form_open:
+            self.csrf_inside_form = True
+        elif tag == "button" and attributes.get("type") == "submit" and self.registration_form_open:
+            self.submit_inside_form = True
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "form":
+            self.form_depth -= 1
+            self.registration_form_open = False
 
 
 def registration_data(email: str = "new@example.test") -> dict[str, str]:
@@ -78,6 +113,42 @@ def test_invalid_token_cannot_create_user(inviter):
     with pytest.raises(InvalidInvitation):
         redeem_invitation("invalid", user)
     assert not get_user_model().objects.filter(email=user.email).exists()
+
+
+def test_registration_form_contains_csrf_and_submit_in_one_form(client: Client, inviter: object) -> None:
+    invitation = create_invitation(inviter)
+    url = reverse("users:register", kwargs={"token": invitation.token})
+    response = client.get(url)
+    parser = FormStructureParser()
+    parser.feed(response.content.decode())
+    assert parser.form_count == 2  # Separate logout form in the site header.
+    assert parser.registration_form_count == 1
+    assert not parser.nested_forms
+    assert parser.csrf_inside_form
+    assert parser.submit_inside_form
+
+    csrf_client = Client(enforce_csrf_checks=True)
+    response = csrf_client.get(url)
+    assert response.status_code == 200
+    token = csrf_client.cookies["csrftoken"].value
+    invalid_data = registration_data()
+    invalid_data["phone"] = "bad"
+    response = csrf_client.post(url, {**invalid_data, "csrfmiddlewaretoken": token})
+    assert response.status_code == 200
+    assert response.context["form"].errors
+
+
+def test_csrf_failure_renders_recovery_page() -> None:
+    response = csrf_failure(HttpRequest(), reason="secret diagnostics")
+    assert response.status_code == 403
+    assert "Не удалось проверить запрос" in response.content.decode()
+    assert "secret diagnostics" not in response.content.decode()
+
+
+def test_error_pages_render_without_request_context() -> None:
+    for name in ("400.html", "403.html", "404.html", "500.html"):
+        html = render_to_string(name)
+        assert "На главную" in html
 
 
 def test_http_success_and_inviter_history(client: Client, inviter):

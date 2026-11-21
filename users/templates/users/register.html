@@ -24,9 +24,8 @@
                 <div class="col-sm-6 card mb-5 box-shadow card-imad-auth border-none">
                     <div class="card-body mb-3 mt-3">
                         <p>Вас приглашает: {{ inviter.get_full_name|default:inviter.email }}</p>
-                        {% load crispy_forms_tags %}
                         {% csrf_token %}
-                        {% crispy form %}
+                        {{ form|crispy }}
                         <button type="submit" class="btn elem-button btn-md mx-2">
                             Выполнить
                         </button>

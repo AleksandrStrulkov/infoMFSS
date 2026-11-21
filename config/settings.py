@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
 
@@ -40,6 +42,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", os.getenv("DEBUG", "False")).lower() in ("true", "1", "yes")
 
+# Дополнительные имена/IP сервера задаются через запятую, без схемы и порта.
 ALLOWED_HOSTS = [
     "info-mfss.ru",
     "www.info-mfss.ru",
@@ -47,7 +50,8 @@ ALLOWED_HOSTS = [
     "localhost",
     "0.0.0.0",
     "web",
-]  # 'web' для Docker сети
+    *[host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()],
+]
 # Доверять X-Forwarded-Proto только от настроенного HTTPS-прокси (nginx перезаписывает заголовок).
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -282,6 +286,7 @@ if CASH_ENABLE:
 CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE", "False").lower() == "true"
 SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() == "true"
 CSRF_USE_SESSION_ID = False
+CSRF_FAILURE_VIEW = "config.views.csrf_failure"
 # end
 
 # Конфигурация CORS
@@ -294,6 +299,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:80",
 ]
 
+# Дополнительные адреса должны включать схему (http:// или https://) и порт, если он нестандартный.
 CSRF_TRUSTED_ORIGINS = [
     "https://info-mfss.ru",
     "https://www.info-mfss.ru",
@@ -304,6 +310,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:8001",
     "http://localhost:80",
+    *[origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()],
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False

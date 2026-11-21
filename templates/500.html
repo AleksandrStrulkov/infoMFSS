@@ -1,0 +1,32 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ошибка сервера</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
+</head>
+<body>
+    <header class="container navbar-st">
+        <nav class="navbar mt-3 navbar-my">
+            <a class="navbar-brand" href="/">ĩnfoMFS&#350;</a>
+        </nav>
+    </header>
+    <main class="container my-5 py-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="card card-imad-auth shadow-sm border-0">
+                    <div class="card-body p-4 p-md-5 text-center">
+                        <p class="h5 color-text-violet mb-3">Ошибка 500</p>
+                        <h1 class="h3 mb-3">Ошибка сервера</h1>
+                        <p class="text-muted mb-4">Что-то пошло не так. Инженеры уже в курсе. Попробуйте зайти позже.</p>
+                        <a class="btn elem-button" href="/">На главную</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
